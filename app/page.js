@@ -339,10 +339,12 @@ What this card shows — the transient, status, and what's happening here. Use t
 (Continue for each card... always connect back to their specific question)
 
 [CORRECTION:1]
-For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. 2-3 sentences. Skip this section if Card 1 is Balanced.
+For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. 2-3 sentences. Skip this section ENTIRELY if Card 1 is Balanced.
 
 [CORRECTION:2]
-(Continue for each imbalanced card...)
+For Card 2's imbalance. Skip ENTIRELY if Card 2 is Balanced.
+
+(Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially.)
 
 [LETTER]
 A brief, warm letter addressed directly to them (use "you"). Acknowledge what they're navigating with their question. Weave together the key insights from the reading into an empathetic overview. End with encouragement. 3-4 sentences, heartfelt but not saccharine.
@@ -372,10 +374,12 @@ Precise breakdown: transient, position context, status with temporal orientation
 (Continue for each card... always ground in their question)
 
 [CORRECTION:1]
-For Card 1: Name the correction, show the logic briefly (diagonal/vertical/number mirror), explain WHY this correction addresses their situation. Skip if Balanced.
+For Card 1: Name the correction, show the logic briefly (diagonal/vertical/number mirror), explain WHY this correction addresses their situation. Skip ENTIRELY if Balanced.
 
 [CORRECTION:2]
-(Continue for each imbalanced card...)
+For Card 2. Skip ENTIRELY if Balanced.
+
+(CORRECTION numbers MUST match CARD numbers. If Card 3 needs correction, use [CORRECTION:3]. If Card 5 needs correction, use [CORRECTION:5]. Never number sequentially.)
 
 [LETTER]
 A thoughtful note addressed to them. Acknowledge the structural reality they're facing with their question. Synthesize the key architectural insights into practical understanding. End with clear-eyed encouragement. 3-4 sentences, precise but warm.
@@ -405,10 +409,12 @@ Reflective exploration of what this card reveals about their question — weavin
 (Continue for each card... always returning to their question)
 
 [CORRECTION:1]
-Frame the correction as an invitation that restores presence in relation to their question. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip if Balanced.
+Frame the correction as an invitation that restores presence in relation to their question. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip ENTIRELY if Balanced.
 
 [CORRECTION:2]
-(Continue for each imbalanced card...)
+For Card 2. Skip ENTIRELY if Balanced.
+
+(CORRECTION numbers MUST match CARD numbers. [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc. Never number sequentially — skip numbers for balanced cards.)
 
 [LETTER]
 A contemplative letter addressed to them. Honor the depth of what they're asking. Weave the reading's insights into a reflection on their journey. Close with an open question or gentle invitation. 4-5 sentences, soulful.
@@ -438,10 +444,12 @@ One sentence: what's happening with their question (include temporal frame in pa
 (Continue for each card...)
 
 [CORRECTION:1]
-One sentence: correction → what to do about their situation. Skip if Balanced.
+One sentence: correction → what to do about their situation. Skip ENTIRELY if Balanced.
 
 [CORRECTION:2]
-(Continue for each imbalanced card...)
+For Card 2. Skip ENTIRELY if Balanced.
+
+(CORRECTION numbers MUST match CARD numbers. Never number sequentially.)
 
 [LETTER]
 2-3 sentences max. Acknowledge their question. State the bottom line. One clear encouragement.
@@ -759,7 +767,8 @@ CRITICAL PRINCIPLES:
 5. CONCRETE CORRECTIONS — THIS IS ESSENTIAL
 - ALWAYS explain what each correction means practically
 - Don't just name the correction — say what to actually do
-- Every imbalanced card needs its correction explained in the [CORRECTION:N] section
+- Every imbalanced card needs its correction explained in a [CORRECTION:N] section
+- CRITICAL: Correction numbers MUST match card numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Skip numbers for balanced cards — never renumber sequentially.
 
 6. NO HIERARCHY
 - The structure serves the user, not the other way around
@@ -1338,7 +1347,7 @@ export default function NirmanakaReader() {
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Random`;
     
     const systemPrompt = `${BASE_SYSTEM}\n\n${personaConfig.instruction}`;
-    const userMessage = `QUESTION: "${questionToUse}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:1], [CORRECTION:2], etc., [LETTER]. Each marker on its own line.`;
+    const userMessage = `QUESTION: "${questionToUse}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:N] for each imbalanced card (where N matches the card number — use [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc.), [LETTER]. Each marker on its own line.`;
 
     try {
       const res = await fetch('/api/reading', {
@@ -1662,7 +1671,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.10 alpha • experimental</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.11 alpha • experimental</p>
         </div>
 
         {!draws && <IntroSection />}
