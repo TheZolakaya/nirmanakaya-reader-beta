@@ -339,12 +339,12 @@ What this card shows — the transient, status, and what's happening here. Use t
 (Continue for each card... always connect back to their specific question)
 
 [CORRECTION:1]
-For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. 2-3 sentences. Skip this section ENTIRELY if Card 1 is Balanced.
+For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. 2-3 sentences. Skip this section ENTIRELY if Card 1 is Balanced. For Unacknowledged, explain what's operating in shadow and how to bring it into awareness.
 
 [CORRECTION:2]
 For Card 2's imbalance. Skip ENTIRELY if Card 2 is Balanced.
 
-(Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially.)
+(Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
 
 [LETTER]
 A brief, warm letter addressed directly to them (use "you"). Acknowledge what they're navigating with their question. Weave together the key insights from the reading into an empathetic overview. End with encouragement. 3-4 sentences, heartfelt but not saccharine.
@@ -374,12 +374,12 @@ Precise breakdown: transient, position context, status with temporal orientation
 (Continue for each card... always ground in their question)
 
 [CORRECTION:1]
-For Card 1: Name the correction, show the logic briefly (diagonal/vertical/number mirror), explain WHY this correction addresses their situation. Skip ENTIRELY if Balanced.
+For Card 1: Name the correction, show the logic briefly (diagonal/vertical/reduction), explain WHY this correction addresses their situation. Skip ENTIRELY if Balanced. For Unacknowledged, explain the reduction pair and how it brings shadow into awareness.
 
 [CORRECTION:2]
 For Card 2. Skip ENTIRELY if Balanced.
 
-(CORRECTION numbers MUST match CARD numbers. If Card 3 needs correction, use [CORRECTION:3]. If Card 5 needs correction, use [CORRECTION:5]. Never number sequentially.)
+(CORRECTION numbers MUST match CARD numbers. If Card 3 needs correction, use [CORRECTION:3]. If Card 5 needs correction, use [CORRECTION:5]. Never number sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
 
 [LETTER]
 A thoughtful note addressed to them. Acknowledge the structural reality they're facing with their question. Synthesize the key architectural insights into practical understanding. End with clear-eyed encouragement. 3-4 sentences, precise but warm.
@@ -409,12 +409,12 @@ Reflective exploration of what this card reveals about their question — weavin
 (Continue for each card... always returning to their question)
 
 [CORRECTION:1]
-Frame the correction as an invitation that restores presence in relation to their question. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip ENTIRELY if Balanced.
+Frame the correction as an invitation that restores presence in relation to their question. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip ENTIRELY if Balanced. For Unacknowledged, invite what's operating in shadow to come into conscious relationship.
 
 [CORRECTION:2]
 For Card 2. Skip ENTIRELY if Balanced.
 
-(CORRECTION numbers MUST match CARD numbers. [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc. Never number sequentially — skip numbers for balanced cards.)
+(CORRECTION numbers MUST match CARD numbers. [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc. Never number sequentially — skip numbers for balanced cards. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
 
 [LETTER]
 A contemplative letter addressed to them. Honor the depth of what they're asking. Weave the reading's insights into a reflection on their journey. Close with an open question or gentle invitation. 4-5 sentences, soulful.
@@ -444,12 +444,12 @@ One sentence: what's happening with their question (include temporal frame in pa
 (Continue for each card...)
 
 [CORRECTION:1]
-One sentence: correction → what to do about their situation. Skip ENTIRELY if Balanced.
+One sentence: correction → what to do about their situation. Skip ENTIRELY if Balanced. For Unacknowledged: what's hidden that needs seeing.
 
 [CORRECTION:2]
 For Card 2. Skip ENTIRELY if Balanced.
 
-(CORRECTION numbers MUST match CARD numbers. Never number sequentially.)
+(CORRECTION numbers MUST match CARD numbers. Never number sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
 
 [LETTER]
 2-3 sentences max. Acknowledge their question. State the bottom line. One clear encouragement.
@@ -767,8 +767,9 @@ CRITICAL PRINCIPLES:
 5. CONCRETE CORRECTIONS — THIS IS ESSENTIAL
 - ALWAYS explain what each correction means practically
 - Don't just name the correction — say what to actually do
-- Every imbalanced card needs its correction explained in a [CORRECTION:N] section
+- Every imbalanced card (Too Much, Too Little, AND Unacknowledged) needs its correction explained in a [CORRECTION:N] section
 - CRITICAL: Correction numbers MUST match card numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Skip numbers for balanced cards — never renumber sequentially.
+- For Unacknowledged: Frame the correction as bringing shadow into awareness — what's operating beneath the surface that needs to be seen and owned
 
 6. NO HIERARCHY
 - The structure serves the user, not the other way around
@@ -790,7 +791,12 @@ STATUS MEANINGS — ALWAYS FRAME TEMPORALLY:
 WHEN DESCRIBING IMBALANCES, USE TEMPORAL FRAMING:
 - Too Much: "leaning into the future," "ahead of the present," "pushing rather than being"
 - Too Little: "caught in echoes of the past," "not fully arrived," "withdrawn from the now"
-- Unacknowledged: "operating beneath awareness," "steering without being seen"
+- Unacknowledged: "operating beneath awareness," "steering without being seen," "running in shadow"
+
+CORRECTION FRAMING BY STATUS:
+- Too Much → Diagonal: The opposite pole counterbalances the excess
+- Too Little → Vertical: Reconnect with the same identity at full capacity  
+- Unacknowledged → Reduction: Return to origin to make the shadow visible — bring what's hidden into conscious awareness
 
 HOUSE DYNAMICS — SHOW, DON'T NAME:
 - Reference house qualities through behavior, not technical terms
@@ -1671,7 +1677,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.11 alpha • experimental</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.12 alpha • experimental</p>
         </div>
 
         {!draws && <IntroSection />}
