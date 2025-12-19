@@ -1119,7 +1119,7 @@ const ReadingSection = ({
         </span>
       );
     } else if (type === 'letter') {
-      return <span className="text-zinc-700">A Note for You</span>;
+      return <span className="text-zinc-400 italic">A Note for You</span>;
     }
     return null;
   };
@@ -1133,7 +1133,7 @@ const ReadingSection = ({
     if (type === 'summary') {
       return 'bg-gradient-to-br from-amber-950/40 to-amber-900/20 border-amber-500/50';
     } else if (type === 'letter') {
-      return 'bg-zinc-100 border-zinc-300';
+      return 'bg-zinc-900/80 border-zinc-700/50';
     } else if (houseColors) {
       return `${houseColors.bg} ${houseColors.border}`;
     }
@@ -1142,26 +1142,19 @@ const ReadingSection = ({
   
   const getBadgeStyle = () => {
     if (type === 'summary') return 'bg-amber-500/30 text-amber-300';
-    if (type === 'letter') return 'bg-zinc-200 text-zinc-600';
+    if (type === 'letter') return 'bg-zinc-700 text-zinc-300';
     if (type === 'correction') return 'bg-emerald-900/50 text-emerald-400';
     if (houseColors) return `${houseColors.bg} ${houseColors.text}`;
     return 'bg-zinc-800 text-zinc-400';
   };
   
   const getContentStyle = () => {
-    if (type === 'letter') return 'text-zinc-800 italic';
+    if (type === 'letter') return 'text-zinc-300/90 italic';
     if (type === 'summary') return 'text-amber-100/90';
     return 'text-zinc-300';
   };
   
   const getButtonStyle = (hasExpansion, isThisExpanding, isExpandingOther) => {
-    if (type === 'letter') {
-      return `text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-        hasExpansion 
-          ? 'bg-zinc-300 text-zinc-700 border border-zinc-400' 
-          : 'bg-zinc-200 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-300'
-      } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`;
-    }
     return `text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
       hasExpansion 
         ? 'bg-zinc-700 text-zinc-200 border border-zinc-600' 
@@ -1214,19 +1207,19 @@ const ReadingSection = ({
       
       {/* Expansion Content */}
       {Object.entries(sectionExpansions).map(([expType, expContent]) => (
-        <div key={expType} className={`mt-4 pt-4 ${type === 'letter' ? 'border-t border-zinc-300' : 'border-t border-zinc-700/50'}`}>
+        <div key={expType} className="mt-4 pt-4 border-t border-zinc-700/50">
           <div className="flex justify-between items-center mb-2">
-            <span className={`text-xs uppercase tracking-wider ${type === 'letter' ? 'text-zinc-500' : 'text-zinc-500'}`}>
+            <span className="text-xs uppercase tracking-wider text-zinc-500">
               {EXPANSION_PROMPTS[expType]?.label}
             </span>
             <button 
               onClick={() => onExpand(sectionKey, expType, true)}
-              className={`text-xs ${type === 'letter' ? 'text-zinc-400 hover:text-zinc-600' : 'text-zinc-600 hover:text-zinc-400'}`}
+              className="text-xs text-zinc-600 hover:text-zinc-400"
             >
               ×
             </button>
           </div>
-          <div className={`text-sm leading-relaxed whitespace-pre-wrap ${type === 'letter' ? 'text-zinc-600' : 'text-zinc-400'}`}>
+          <div className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-400">
             {expContent}
           </div>
         </div>
@@ -1310,21 +1303,14 @@ export default function NirmanakaReader() {
     }
   }, [isSharedReading, draws, question]);
 
-  // Only scroll on initial reading load or new follow-up messages
+  // Only scroll on new follow-up messages, NOT on initial reading load
   const prevFollowUpCount = useRef(0);
   useEffect(() => {
-    if (parsedReading && followUpMessages.length > prevFollowUpCount.current) {
+    if (followUpMessages.length > prevFollowUpCount.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
     prevFollowUpCount.current = followUpMessages.length;
   }, [followUpMessages]);
-  
-  // Scroll to reading when it first loads
-  useEffect(() => {
-    if (parsedReading) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [parsedReading]);
 
   useEffect(() => {
     if (draws && question) {
@@ -1659,7 +1645,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.8 alpha • experimental</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.9 alpha • experimental</p>
         </div>
 
         {!draws && <IntroSection />}
