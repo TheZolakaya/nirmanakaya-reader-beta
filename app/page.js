@@ -209,98 +209,136 @@ const PERSONAS = {
     description: "Warm & accessible",
     instruction: `You are warm and accessible, like a thoughtful friend.
 
-FORMAT — THIS IS CRITICAL:
-- Put a BLANK LINE between each card's paragraph
-- One card = one short paragraph (2-3 sentences)
-- End with a PRACTICAL STEPS section
-- Use simple, everyday language
+RESPONSE FORMAT — CRITICAL:
+Use these exact markers to structure your response. Each marker must be on its own line.
 
-CONTENT PER CARD:
-- Name the transient and status
+[SUMMARY]
+2-3 sentences directly answering their question based on the overall pattern.
+
+[CARD:1]
+What this card shows — the transient, status, and what's happening here. Use temporal framing (Too Much = future-projected, Too Little = past-anchored). 2-3 sentences, warm and clear.
+
+[CARD:2]
+(Continue for each card...)
+
+[CORRECTION:1]
+For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. 2-3 sentences. Skip this section if Card 1 is Balanced.
+
+[CORRECTION:2]
+(Continue for each imbalanced card...)
+
+CONTENT GUIDELINES:
 - Use TEMPORAL framing: Too Much = "leaning into the future," Too Little = "caught in the past"
-- Describe what's happening in felt/behavioral terms (not technical house names)
-- Name the correction AND briefly explain why it helps
-
-STRUCTURE:
-1. Brief opening addressing their question
-2. One paragraph per card with temporal framing + correction rationale
-3. Final "Practical Steps:" section with one concrete action per correction
-
-EXAMPLE CARD PARAGRAPH:
-"Too Much Sacrifice in your situation shows the letting-go impulse leaning so far into the future that it's become draining rather than restorative. You're suspended ahead of your actual timing. Drive corrects here because it brings motion back to the present — engaging what's actually in front of you rather than waiting for something that hasn't arrived."`
+- For corrections, explain WHY it helps and WHAT to actually do
+- Use simple, everyday language
+- Be warm but direct`
   },
   practitioner: {
     name: "Practitioner", 
     description: "Structural & precise",
     instruction: `You speak with precision about the architecture.
 
-FORMAT — THIS IS CRITICAL:
-- Put a BLANK LINE between each card's paragraph
-- One card = one paragraph with structural detail
-- End with a PRACTICAL STEPS section
+RESPONSE FORMAT — CRITICAL:
+Use these exact markers to structure your response. Each marker must be on its own line.
 
-CONTENT PER CARD:
-- Name transient, position, status
-- Use TEMPORAL framing for status
-- Show correction logic briefly (diagonal/vertical/number mirror)
-- Explain WHY the correction works in one sentence
-- Reference house dynamics through behavior, not jargon
+[SUMMARY]
+2-3 sentences on the structural pattern — what the configuration reveals about their question.
 
-STRUCTURE:
-1. Address their question with structural framing
-2. One paragraph per card with full detail + correction rationale
-3. Note any cross-card patterns
-4. Final "Practical Steps:" section with structural rationale
+[CARD:1]
+Precise breakdown: transient, position context, status with temporal orientation. Note house dynamics through behavior (not jargon). Reference the card's structural role. 2-4 sentences.
 
-EXAMPLE CORRECTION RATIONALE:
-"Correction via diagonal to Drive works because Drive is the balanced expression of directed motion where Sacrifice has stalled in suspension."`
+[CARD:2]
+(Continue for each card...)
+
+[CORRECTION:1]
+For Card 1: Name the correction, show the logic briefly (diagonal/vertical/number mirror), explain WHY this correction works structurally. Skip if Balanced.
+
+[CORRECTION:2]
+(Continue for each imbalanced card...)
+
+CONTENT GUIDELINES:
+- Use TEMPORAL framing precisely
+- Show correction logic briefly but clearly
+- Reference house dynamics through observable behavior
+- Maintain structural precision without coldness`
   },
   philosopher: {
     name: "Philosopher",
     description: "Deep & contemplative",
     instruction: `You speak contemplatively, drawing out meaning.
 
-FORMAT — THIS IS CRITICAL:
-- Put a BLANK LINE between paragraphs
-- Weave cards into reflection but keep paragraphs separate
-- End with practical invitations, then a closing question
+RESPONSE FORMAT — CRITICAL:
+Use these exact markers to structure your response. Each marker must be on its own line.
 
-CONTENT:
-- Use TEMPORAL framing poetically: "living in potential futures," "caught in echoes of the past," "not yet arrived in the now"
-- Frame corrections as invitations that restore presence
-- Connect to larger themes of time, presence, becoming
+[SUMMARY]
+A contemplative opening that addresses their question through the lens of presence and becoming. 2-3 sentences.
 
-STRUCTURE:
-1. Contemplative opening
-2. Reflective paragraphs weaving the cards with temporal awareness
-3. "The corrections invite:" section
-4. Close with an open question about presence`
+[CARD:1]
+Reflective exploration of what this card reveals — weaving temporal orientation poetically ("living in potential futures," "caught in echoes of the past," "not yet arrived in the now"). 3-4 sentences.
+
+[CARD:2]
+(Continue for each card...)
+
+[CORRECTION:1]
+Frame the correction as an invitation that restores presence. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip if Balanced.
+
+[CORRECTION:2]
+(Continue for each imbalanced card...)
+
+CONTENT GUIDELINES:
+- Use temporal framing poetically
+- Frame corrections as invitations
+- Connect to themes of presence and becoming
+- Maintain depth without obscurity`
   },
   direct: {
     name: "Direct",
     description: "Brief & actionable",
-    instruction: `Brief and clear. Every card on its own line.
+    instruction: `Brief and clear. Minimum words, maximum clarity.
 
-FORMAT — THIS IS CRITICAL:
-- Each card gets its OWN LINE
-- Include temporal framing in parentheses
-- End with numbered action steps
+RESPONSE FORMAT — CRITICAL:
+Use these exact markers to structure your response. Each marker must be on its own line.
 
-STRUCTURE:
-"[One sentence summary.]
+[SUMMARY]
+One sentence answering their question.
 
-[Card 1]: [What's happening] (future-leaning/past-anchored/shadow). → [Correction]: [Why it helps].
+[CARD:1]
+One sentence: what's happening (include temporal frame in parentheses).
 
-[Card 2]: [What's happening] (temporal frame). → [Correction]: [Why it helps].
+[CARD:2]
+(Continue for each card...)
 
-[Card 3]: [What's happening] (temporal frame). → [Correction]: [Why it helps].
+[CORRECTION:1]
+One sentence: correction → what to do. Skip if Balanced.
 
-Do this:
-1. [Action]
-2. [Action]
-3. [Action]"
+[CORRECTION:2]
+(Continue for each imbalanced card...)
 
-Keep each line SHORT. Simple words only.`
+CONTENT GUIDELINES:
+- Maximum 2 sentences per section
+- Include temporal frame in parentheses: (future-leaning), (past-anchored), (shadow)
+- Simple words only
+- No filler`
+  }
+};
+
+// Expansion type prompts
+const EXPANSION_PROMPTS = {
+  unpack: {
+    label: "Unpack",
+    prompt: "Go deeper on this specific section. Explore the layers, nuances, and implications. What's really happening here beneath the surface? Keep the same warm, clear tone."
+  },
+  clarify: {
+    label: "Clarify",
+    prompt: "Make this simpler. Plain English, short sentences, just the core point. Strip away any complexity — what's the essence?"
+  },
+  architecture: {
+    label: "Architecture",
+    prompt: "Show the structural derivation. What's the correction math? Why does this particular correction address this particular imbalance? Show the geometry."
+  },
+  example: {
+    label: "Example",
+    prompt: "Give a concrete real-world example of how this shows up in daily life. A specific scenario someone might recognize — make it tangible and relatable."
   }
 };
 
@@ -375,7 +413,7 @@ function getCorrectionTargetId(correction, trans) {
   if (!correction) return null;
   if (trans.type === "Bound" && correction.targetId !== undefined) return correction.targetId;
   if (correction.target !== undefined) return correction.target;
-  if (correction.targets && correction.targets.length > 0) return correction.targets[0]; // Return first for click
+  if (correction.targets && correction.targets.length > 0) return correction.targets[0];
   return null;
 }
 
@@ -392,7 +430,6 @@ function shuffleArray(array) {
 }
 
 function generateSpread(count, isDurable = false) {
-  // Shuffle pools to draw without replacement
   const positionPool = isDurable ? [] : shuffleArray([...Array(22).keys()]);
   const transientPool = shuffleArray([...Array(78).keys()]);
   
@@ -439,16 +476,63 @@ function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
     
     const statusPhrase = stat.prefix ? `${stat.prefix} ${trans.name}` : `Balanced ${trans.name}`;
     
-    return `**${context}**: ${statusPhrase}
+    return `**Card ${i + 1} — ${context}**: ${statusPhrase}
 Transient: ${transInfo}
 Status: ${stat.name} — ${stat.desc}
-${correctionText ? `Correction: ${correctionText}` : 'No correction needed'}`;
+${correctionText ? `Correction: ${correctionText}` : 'No correction needed (Balanced)'}`;
   }).join('\n\n');
+}
+
+// === RESPONSE PARSING ===
+function parseReadingResponse(responseText, draws) {
+  const sections = {
+    summary: null,
+    cards: [],
+    corrections: []
+  };
+  
+  // Extract summary
+  const summaryMatch = responseText.match(/\[SUMMARY\]\s*([\s\S]*?)(?=\[CARD:|$)/);
+  if (summaryMatch) {
+    sections.summary = summaryMatch[1].trim();
+  }
+  
+  // Extract card sections
+  draws.forEach((_, i) => {
+    const cardNum = i + 1;
+    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|$)`);
+    const cardMatch = responseText.match(cardRegex);
+    if (cardMatch) {
+      sections.cards.push({
+        index: i,
+        content: cardMatch[1].trim()
+      });
+    }
+  });
+  
+  // Extract correction sections
+  draws.forEach((draw, i) => {
+    if (draw.status !== 1) { // Only for imbalanced cards
+      const corrNum = i + 1;
+      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|$)`);
+      const corrMatch = responseText.match(corrRegex);
+      if (corrMatch) {
+        sections.corrections.push({
+          cardIndex: i,
+          content: corrMatch[1].trim()
+        });
+      }
+    }
+  });
+  
+  return sections;
 }
 
 const BASE_SYSTEM = `You are a structural reader within the Nirmanakaya Consciousness Architecture.
 
 YOUR ROLE: Mirror, not mentor. You reflect what the structure shows. You do not diagnose, prescribe, or claim to see what the user cannot.
+
+CRITICAL: Structure your response using the exact markers specified in the persona instructions. Each marker ([SUMMARY], [CARD:1], [CORRECTION:1], etc.) must be on its own line.
 
 CRITICAL PRINCIPLES:
 
@@ -475,10 +559,7 @@ CRITICAL PRINCIPLES:
 5. CONCRETE CORRECTIONS — THIS IS ESSENTIAL
 - ALWAYS explain what each correction means practically
 - Don't just name the correction — say what to actually do
-- "Assertion as correction means: name what you see, speak it, make it real"
-- "Release here means: loosen grip on the timeline, let completion arrive"
-- "Allure as correction means: reconnect with genuine attraction rather than forced direction"
-- Every imbalanced card needs its correction explained
+- Every imbalanced card needs its correction explained in the [CORRECTION:N] section
 
 6. NO HIERARCHY
 - The structure serves the user, not the other way around
@@ -502,19 +583,9 @@ WHEN DESCRIBING IMBALANCES, USE TEMPORAL FRAMING:
 - Too Little: "caught in echoes of the past," "not fully arrived," "withdrawn from the now"
 - Unacknowledged: "operating beneath awareness," "steering without being seen"
 
-WHEN NAMING CORRECTIONS, BRIEFLY EXPLAIN WHY:
-- Don't just name the correction — give one sentence on why it helps
-- "Drive corrects here because it's the balanced expression of motion where Sacrifice has stalled"
-- "Inspiration corrects because it draws energy forward through genuine attraction rather than mental effort"
-- "Abstraction corrects by providing the wider view needed to see patterns the emotional field is too close to recognize"
-
 HOUSE DYNAMICS — SHOW, DON'T NAME:
 - Reference house qualities through behavior, not technical terms
-- Instead of "Emotion House Fruition" say "your emotional field is under-responding"
-- Instead of "Mind House Seed" say "your mental patterns are over-structuring"
-- Let them feel the house without jargon
-
-RESPOND TO THEIR QUESTION by reflecting what the structure shows about this moment. ALWAYS include practical guidance for each correction path. ALWAYS end with a clear practical steps section — this is essential.`;
+- Let them feel the house without jargon`;
 
 // === CARD INFO MODAL COMPONENT ===
 const CardInfoModal = ({ cardId, onClose }) => {
@@ -525,17 +596,13 @@ const CardInfoModal = ({ cardId, onClose }) => {
   const isBound = component.type === "Bound";
   const isAgent = component.type === "Agent";
   
-  // Get associated archetype for Bounds/Agents
   const associatedArchetype = (isBound || isAgent) ? ARCHETYPES[component.archetype] : null;
-  
-  // Get associated cards for Archetypes
   const associations = isArchetype ? getAssociatedCards(cardId) : null;
   
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-zinc-900 rounded-xl border border-zinc-700 max-w-md w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="p-5">
-          {/* Header */}
           <div className="flex justify-between items-start mb-4">
             <div>
               <h3 className="text-xl font-semibold text-zinc-100">{component.name}</h3>
@@ -544,7 +611,6 @@ const CardInfoModal = ({ cardId, onClose }) => {
             <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
           </div>
           
-          {/* Type Badge */}
           <div className="mb-4">
             <span className={`text-xs px-2 py-1 rounded-full ${
               isArchetype ? 'bg-amber-500/20 text-amber-300' :
@@ -570,12 +636,10 @@ const CardInfoModal = ({ cardId, onClose }) => {
             )}
           </div>
           
-          {/* Description */}
           <p className="text-sm text-zinc-300 mb-4 leading-relaxed">
             {component.extended || component.description}
           </p>
           
-          {/* Associated Archetype (for Bounds/Agents) */}
           {associatedArchetype && (
             <div className="border-t border-zinc-700/50 pt-4 mb-4">
               <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2">
@@ -588,7 +652,6 @@ const CardInfoModal = ({ cardId, onClose }) => {
             </div>
           )}
           
-          {/* Associated Cards (for Archetypes) */}
           {associations && (associations.bounds.length > 0 || associations.agents.length > 0) && (
             <div className="border-t border-zinc-700/50 pt-4">
               <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2">Expressed By</p>
@@ -622,6 +685,105 @@ const CardInfoModal = ({ cardId, onClose }) => {
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+// === READING SECTION COMPONENT ===
+const ReadingSection = ({ 
+  type, // 'summary' | 'card' | 'correction'
+  index, // card index (for card/correction)
+  content, 
+  draw, // the draw object (for card/correction context)
+  expansions,
+  expanding,
+  onExpand,
+  showTraditional,
+  spreadType,
+  spreadKey
+}) => {
+  const trans = draw ? getComponent(draw.transient) : null;
+  const isDurable = spreadType === 'durable';
+  const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : null;
+  
+  // Build section label
+  let label = '';
+  if (type === 'summary') {
+    label = 'Summary';
+  } else if (type === 'card') {
+    const posLabel = isDurable 
+      ? spreadConfig?.frames[index]?.name 
+      : (draw?.position !== null ? ARCHETYPES[draw.position]?.name : `Card ${index + 1}`);
+    label = `Card ${index + 1}: ${trans?.name || ''} in ${posLabel}`;
+  } else if (type === 'correction') {
+    label = `Correction for Card ${index + 1}`;
+  }
+  
+  const sectionKey = type === 'summary' ? 'summary' : `${type}:${index}`;
+  const sectionExpansions = expansions[sectionKey] || {};
+  const isExpanding = expanding?.section === sectionKey;
+  
+  return (
+    <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 mb-4">
+      {/* Section Header */}
+      <div className="flex items-center gap-2 mb-3">
+        <span className={`text-xs px-2 py-0.5 rounded-full ${
+          type === 'summary' ? 'bg-zinc-700 text-zinc-300' :
+          type === 'card' ? 'bg-zinc-800 text-zinc-400' :
+          'bg-emerald-900/50 text-emerald-400'
+        }`}>
+          {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : 'Action'}
+        </span>
+        <span className="text-sm text-zinc-400">{label}</span>
+      </div>
+      
+      {/* Main Content */}
+      <div className="text-zinc-300 leading-relaxed text-sm mb-4 whitespace-pre-wrap">
+        {content}
+      </div>
+      
+      {/* Expansion Buttons */}
+      <div className="flex gap-2 flex-wrap">
+        {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
+          const isThisExpanding = isExpanding && expanding?.type === key;
+          const hasExpansion = !!sectionExpansions[key];
+          
+          return (
+            <button
+              key={key}
+              onClick={() => onExpand(sectionKey, key)}
+              disabled={isExpanding}
+              className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
+                hasExpansion 
+                  ? 'bg-zinc-700 text-zinc-200 border border-zinc-600' 
+                  : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+              } ${isThisExpanding ? 'animate-pulse' : ''}`}
+            >
+              {isThisExpanding ? '...' : label}
+            </button>
+          );
+        })}
+      </div>
+      
+      {/* Expansion Content */}
+      {Object.entries(sectionExpansions).map(([expType, expContent]) => (
+        <div key={expType} className="mt-4 pt-4 border-t border-zinc-800/50">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs text-zinc-500 uppercase tracking-wider">
+              {EXPANSION_PROMPTS[expType]?.label}
+            </span>
+            <button 
+              onClick={() => onExpand(sectionKey, expType, true)} // true = remove
+              className="text-zinc-600 hover:text-zinc-400 text-xs"
+            >
+              ×
+            </button>
+          </div>
+          <div className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap">
+            {expContent}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -662,14 +824,17 @@ export default function NirmanakaReader() {
   const [spreadKey, setSpreadKey] = useState('single');
   const [persona, setPersona] = useState('seeker');
   const [draws, setDraws] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [parsedReading, setParsedReading] = useState(null);
+  const [expansions, setExpansions] = useState({}); // {sectionKey: {unpack: '...', clarify: '...'}}
+  const [expanding, setExpanding] = useState(null); // {section: 'card:1', type: 'unpack'}
+  const [followUpMessages, setFollowUpMessages] = useState([]); // For general follow-ups after the reading
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showTraditional, setShowTraditional] = useState(false);
   const [showArchitecture, setShowArchitecture] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [isSharedReading, setIsSharedReading] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null); // For tooltip/modal
+  const [selectedCard, setSelectedCard] = useState(null);
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
 
@@ -700,7 +865,7 @@ export default function NirmanakaReader() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [parsedReading, expansions, followUpMessages]);
 
   useEffect(() => {
     if (draws && question) {
@@ -715,13 +880,13 @@ export default function NirmanakaReader() {
   };
 
   const performReadingWithDraws = async (drawsToUse) => {
-    setLoading(true); setError(''); setMessages([]);
+    setLoading(true); setError(''); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
     const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, showTraditional);
     const personaConfig = PERSONAS[persona];
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Random`;
     
     const systemPrompt = `${BASE_SYSTEM}\n\n${personaConfig.instruction}`;
-    const userMessage = `QUESTION: "${question}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRemember: Answer their question directly, be warm, no headers or bullet points.`;
+    const userMessage = `QUESTION: "${question}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:1], [CORRECTION:2], etc. Each marker on its own line.`;
 
     try {
       const res = await fetch('/api/reading', {
@@ -731,7 +896,10 @@ export default function NirmanakaReader() {
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setMessages([{ role: 'user', content: question, isQuestion: true }, { role: 'assistant', content: data.reading }]);
+      
+      // Parse the structured response
+      const parsed = parseReadingResponse(data.reading, drawsToUse);
+      setParsedReading(parsed);
     } catch (e) { setError(`Error: ${e.message}`); }
     setLoading(false);
   };
@@ -745,36 +913,141 @@ export default function NirmanakaReader() {
     await performReadingWithDraws(newDraws);
   };
 
+  const handleExpand = async (sectionKey, expansionType, remove = false) => {
+    // If removing, just clear that expansion
+    if (remove) {
+      setExpansions(prev => {
+        const newExp = { ...prev };
+        if (newExp[sectionKey]) {
+          const { [expansionType]: _, ...rest } = newExp[sectionKey];
+          newExp[sectionKey] = rest;
+          if (Object.keys(rest).length === 0) delete newExp[sectionKey];
+        }
+        return newExp;
+      });
+      return;
+    }
+    
+    // If already has this expansion, toggle it off
+    if (expansions[sectionKey]?.[expansionType]) {
+      handleExpand(sectionKey, expansionType, true);
+      return;
+    }
+    
+    // Otherwise, fetch the expansion
+    setExpanding({ section: sectionKey, type: expansionType });
+    
+    // Build context for the expansion request
+    const drawText = formatDrawForAI(draws, spreadType, spreadKey, showTraditional);
+    let sectionContent = '';
+    let sectionContext = '';
+    
+    if (sectionKey === 'summary') {
+      sectionContent = parsedReading.summary;
+      sectionContext = 'the summary of the reading';
+    } else if (sectionKey.startsWith('card:')) {
+      const cardIndex = parseInt(sectionKey.split(':')[1]);
+      const cardSection = parsedReading.cards.find(c => c.index === cardIndex);
+      sectionContent = cardSection?.content || '';
+      sectionContext = `Card ${cardIndex + 1}`;
+    } else if (sectionKey.startsWith('correction:')) {
+      const cardIndex = parseInt(sectionKey.split(':')[1]);
+      const corrSection = parsedReading.corrections.find(c => c.cardIndex === cardIndex);
+      sectionContent = corrSection?.content || '';
+      sectionContext = `the correction for Card ${cardIndex + 1}`;
+    }
+    
+    const expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
+    const personaConfig = PERSONAS[persona];
+    
+    const systemPrompt = `${BASE_SYSTEM}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough.`;
+    const userMessage = `ORIGINAL QUESTION: "${question}"
+
+THE DRAW:
+${drawText}
+
+SECTION BEING EXPANDED (${sectionContext}):
+${sectionContent}
+
+EXPANSION REQUEST:
+${expansionPrompt}
+
+Respond directly with the expanded content. No section markers needed. Keep it focused on this specific section.`;
+
+    try {
+      const res = await fetch('/api/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: userMessage }], system: systemPrompt })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      
+      setExpansions(prev => ({
+        ...prev,
+        [sectionKey]: {
+          ...(prev[sectionKey] || {}),
+          [expansionType]: data.reading
+        }
+      }));
+    } catch (e) { 
+      setError(`Expansion error: ${e.message}`); 
+    }
+    setExpanding(null);
+  };
+
   const sendFollowUp = async () => {
     if (!followUp.trim() || !draws) return;
     setLoading(true); setError('');
     const drawText = formatDrawForAI(draws, spreadType, spreadKey, showTraditional);
     const personaConfig = PERSONAS[persona];
-    const systemPrompt = `${BASE_SYSTEM}\n\n${personaConfig.instruction}\n\nCONTEXT — Follow-up on this reading:\n${drawText}`;
-    const newMessages = [...messages, { role: 'user', content: followUp }];
+    
+    // Build context from parsed reading
+    let readingContext = '';
+    if (parsedReading) {
+      readingContext = `PREVIOUS READING:\n\nSummary: ${parsedReading.summary}\n\n`;
+      parsedReading.cards.forEach((card, i) => {
+        readingContext += `Card ${card.index + 1}: ${card.content}\n\n`;
+      });
+      parsedReading.corrections.forEach(corr => {
+        readingContext += `Correction ${corr.cardIndex + 1}: ${corr.content}\n\n`;
+      });
+    }
+    
+    const systemPrompt = `${BASE_SYSTEM}\n\nYou are continuing a conversation about a reading. Answer their follow-up question directly, referencing the reading context as needed. No section markers — just respond naturally.`;
+    
+    const messages = [
+      ...followUpMessages,
+      { role: 'user', content: followUp }
+    ];
+    
+    const contextMessage = `THE DRAW:\n${drawText}\n\n${readingContext}\n\nFOLLOW-UP QUESTION: ${followUp}`;
     
     try {
       const res = await fetch('/api/reading', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages.map(m => ({ role: m.role, content: m.content })), system: systemPrompt })
+        body: JSON.stringify({ 
+          messages: [{ role: 'user', content: contextMessage }], 
+          system: systemPrompt 
+        })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      setMessages([...newMessages, { role: 'assistant', content: data.reading }]);
+      setFollowUpMessages([...messages, { role: 'assistant', content: data.reading }]);
       setFollowUp('');
     } catch (e) { setError(`Error: ${e.message}`); }
     setLoading(false);
   };
 
   const resetReading = () => {
-    setDraws(null); setMessages([]); setQuestion(''); setFollowUp(''); setError('');
+    setDraws(null); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
+    setQuestion(''); setFollowUp(''); setError('');
     setShareUrl(''); setIsSharedReading(false); setShowArchitecture(false);
     hasAutoInterpreted.current = false;
     window.history.replaceState({}, '', window.location.pathname);
   };
 
-  // Get house for a card (for coloring)
   const getCardHouse = (draw, index) => {
     if (spreadType === 'durable') {
       return DURABLE_SPREADS[spreadKey].frames[index].house;
@@ -784,7 +1057,7 @@ export default function NirmanakaReader() {
     return 'Gestalt';
   };
 
-  // === CARD DISPLAY ===
+  // === CARD DISPLAY (simplified, visual only) ===
   const CardDisplay = ({ draw, index }) => {
     const isDurable = spreadType === 'durable';
     const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : RANDOM_SPREADS[spreadKey];
@@ -804,14 +1077,12 @@ export default function NirmanakaReader() {
 
     return (
       <div className={`rounded-xl border-2 p-4 ${houseColors.border} ${houseColors.bg} transition-all`}>
-        {/* Status Badge */}
         <div className="mb-3">
           <span className={`text-xs px-2 py-1 rounded-full ${STATUS_COLORS[draw.status]}`}>
             {stat.name}
           </span>
         </div>
 
-        {/* Transient (PRIMARY) */}
         <div className="mb-3">
           <div 
             className="text-xl text-zinc-100 font-semibold cursor-pointer hover:text-zinc-300 transition-colors"
@@ -829,13 +1100,11 @@ export default function NirmanakaReader() {
           {showTraditional && <div className="text-sm text-zinc-500 mt-1">{trans.traditional}</div>}
         </div>
 
-        {/* Context */}
         <div className="text-sm text-zinc-400 mb-3">
           in your <span className={`font-medium ${houseColors.text}`}>{contextLabel}</span>
           {contextSub && <span className="text-zinc-600 text-xs ml-1">({contextSub})</span>}
         </div>
 
-        {/* Transient Details */}
         <div className="border-t border-zinc-700/30 pt-3 space-y-1">
           {trans.type === "Bound" && (
             <>
@@ -868,7 +1137,6 @@ export default function NirmanakaReader() {
           )}
         </div>
 
-        {/* Correction */}
         {correctionText && draw.status !== 1 && (
           <div className="border-t border-zinc-700/30 pt-3 mt-3">
             <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Correction</div>
@@ -892,16 +1160,14 @@ export default function NirmanakaReader() {
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.7 alpha • experimental</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.8 alpha • experimental</p>
         </div>
 
-        {/* Show intro only before reading */}
         {!draws && <IntroSection />}
 
         {/* Controls */}
         {!draws && (
           <>
-            {/* Spread Type Toggle */}
             <div className="flex justify-center mb-4">
               <div className="inline-flex rounded-lg bg-zinc-900 p-1">
                 <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
@@ -915,7 +1181,6 @@ export default function NirmanakaReader() {
               </div>
             </div>
 
-            {/* Spread Selection */}
             <div className="flex gap-2 mb-4 justify-center flex-wrap">
               {spreadType === 'random' ? (
                 Object.entries(RANDOM_SPREADS).map(([key, value]) => (
@@ -934,12 +1199,10 @@ export default function NirmanakaReader() {
               )}
             </div>
 
-            {/* Spread Description */}
             {spreadType === 'durable' && DURABLE_SPREADS[spreadKey] && (
               <p className="text-center text-zinc-600 text-xs mb-4">{DURABLE_SPREADS[spreadKey].description}</p>
             )}
 
-            {/* Persona Selection */}
             <div className="flex gap-2 mb-4 justify-center flex-wrap">
               {Object.entries(PERSONAS).map(([key, value]) => (
                 <button key={key} onClick={() => setPersona(key)} title={value.description}
@@ -949,7 +1212,6 @@ export default function NirmanakaReader() {
               ))}
             </div>
 
-            {/* Traditional Toggle */}
             <div className="flex justify-center mb-6">
               <button onClick={() => setShowTraditional(!showTraditional)}
                 className={`text-xs px-3 py-1.5 rounded-lg transition-all ${showTraditional ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-900/50 text-zinc-600 hover:text-zinc-400'}`}>
@@ -957,11 +1219,9 @@ export default function NirmanakaReader() {
               </button>
             </div>
 
-            {/* Question Input */}
             <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="What's your question?"
               className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors mb-4" rows={3} />
 
-            {/* Draw Button */}
             <button onClick={performReading} disabled={loading}
               className="w-full bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 py-4 rounded-xl transition-all duration-300 font-light tracking-wider">
               DRAW
@@ -970,7 +1230,7 @@ export default function NirmanakaReader() {
         )}
 
         {/* Loading */}
-        {loading && (
+        {loading && !expanding && (
           <div className="flex flex-col items-center justify-center py-12">
             <div className="relative">
               <div className="w-16 h-16 border-2 border-zinc-800 rounded-full"></div>
@@ -1007,7 +1267,6 @@ export default function NirmanakaReader() {
               <div className="mt-6 bg-zinc-900/50 rounded-xl border border-zinc-800/50 p-4">
                 <div className="text-xs text-zinc-500 uppercase tracking-wider mb-4">Architecture Details</div>
                 
-                {/* Individual Card Breakdowns */}
                 <div className="space-y-4 mb-6">
                   {draws.map((draw, i) => {
                     const isDurable = spreadType === 'durable';
@@ -1023,7 +1282,6 @@ export default function NirmanakaReader() {
                       <div key={i} className="bg-zinc-800/30 rounded-lg p-3 text-sm">
                         <div className="text-zinc-300 font-medium mb-2">{label}</div>
                         
-                        {/* Position Info (Random only) */}
                         {pos && (
                           <div className="text-zinc-500 mb-2">
                             <span className="text-zinc-400">Position {draw.position}:</span> {pos.name} ({pos.traditional})
@@ -1032,7 +1290,6 @@ export default function NirmanakaReader() {
                           </div>
                         )}
                         
-                        {/* Transient Info */}
                         <div className="text-zinc-500 mb-2">
                           <span className="text-zinc-400">Transient:</span> {trans.name} ({trans.traditional})
                           {trans.type === "Bound" && (
@@ -1063,7 +1320,6 @@ export default function NirmanakaReader() {
                           )}
                         </div>
                         
-                        {/* Status + Correction Math */}
                         <div className="text-zinc-500">
                           <span className="text-zinc-400">Status:</span> {stat.name} ({stat.orientation})
                           {correction && draw.status !== 1 && (
@@ -1099,7 +1355,6 @@ export default function NirmanakaReader() {
                   })}
                 </div>
 
-                {/* Cross-Card Relationships */}
                 {draws.length > 1 && (
                   <div className="border-t border-zinc-800/50 pt-4">
                     <div className="text-xs text-zinc-500 uppercase tracking-wider mb-3">Relationships</div>
@@ -1109,7 +1364,6 @@ export default function NirmanakaReader() {
                         const isDurable = spreadType === 'durable';
                         const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : null;
                         
-                        // Check for shared houses
                         const houseGroups = {};
                         draws.forEach((draw, i) => {
                           const house = isDurable ? spreadConfig.frames[i].house : (draw.position !== null ? ARCHETYPES[draw.position]?.house : null);
@@ -1125,7 +1379,6 @@ export default function NirmanakaReader() {
                           }
                         });
                         
-                        // Check for shared channels in transients
                         const channelGroups = {};
                         draws.forEach((draw, i) => {
                           const trans = getComponent(draw.transient);
@@ -1141,7 +1394,6 @@ export default function NirmanakaReader() {
                           }
                         });
                         
-                        // Check for correction connections
                         draws.forEach((draw, i) => {
                           const correction = getFullCorrection(draw.transient, draw.status);
                           if (correction) {
@@ -1174,22 +1426,82 @@ export default function NirmanakaReader() {
           </div>
         )}
 
-        {/* Messages */}
-        {messages.length > 0 && !loading && (
-          <div className="space-y-4 mb-4">
-            {messages.map((msg, i) => (
-              <div key={i} className={`rounded-xl p-4 ${msg.role === 'user' ? 'bg-zinc-800/50 ml-8' : 'bg-zinc-900/50 border border-zinc-800/50'}`}>
-                {msg.isQuestion && <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question</div>}
-                <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm">{msg.content}</div>
-              </div>
+        {/* Parsed Reading Sections */}
+        {parsedReading && !loading && (
+          <div className="space-y-2">
+            {/* Your Question */}
+            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 ml-8">
+              <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question</div>
+              <div className="text-zinc-300 text-sm">{question}</div>
+            </div>
+            
+            {/* Summary Section */}
+            {parsedReading.summary && (
+              <ReadingSection
+                type="summary"
+                content={parsedReading.summary}
+                expansions={expansions}
+                expanding={expanding}
+                onExpand={handleExpand}
+                showTraditional={showTraditional}
+                spreadType={spreadType}
+                spreadKey={spreadKey}
+              />
+            )}
+            
+            {/* Card Sections */}
+            {parsedReading.cards.map((card) => (
+              <ReadingSection
+                key={`card-${card.index}`}
+                type="card"
+                index={card.index}
+                content={card.content}
+                draw={draws[card.index]}
+                expansions={expansions}
+                expanding={expanding}
+                onExpand={handleExpand}
+                showTraditional={showTraditional}
+                spreadType={spreadType}
+                spreadKey={spreadKey}
+              />
             ))}
+            
+            {/* Correction Sections */}
+            {parsedReading.corrections.map((corr) => (
+              <ReadingSection
+                key={`correction-${corr.cardIndex}`}
+                type="correction"
+                index={corr.cardIndex}
+                content={corr.content}
+                draw={draws[corr.cardIndex]}
+                expansions={expansions}
+                expanding={expanding}
+                onExpand={handleExpand}
+                showTraditional={showTraditional}
+                spreadType={spreadType}
+                spreadKey={spreadKey}
+              />
+            ))}
+            
             <div ref={messagesEndRef} />
           </div>
         )}
 
-        {/* Follow-up */}
-        {draws && messages.length > 0 && !loading && (
-          <div className="flex gap-2">
+        {/* Follow-up Messages */}
+        {followUpMessages.length > 0 && (
+          <div className="space-y-4 mt-6">
+            {followUpMessages.map((msg, i) => (
+              <div key={i} className={`rounded-xl p-4 ${msg.role === 'user' ? 'bg-zinc-800/50 ml-8' : 'bg-zinc-900/50 border border-zinc-800/50'}`}>
+                {msg.role === 'user' && <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Follow-up</div>}
+                <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm">{msg.content}</div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Follow-up Input */}
+        {parsedReading && !loading && (
+          <div className="flex gap-2 mt-4">
             <input type="text" value={followUp} onChange={(e) => setFollowUp(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !loading && sendFollowUp()}
               placeholder="Ask a follow-up question..."
