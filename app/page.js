@@ -213,21 +213,25 @@ RESPONSE FORMAT — CRITICAL:
 Use these exact markers to structure your response. Each marker must be on its own line.
 
 [SUMMARY]
-2-3 sentences directly answering their question based on the overall pattern.
+2-3 sentences directly answering their question based on the overall pattern. Reference their specific question.
 
 [CARD:1]
-What this card shows — the transient, status, and what's happening here. Use temporal framing (Too Much = future-projected, Too Little = past-anchored). 2-3 sentences, warm and clear.
+What this card shows — the transient, status, and what's happening here. Use temporal framing (Too Much = future-projected, Too Little = past-anchored). Connect this specifically to their question. 2-3 sentences, warm and clear.
 
 [CARD:2]
-(Continue for each card...)
+(Continue for each card... always connect back to their specific question)
 
 [CORRECTION:1]
-For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. 2-3 sentences. Skip this section if Card 1 is Balanced.
+For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. 2-3 sentences. Skip this section if Card 1 is Balanced.
 
 [CORRECTION:2]
 (Continue for each imbalanced card...)
 
+[LETTER]
+A brief, warm letter addressed directly to them (use "you"). Acknowledge what they're navigating with their question. Weave together the key insights from the reading into an empathetic overview. End with encouragement. 3-4 sentences, heartfelt but not saccharine.
+
 CONTENT GUIDELINES:
+- ALWAYS connect each section back to their specific question — don't speak generically
 - Use TEMPORAL framing: Too Much = "leaning into the future," Too Little = "caught in the past"
 - For corrections, explain WHY it helps and WHAT to actually do
 - Use simple, everyday language
@@ -242,21 +246,25 @@ RESPONSE FORMAT — CRITICAL:
 Use these exact markers to structure your response. Each marker must be on its own line.
 
 [SUMMARY]
-2-3 sentences on the structural pattern — what the configuration reveals about their question.
+2-3 sentences on the structural pattern — what the configuration reveals about their specific question.
 
 [CARD:1]
-Precise breakdown: transient, position context, status with temporal orientation. Note house dynamics through behavior (not jargon). Reference the card's structural role. 2-4 sentences.
+Precise breakdown: transient, position context, status with temporal orientation. Note house dynamics through behavior (not jargon). Reference how this applies to their question. 2-4 sentences.
 
 [CARD:2]
-(Continue for each card...)
+(Continue for each card... always ground in their question)
 
 [CORRECTION:1]
-For Card 1: Name the correction, show the logic briefly (diagonal/vertical/number mirror), explain WHY this correction works structurally. Skip if Balanced.
+For Card 1: Name the correction, show the logic briefly (diagonal/vertical/number mirror), explain WHY this correction addresses their situation. Skip if Balanced.
 
 [CORRECTION:2]
 (Continue for each imbalanced card...)
 
+[LETTER]
+A thoughtful note addressed to them. Acknowledge the structural reality they're facing with their question. Synthesize the key architectural insights into practical understanding. End with clear-eyed encouragement. 3-4 sentences, precise but warm.
+
 CONTENT GUIDELINES:
+- ALWAYS connect each section to their specific question
 - Use TEMPORAL framing precisely
 - Show correction logic briefly but clearly
 - Reference house dynamics through observable behavior
@@ -274,18 +282,22 @@ Use these exact markers to structure your response. Each marker must be on its o
 A contemplative opening that addresses their question through the lens of presence and becoming. 2-3 sentences.
 
 [CARD:1]
-Reflective exploration of what this card reveals — weaving temporal orientation poetically ("living in potential futures," "caught in echoes of the past," "not yet arrived in the now"). 3-4 sentences.
+Reflective exploration of what this card reveals about their question — weaving temporal orientation poetically ("living in potential futures," "caught in echoes of the past," "not yet arrived in the now"). 3-4 sentences.
 
 [CARD:2]
-(Continue for each card...)
+(Continue for each card... always returning to their question)
 
 [CORRECTION:1]
-Frame the correction as an invitation that restores presence. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip if Balanced.
+Frame the correction as an invitation that restores presence in relation to their question. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip if Balanced.
 
 [CORRECTION:2]
 (Continue for each imbalanced card...)
 
+[LETTER]
+A contemplative letter addressed to them. Honor the depth of what they're asking. Weave the reading's insights into a reflection on their journey. Close with an open question or gentle invitation. 4-5 sentences, soulful.
+
 CONTENT GUIDELINES:
+- ALWAYS ground contemplation in their specific question
 - Use temporal framing poetically
 - Frame corrections as invitations
 - Connect to themes of presence and becoming
@@ -300,22 +312,25 @@ RESPONSE FORMAT — CRITICAL:
 Use these exact markers to structure your response. Each marker must be on its own line.
 
 [SUMMARY]
-One sentence answering their question.
+One sentence answering their question directly.
 
 [CARD:1]
-One sentence: what's happening (include temporal frame in parentheses).
+One sentence: what's happening with their question (include temporal frame in parentheses).
 
 [CARD:2]
 (Continue for each card...)
 
 [CORRECTION:1]
-One sentence: correction → what to do. Skip if Balanced.
+One sentence: correction → what to do about their situation. Skip if Balanced.
 
 [CORRECTION:2]
 (Continue for each imbalanced card...)
 
+[LETTER]
+2-3 sentences max. Acknowledge their question. State the bottom line. One clear encouragement.
+
 CONTENT GUIDELINES:
-- Maximum 2 sentences per section
+- ALWAYS tie each point to their specific question
 - Include temporal frame in parentheses: (future-leaning), (past-anchored), (shadow)
 - Simple words only
 - No filler`
@@ -488,7 +503,8 @@ function parseReadingResponse(responseText, draws) {
   const sections = {
     summary: null,
     cards: [],
-    corrections: []
+    corrections: [],
+    letter: null
   };
   
   // Extract summary
@@ -500,7 +516,7 @@ function parseReadingResponse(responseText, draws) {
   // Extract card sections
   draws.forEach((_, i) => {
     const cardNum = i + 1;
-    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|$)`);
+    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|\\[LETTER\\]|$)`);
     const cardMatch = responseText.match(cardRegex);
     if (cardMatch) {
       sections.cards.push({
@@ -514,7 +530,7 @@ function parseReadingResponse(responseText, draws) {
   draws.forEach((draw, i) => {
     if (draw.status !== 1) { // Only for imbalanced cards
       const corrNum = i + 1;
-      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|$)`);
+      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|\\[LETTER\\]|$)`);
       const corrMatch = responseText.match(corrRegex);
       if (corrMatch) {
         sections.corrections.push({
@@ -524,6 +540,12 @@ function parseReadingResponse(responseText, draws) {
       }
     }
   });
+  
+  // Extract letter section
+  const letterMatch = responseText.match(/\[LETTER\]\s*([\s\S]*?)$/);
+  if (letterMatch) {
+    sections.letter = letterMatch[1].trim();
+  }
   
   return sections;
 }
@@ -691,10 +713,11 @@ const CardInfoModal = ({ cardId, onClose }) => {
 
 // === READING SECTION COMPONENT ===
 const ReadingSection = ({ 
-  type, // 'summary' | 'card' | 'correction'
+  type, // 'summary' | 'card' | 'correction' | 'letter'
   index, // card index (for card/correction)
   content, 
   draw, // the draw object (for card/correction context)
+  question, // the querent's question
   expansions,
   expanding,
   onExpand,
@@ -703,42 +726,81 @@ const ReadingSection = ({
   spreadKey
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
+  const stat = draw ? STATUSES[draw.status] : null;
   const isDurable = spreadType === 'durable';
   const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : null;
   
-  // Build section label
+  // Get position/frame label
+  const posLabel = draw ? (isDurable 
+    ? spreadConfig?.frames[index]?.name 
+    : (draw.position !== null ? ARCHETYPES[draw.position]?.name : `Position ${index + 1}`)) : null;
+  
+  // Get house for coloring (for card/correction sections)
+  const house = draw ? (isDurable 
+    ? spreadConfig?.frames[index]?.house 
+    : (draw.position !== null ? ARCHETYPES[draw.position]?.house : 'Gestalt')) : null;
+  
+  const houseColors = house ? HOUSE_COLORS[house] : null;
+  
+  // Build section label and sublabel
   let label = '';
+  let sublabel = '';
   if (type === 'summary') {
     label = 'Summary';
   } else if (type === 'card') {
-    const posLabel = isDurable 
-      ? spreadConfig?.frames[index]?.name 
-      : (draw?.position !== null ? ARCHETYPES[draw.position]?.name : `Card ${index + 1}`);
-    label = `Card ${index + 1}: ${trans?.name || ''} in ${posLabel}`;
+    label = trans?.name || `Card ${index + 1}`;
+    sublabel = `${stat?.prefix ? stat.prefix + ' · ' : ''}${posLabel}`;
+    if (showTraditional && trans?.traditional) {
+      sublabel += ` · ${trans.traditional}`;
+    }
   } else if (type === 'correction') {
-    label = `Correction for Card ${index + 1}`;
+    label = `Path Forward: ${trans?.name || `Card ${index + 1}`}`;
+    sublabel = posLabel;
+  } else if (type === 'letter') {
+    label = 'A Note for You';
   }
   
-  const sectionKey = type === 'summary' ? 'summary' : `${type}:${index}`;
+  const sectionKey = type === 'summary' ? 'summary' : type === 'letter' ? 'letter' : `${type}:${index}`;
   const sectionExpansions = expansions[sectionKey] || {};
   const isExpanding = expanding?.section === sectionKey;
   
+  // Determine section styling based on type
+  const getSectionStyle = () => {
+    if (type === 'summary') {
+      return 'bg-zinc-900/50 border-zinc-800/50';
+    } else if (type === 'letter') {
+      return 'bg-gradient-to-br from-zinc-900/70 to-zinc-800/30 border-zinc-700/50';
+    } else if (houseColors) {
+      return `${houseColors.bg} ${houseColors.border}`;
+    }
+    return 'bg-zinc-900/50 border-zinc-800/50';
+  };
+  
+  const getBadgeStyle = () => {
+    if (type === 'summary') return 'bg-zinc-700 text-zinc-300';
+    if (type === 'letter') return 'bg-rose-900/50 text-rose-300';
+    if (type === 'correction') return 'bg-emerald-900/50 text-emerald-400';
+    if (houseColors) return `${houseColors.bg} ${houseColors.text}`;
+    return 'bg-zinc-800 text-zinc-400';
+  };
+  
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4 mb-4">
+    <div className={`rounded-xl border-2 p-4 mb-4 ${getSectionStyle()}`}>
       {/* Section Header */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className={`text-xs px-2 py-0.5 rounded-full ${
-          type === 'summary' ? 'bg-zinc-700 text-zinc-300' :
-          type === 'card' ? 'bg-zinc-800 text-zinc-400' :
-          'bg-emerald-900/50 text-emerald-400'
-        }`}>
-          {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : 'Action'}
-        </span>
-        <span className="text-sm text-zinc-400">{label}</span>
+      <div className="flex flex-col gap-1 mb-3">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs px-2 py-0.5 rounded-full ${getBadgeStyle()}`}>
+            {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : type === 'correction' ? 'Action' : 'Letter'}
+          </span>
+          <span className={`text-sm font-medium ${houseColors?.text || 'text-zinc-300'}`}>{label}</span>
+        </div>
+        {sublabel && (
+          <span className="text-xs text-zinc-500 ml-1">{sublabel}</span>
+        )}
       </div>
       
       {/* Main Content */}
-      <div className="text-zinc-300 leading-relaxed text-sm mb-4 whitespace-pre-wrap">
+      <div className={`leading-relaxed text-sm mb-4 whitespace-pre-wrap ${type === 'letter' ? 'text-zinc-300 italic' : 'text-zinc-300'}`}>
         {content}
       </div>
       
@@ -753,13 +815,16 @@ const ReadingSection = ({
               key={key}
               onClick={() => onExpand(sectionKey, key)}
               disabled={isExpanding}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all ${
+              className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
                 hasExpansion 
                   ? 'bg-zinc-700 text-zinc-200 border border-zinc-600' 
                   : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-              } ${isThisExpanding ? 'animate-pulse' : ''}`}
+              } ${isExpanding && !isThisExpanding ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {isThisExpanding ? '...' : label}
+              {isThisExpanding && (
+                <span className="inline-block w-3 h-3 border border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
+              )}
+              {label}
             </button>
           );
         })}
@@ -767,7 +832,7 @@ const ReadingSection = ({
       
       {/* Expansion Content */}
       {Object.entries(sectionExpansions).map(([expType, expContent]) => (
-        <div key={expType} className="mt-4 pt-4 border-t border-zinc-800/50">
+        <div key={expType} className="mt-4 pt-4 border-t border-zinc-700/50">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs text-zinc-500 uppercase tracking-wider">
               {EXPANSION_PROMPTS[expType]?.label}
@@ -863,9 +928,21 @@ export default function NirmanakaReader() {
     }
   }, [isSharedReading, draws, question]);
 
+  // Only scroll on initial reading load or new follow-up messages
+  const prevFollowUpCount = useRef(0);
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [parsedReading, expansions, followUpMessages]);
+    if (parsedReading && followUpMessages.length > prevFollowUpCount.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    prevFollowUpCount.current = followUpMessages.length;
+  }, [followUpMessages]);
+  
+  // Scroll to reading when it first loads
+  useEffect(() => {
+    if (parsedReading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [parsedReading]);
 
   useEffect(() => {
     if (draws && question) {
@@ -945,23 +1022,30 @@ export default function NirmanakaReader() {
     if (sectionKey === 'summary') {
       sectionContent = parsedReading.summary;
       sectionContext = 'the summary of the reading';
+    } else if (sectionKey === 'letter') {
+      sectionContent = parsedReading.letter;
+      sectionContext = 'the closing letter';
     } else if (sectionKey.startsWith('card:')) {
       const cardIndex = parseInt(sectionKey.split(':')[1]);
       const cardSection = parsedReading.cards.find(c => c.index === cardIndex);
+      const draw = draws[cardIndex];
+      const trans = getComponent(draw.transient);
       sectionContent = cardSection?.content || '';
-      sectionContext = `Card ${cardIndex + 1}`;
+      sectionContext = `the reading for ${trans.name} (Card ${cardIndex + 1})`;
     } else if (sectionKey.startsWith('correction:')) {
       const cardIndex = parseInt(sectionKey.split(':')[1]);
       const corrSection = parsedReading.corrections.find(c => c.cardIndex === cardIndex);
+      const draw = draws[cardIndex];
+      const trans = getComponent(draw.transient);
       sectionContent = corrSection?.content || '';
-      sectionContext = `the correction for Card ${cardIndex + 1}`;
+      sectionContext = `the correction path for ${trans.name} (Card ${cardIndex + 1})`;
     }
     
     const expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
     const personaConfig = PERSONAS[persona];
     
-    const systemPrompt = `${BASE_SYSTEM}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough.`;
-    const userMessage = `ORIGINAL QUESTION: "${question}"
+    const systemPrompt = `${BASE_SYSTEM}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough. Always connect your expansion back to the querent's specific question.`;
+    const userMessage = `QUERENT'S QUESTION: "${question}"
 
 THE DRAW:
 ${drawText}
@@ -972,7 +1056,7 @@ ${sectionContent}
 EXPANSION REQUEST:
 ${expansionPrompt}
 
-Respond directly with the expanded content. No section markers needed. Keep it focused on this specific section.`;
+Respond directly with the expanded content. No section markers needed. Keep it focused on this specific section AND relevant to their question: "${question}"`;
 
     try {
       const res = await fetch('/api/reading', {
@@ -1440,6 +1524,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <ReadingSection
                 type="summary"
                 content={parsedReading.summary}
+                question={question}
                 expansions={expansions}
                 expanding={expanding}
                 onExpand={handleExpand}
@@ -1457,6 +1542,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 index={card.index}
                 content={card.content}
                 draw={draws[card.index]}
+                question={question}
                 expansions={expansions}
                 expanding={expanding}
                 onExpand={handleExpand}
@@ -1474,6 +1560,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 index={corr.cardIndex}
                 content={corr.content}
                 draw={draws[corr.cardIndex]}
+                question={question}
                 expansions={expansions}
                 expanding={expanding}
                 onExpand={handleExpand}
@@ -1482,6 +1569,21 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 spreadKey={spreadKey}
               />
             ))}
+            
+            {/* Letter Section */}
+            {parsedReading.letter && (
+              <ReadingSection
+                type="letter"
+                content={parsedReading.letter}
+                question={question}
+                expansions={expansions}
+                expanding={expanding}
+                onExpand={handleExpand}
+                showTraditional={showTraditional}
+                spreadType={spreadType}
+                spreadKey={spreadKey}
+              />
+            )}
             
             <div ref={messagesEndRef} />
           </div>
