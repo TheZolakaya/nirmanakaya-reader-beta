@@ -1046,7 +1046,8 @@ const ReadingSection = ({
   showTraditional,
   spreadType,
   spreadKey,
-  setSelectedInfo
+  setSelectedInfo,
+  onHeaderClick // callback when header is clicked (for scroll navigation)
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
   const stat = draw ? STATUSES[draw.status] : null;
@@ -1165,12 +1166,18 @@ const ReadingSection = ({
   return (
     <div className={`rounded-xl border-2 p-4 mb-4 ${getSectionStyle()}`}>
       {/* Section Header */}
-      <div className="flex flex-col gap-1 mb-3">
+      <div 
+        className={`flex flex-col gap-1 mb-3 ${type === 'card' && onHeaderClick ? 'cursor-pointer group' : ''}`}
+        onClick={type === 'card' && onHeaderClick ? onHeaderClick : undefined}
+      >
         <div className="flex items-center gap-2">
           <span className={`text-xs px-2 py-0.5 rounded-full ${getBadgeStyle()}`}>
             {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : type === 'correction' ? 'Action' : 'Letter'}
           </span>
           <span className="text-sm font-medium">{renderLabel()}</span>
+          {type === 'card' && onHeaderClick && (
+            <span className="text-zinc-600 text-xs opacity-0 group-hover:opacity-100 transition-opacity">↑ view card</span>
+          )}
         </div>
         {type === 'card' && showTraditional && trans?.traditional && (
           <span className="text-xs text-zinc-500 ml-1">{trans.traditional}</span>
@@ -1547,22 +1554,32 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     const openHouseInfo = (houseName) => {
       setSelectedInfo({ type: 'house', id: houseName, data: HOUSES[houseName] });
     };
+    
+    // Scroll to content section
+    const scrollToContent = () => {
+      document.getElementById(`content-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
 
     return (
-      <div className={`rounded-xl border-2 p-4 ${houseColors.border} ${houseColors.bg} transition-all`}>
-        <div className="mb-3">
+      <div 
+        id={`card-${index}`}
+        className={`rounded-xl border-2 p-4 ${houseColors.border} ${houseColors.bg} transition-all cursor-pointer hover:border-opacity-80 group`}
+        onClick={scrollToContent}
+      >
+        <div className="mb-3 flex justify-between items-start">
           <span 
             className={`text-xs px-2 py-1 rounded-full cursor-pointer hover:opacity-80 ${STATUS_COLORS[draw.status]}`}
-            onClick={() => openStatusInfo(draw.status)}
+            onClick={(e) => { e.stopPropagation(); openStatusInfo(draw.status); }}
           >
             {stat.name}
           </span>
+          <span className="text-zinc-600 text-xs opacity-0 group-hover:opacity-100 transition-opacity">↓ read</span>
         </div>
 
         <div className="mb-3">
           <div 
             className="text-xl text-zinc-100 font-semibold cursor-pointer hover:text-zinc-300 transition-colors"
-            onClick={() => openCardInfo(draw.transient)}
+            onClick={(e) => { e.stopPropagation(); openCardInfo(draw.transient); }}
             title="Click for details"
           >
             {trans.name}
@@ -1579,7 +1596,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-sm text-zinc-400 mb-3">
           in your <span 
             className={`font-medium cursor-pointer hover:underline decoration-dotted ${houseColors.text}`}
-            onClick={() => isDurable ? openHouseInfo(house) : openCardInfo(draw.position)}
+            onClick={(e) => { e.stopPropagation(); isDurable ? openHouseInfo(house) : openCardInfo(draw.position); }}
           >{contextLabel}</span>
           {contextSub && <span className="text-zinc-600 text-xs ml-1">({contextSub})</span>}
         </div>
@@ -1590,14 +1607,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="text-sm">
                 <span 
                   className={`cursor-pointer hover:underline decoration-dotted ${CHANNEL_COLORS[trans.channel]}`}
-                  onClick={() => openChannelInfo(trans.channel)}
+                  onClick={(e) => { e.stopPropagation(); openChannelInfo(trans.channel); }}
                 >{trans.channel}</span>
                 <span className="text-zinc-500"> Channel</span>
               </div>
               <div className="text-sm text-zinc-400">
                 Expresses <span 
                   className="text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
-                  onClick={() => openCardInfo(trans.archetype)}
+                  onClick={(e) => { e.stopPropagation(); openCardInfo(trans.archetype); }}
                 >{transArchetype?.name}</span>
               </div>
             </>
@@ -1609,13 +1626,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <span className="text-zinc-500"> of </span>
                 <span 
                   className={`cursor-pointer hover:underline decoration-dotted ${CHANNEL_COLORS[trans.channel]}`}
-                  onClick={() => openChannelInfo(trans.channel)}
+                  onClick={(e) => { e.stopPropagation(); openChannelInfo(trans.channel); }}
                 >{trans.channel}</span>
               </div>
               <div className="text-sm text-zinc-400">
                 Embodies <span 
                   className="text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
-                  onClick={() => openCardInfo(trans.archetype)}
+                  onClick={(e) => { e.stopPropagation(); openCardInfo(trans.archetype); }}
                 >{transArchetype?.name}</span>
               </div>
             </>
@@ -1628,7 +1645,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             <div className="text-sm text-zinc-300">
               → <span 
                 className={correctionTargetId !== null ? "cursor-pointer hover:text-zinc-100 transition-colors" : ""}
-                onClick={() => correctionTargetId !== null && openCardInfo(correctionTargetId)}
+                onClick={(e) => { e.stopPropagation(); correctionTargetId !== null && openCardInfo(correctionTargetId); }}
               >{correctionText}</span>
             </div>
           </div>
@@ -1645,7 +1662,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.9 alpha • experimental</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.10 alpha • experimental</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -1941,43 +1958,45 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               />
             )}
             
-            {/* Card Sections */}
-            {parsedReading.cards.map((card) => (
-              <ReadingSection
-                key={`card-${card.index}`}
-                type="card"
-                index={card.index}
-                content={card.content}
-                draw={draws[card.index]}
-                question={question}
-                expansions={expansions}
-                expanding={expanding}
-                onExpand={handleExpand}
-                showTraditional={showTraditional}
-                spreadType={spreadType}
-                spreadKey={spreadKey}
-                setSelectedInfo={setSelectedInfo}
-              />
-            ))}
-            
-            {/* Correction Sections */}
-            {parsedReading.corrections.map((corr) => (
-              <ReadingSection
-                key={`correction-${corr.cardIndex}`}
-                type="correction"
-                index={corr.cardIndex}
-                content={corr.content}
-                draw={draws[corr.cardIndex]}
-                question={question}
-                expansions={expansions}
-                expanding={expanding}
-                onExpand={handleExpand}
-                showTraditional={showTraditional}
-                spreadType={spreadType}
-                spreadKey={spreadKey}
-                setSelectedInfo={setSelectedInfo}
-              />
-            ))}
+            {/* Card Sections with their Corrections */}
+            {parsedReading.cards.map((card) => {
+              const correction = parsedReading.corrections.find(c => c.cardIndex === card.index);
+              return (
+                <div key={`card-group-${card.index}`} id={`content-${card.index}`}>
+                  <ReadingSection
+                    type="card"
+                    index={card.index}
+                    content={card.content}
+                    draw={draws[card.index]}
+                    question={question}
+                    expansions={expansions}
+                    expanding={expanding}
+                    onExpand={handleExpand}
+                    showTraditional={showTraditional}
+                    spreadType={spreadType}
+                    spreadKey={spreadKey}
+                    setSelectedInfo={setSelectedInfo}
+                    onHeaderClick={() => document.getElementById(`card-${card.index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  />
+                  {correction && (
+                    <ReadingSection
+                      type="correction"
+                      index={correction.cardIndex}
+                      content={correction.content}
+                      draw={draws[correction.cardIndex]}
+                      question={question}
+                      expansions={expansions}
+                      expanding={expanding}
+                      onExpand={handleExpand}
+                      showTraditional={showTraditional}
+                      spreadType={spreadType}
+                      spreadKey={spreadKey}
+                      setSelectedInfo={setSelectedInfo}
+                    />
+                  )}
+                </div>
+              );
+            })}
             
             {/* Letter Section */}
             {parsedReading.letter && (
