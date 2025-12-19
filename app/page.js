@@ -140,6 +140,112 @@ const STATUSES = {
   4: { name: "Unacknowledged", orientation: "Shadow", desc: "Operating without awareness", prefix: "Unacknowledged" }
 };
 
+// Extended status info for popups
+const STATUS_INFO = {
+  1: { 
+    name: "Balanced", 
+    orientation: "Now-aligned", 
+    description: "Authentic expression — the function is operating correctly, present-centered, integrated.",
+    extended: "When an archetype is balanced, it expresses naturally without excess or deficiency. There's no correction needed because the energy is flowing appropriately for the moment. This is the optimal state — full presence without distortion."
+  },
+  2: { 
+    name: "Too Much", 
+    orientation: "Future-projected", 
+    description: "Over-expressing — anxiety, control, pushing ahead of natural timing.",
+    extended: "Too Much indicates future-projection: you're leaning into what hasn't arrived yet, trying to control outcomes, or over-applying this energy. The correction is the Diagonal partner — the opposite pole that counterbalances the excess and rotates runaway momentum back into alignment."
+  },
+  3: { 
+    name: "Too Little", 
+    orientation: "Past-anchored", 
+    description: "Under-expressing — withdrawn, avoidant, not fully arriving in the present.",
+    extended: "Too Little indicates past-anchoring: energy is withdrawn, held back, caught in what was rather than what is. The correction is the Vertical partner — the same archetypal identity at the other scale, which restores recursion and reconnects you to your complete capacity."
+  },
+  4: { 
+    name: "Unacknowledged", 
+    orientation: "Shadow", 
+    description: "Operating without awareness — steering without conscious integration.",
+    extended: "Unacknowledged is shadow operation: this energy is running but you can't see it. It's influencing behavior without consent or alignment. The correction is the Reduction pair — returning to the generating source, the micro-level node from which this emerged. Going back to basics makes the shadow visible."
+  }
+};
+
+// Channel data for popups
+const CHANNELS = {
+  Intent: {
+    name: "Intent",
+    traditional: "Wands",
+    element: "Fire",
+    description: "Directed will and action — the channel of purposeful movement toward chosen ends.",
+    extended: "Intent is the fire channel — energy directed toward goals. It governs motivation, drive, ambition, and the capacity to move from vision to action. When healthy, Intent provides momentum without burning out. When imbalanced, it becomes either aggressive pushing or paralyzed inaction."
+  },
+  Cognition: {
+    name: "Cognition",
+    traditional: "Swords",
+    element: "Air",
+    description: "Mental clarity and understanding — the channel of thought, analysis, and perception.",
+    extended: "Cognition is the air channel — the realm of mind, thought, and clarity. It governs how we perceive, analyze, communicate, and understand. When healthy, Cognition provides clear seeing without over-thinking. When imbalanced, it becomes either mental chaos or cold disconnection."
+  },
+  Resonance: {
+    name: "Resonance",
+    traditional: "Cups",
+    element: "Water",
+    description: "Emotional attunement and connection — the channel of feeling and relationship.",
+    extended: "Resonance is the water channel — the realm of emotion, intuition, and connection. It governs how we feel, relate, and attune to others. When healthy, Resonance provides deep feeling without drowning. When imbalanced, it becomes either emotional flooding or numbness."
+  },
+  Structure: {
+    name: "Structure",
+    traditional: "Pentacles",
+    element: "Earth",
+    description: "Material form and manifestation — the channel of building, resources, and embodiment.",
+    extended: "Structure is the earth channel — the realm of form, matter, and practical reality. It governs resources, health, work, and physical manifestation. When healthy, Structure provides stability without rigidity. When imbalanced, it becomes either hoarding or instability."
+  }
+};
+
+// House data for popups
+const HOUSES = {
+  Gestalt: {
+    name: "Gestalt",
+    members: [0, 1, 19, 20],
+    governor: 10,
+    description: "The integrative whole — identity, will, actualization, and awareness.",
+    extended: "Gestalt contains the archetypes of unified selfhood: Potential (0), Will (1), Actualization (19), and Awareness (20). Governed by Cycles (10), this house represents the complete self — not as a collection of parts, but as an integrated whole that is more than the sum of its components."
+  },
+  Spirit: {
+    name: "Spirit",
+    members: [2, 3, 17, 18],
+    governor: 0,
+    description: "Inner knowing and aspiration — wisdom, nurturing, inspiration, and imagination.",
+    extended: "Spirit contains the archetypes of deep knowing: Wisdom (2), Nurturing (3), Inspiration (17), and Imagination (18). Governed by Potential (0), this house represents our connection to meaning, purpose, and the sources of guidance that transcend rational analysis."
+  },
+  Mind: {
+    name: "Mind",
+    members: [4, 5, 15, 16],
+    governor: 19,
+    description: "Pattern and structure — order, culture, abstraction, and breakthrough.",
+    extended: "Mind contains the archetypes of mental organization: Order (4), Culture (5), Abstraction (15), and Breakthrough (16). Governed by Actualization (19), this house represents how we structure reality through thought, language, and systems."
+  },
+  Emotion: {
+    name: "Emotion",
+    members: [6, 7, 13, 14],
+    governor: 20,
+    description: "Feeling and drive — compassion, motivation, change, and balance.",
+    extended: "Emotion contains the archetypes of feeling and motivation: Compassion (6), Drive (7), Change (13), and Balance (14). Governed by Awareness (20), this house represents our capacity to feel, connect, and be moved toward action."
+  },
+  Body: {
+    name: "Body",
+    members: [8, 9, 11, 12],
+    governor: 1,
+    description: "Form and practice — fortitude, discipline, equity, and sacrifice.",
+    extended: "Body contains the archetypes of embodied practice: Fortitude (8), Discipline (9), Equity (11), and Sacrifice (12). Governed by Will (1), this house represents how we manifest in physical reality through endurance, skill, fairness, and release."
+  },
+  Portal: {
+    name: "Portal",
+    members: [10, 21],
+    governor: null,
+    description: "Threshold of entry and exit — cycles of beginning and completion.",
+    extended: "Portal contains the archetypes of transition: Cycles (10) as Ingress and Wholeness (21) as Egress. This house has no governor — it represents the thresholds through which consciousness enters and exits the system, the turning points of becoming."
+  }
+};
+
 // House colors matching Channel scheme
 const HOUSE_COLORS = {
   Gestalt: { border: 'border-amber-500/50', bg: 'bg-amber-950/30', text: 'text-amber-400' },
@@ -181,7 +287,18 @@ const DURABLE_SPREADS = {
       { name: "Path", house: "Spirit" },
       { name: "Outcome", house: "Gestalt" }
     ],
-    description: "Past → Present → Future"
+    description: "Situation → Path → Outcome"
+  },
+  fourAspects: {
+    name: "Four Aspects",
+    count: 4,
+    frames: [
+      { name: "Spirit", house: "Spirit" },
+      { name: "Mind", house: "Mind" },
+      { name: "Emotion", house: "Emotion" },
+      { name: "Body", house: "Body" }
+    ],
+    description: "The four aspects of self"
   },
   fiveHouse: { 
     name: "Five Houses", 
@@ -358,16 +475,77 @@ const EXPANSION_PROMPTS = {
 };
 
 // === CORRECTION LOGIC ===
+// Diagonal pairs by position (staying within same house)
+const DIAGONAL_PAIRS = {
+  0: 19, 19: 0,   // Gestalt (sum 19)
+  1: 20, 20: 1,   // Gestalt (sum 21)
+  2: 17, 17: 2,   // Spirit (sum 19)
+  3: 18, 18: 3,   // Spirit (sum 21)
+  4: 15, 15: 4,   // Mind (sum 19)
+  5: 16, 16: 5,   // Mind (sum 21)
+  6: 13, 13: 6,   // Emotion (sum 19)
+  7: 14, 14: 7,   // Emotion (sum 21)
+  8: 11, 11: 8,   // Body (sum 19)
+  9: 12, 12: 9,   // Body (sum 21)
+  10: 21, 21: 10  // Portal (sum 31 - Portal pairs with itself)
+};
+
+// Vertical pairs (all sum to 20)
+const VERTICAL_PAIRS = {
+  0: 20, 20: 0,
+  1: 19, 19: 1,
+  2: 18, 18: 2,
+  3: 17, 17: 3,
+  4: 16, 16: 4,
+  5: 15, 15: 5,
+  6: 14, 14: 6,
+  7: 13, 13: 7,
+  8: 12, 12: 8,
+  9: 11, 11: 9,
+  10: null, // Portal: Cycles has no vertical partner (20-10=10, self)
+  21: null  // Portal: Wholeness has no vertical partner (20-21=-1, invalid)
+};
+
+// Reduction pairs (same digit sum)
+const REDUCTION_GROUPS = {
+  1: [1, 10, 19],
+  2: [2, 11, 20],
+  3: [3, 12, 21],
+  4: [4, 13],
+  5: [5, 14],
+  6: [6, 15],
+  7: [7, 16],
+  8: [8, 17],
+  9: [9, 18]
+};
+
+function getDigitSum(n) {
+  let sum = String(n).split('').reduce((a, b) => a + parseInt(b), 0);
+  return sum > 9 ? (sum % 9 || 9) : sum;
+}
+
 function getArchetypeCorrection(position, status) {
   if (status === 1) return null;
-  if (status === 2) return { type: "diagonal", target: 19 - position };
-  if (status === 3) return { type: "vertical", target: 20 - position };
-  if (status === 4) {
-    const sum = String(position).split('').reduce((a, b) => a + parseInt(b), 0);
-    const pairs = { 1: [1, 10, 19], 2: [2, 11, 20], 3: [3, 12, 21], 4: [4, 13], 5: [5, 14], 6: [6, 15], 7: [7, 16], 8: [8, 17], 9: [9, 18] };
-    const key = sum > 9 ? (sum % 9 || 9) : sum;
-    return { type: "reduction", targets: (pairs[key] || []).filter(p => p !== position) };
+  
+  if (status === 2) {
+    // Too Much → Diagonal partner
+    const target = DIAGONAL_PAIRS[position];
+    return target !== undefined ? { type: "diagonal", target } : null;
   }
+  
+  if (status === 3) {
+    // Too Little → Vertical partner
+    const target = VERTICAL_PAIRS[position];
+    return (target !== null && target !== undefined) ? { type: "vertical", target } : null;
+  }
+  
+  if (status === 4) {
+    // Unacknowledged → Reduction pair(s)
+    const key = getDigitSum(position);
+    const targets = (REDUCTION_GROUPS[key] || []).filter(p => p !== position);
+    return targets.length > 0 ? { type: "reduction", targets } : null;
+  }
+  
   return null;
 }
 
@@ -609,22 +787,59 @@ HOUSE DYNAMICS — SHOW, DON'T NAME:
 - Reference house qualities through behavior, not technical terms
 - Let them feel the house without jargon`;
 
-// === CARD INFO MODAL COMPONENT ===
-const CardInfoModal = ({ cardId, onClose }) => {
-  if (cardId === null) return null;
-  
-  const component = getComponent(cardId);
-  const isArchetype = component.type === "Archetype";
-  const isBound = component.type === "Bound";
-  const isAgent = component.type === "Agent";
-  
-  const associatedArchetype = (isBound || isAgent) ? ARCHETYPES[component.archetype] : null;
-  const associations = isArchetype ? getAssociatedCards(cardId) : null;
+// === CLICKABLE TERM COMPONENT ===
+// Must be used inside a component that has access to setSelectedInfo
+const ClickableTermContext = ({ type, id, children, setSelectedInfo }) => {
+  const handleClick = (e) => {
+    e.stopPropagation();
+    let data = null;
+    if (type === 'card') {
+      data = getComponent(id);
+    } else if (type === 'channel') {
+      data = CHANNELS[id];
+    } else if (type === 'status') {
+      data = STATUS_INFO[id];
+    } else if (type === 'house') {
+      data = HOUSES[id];
+    }
+    setSelectedInfo({ type, id, data });
+  };
   
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-zinc-900 rounded-xl border border-zinc-700 max-w-md w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="p-5">
+    <span 
+      className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+      onClick={handleClick}
+    >
+      {children}
+    </span>
+  );
+};
+
+// === UNIVERSAL INFO MODAL COMPONENT ===
+const InfoModal = ({ info, onClose, setSelectedInfo }) => {
+  if (!info) return null;
+  
+  const { type, id, data } = info;
+  
+  // Local ClickableTerm that has access to setSelectedInfo
+  const ClickableTerm = ({ type: termType, id: termId, children }) => (
+    <ClickableTermContext type={termType} id={termId} setSelectedInfo={setSelectedInfo}>
+      {children}
+    </ClickableTermContext>
+  );
+  
+  // Render based on type
+  const renderContent = () => {
+    if (type === 'card') {
+      const component = data;
+      const isArchetype = component.type === "Archetype";
+      const isBound = component.type === "Bound";
+      const isAgent = component.type === "Agent";
+      const associatedArchetype = (isBound || isAgent) ? ARCHETYPES[component.archetype] : null;
+      const associations = isArchetype ? getAssociatedCards(id) : null;
+      
+      return (
+        <>
           <div className="flex justify-between items-start mb-4">
             <div>
               <h3 className="text-xl font-semibold text-zinc-100">{component.name}</h3>
@@ -643,17 +858,17 @@ const CardInfoModal = ({ cardId, onClose }) => {
             </span>
             {isArchetype && (
               <span className="text-xs text-zinc-500 ml-2">
-                {component.house} House • {component.function}
+                <ClickableTerm type="house" id={component.house}>{component.house}</ClickableTerm> House • {component.function}
               </span>
             )}
             {isBound && (
               <span className="text-xs text-zinc-500 ml-2">
-                {component.channel} • {component.number <= 5 ? 'Inner' : 'Outer'} Bound
+                <ClickableTerm type="channel" id={component.channel}>{component.channel}</ClickableTerm> • {component.number <= 5 ? 'Inner' : 'Outer'} Bound
               </span>
             )}
             {isAgent && (
               <span className="text-xs text-zinc-500 ml-2">
-                {component.role} • {component.channel}
+                {component.role} • <ClickableTerm type="channel" id={component.channel}>{component.channel}</ClickableTerm>
               </span>
             )}
           </div>
@@ -668,7 +883,7 @@ const CardInfoModal = ({ cardId, onClose }) => {
                 {isBound ? 'Expresses' : 'Embodies'}
               </p>
               <p className="text-sm text-zinc-300">
-                <span className="text-zinc-100 font-medium">{associatedArchetype.name}</span>
+                <ClickableTerm type="card" id={component.archetype}>{associatedArchetype.name}</ClickableTerm>
                 <span className="text-zinc-500"> — {associatedArchetype.description}</span>
               </p>
             </div>
@@ -683,9 +898,11 @@ const CardInfoModal = ({ cardId, onClose }) => {
                   <p className="text-xs text-zinc-600 mb-1">Bounds:</p>
                   <div className="flex flex-wrap gap-1">
                     {associations.bounds.map(b => (
-                      <span key={b.id} className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded">
-                        {b.name}
-                      </span>
+                      <ClickableTerm key={b.id} type="card" id={b.id}>
+                        <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded hover:bg-zinc-700 cursor-pointer">
+                          {b.name}
+                        </span>
+                      </ClickableTerm>
                     ))}
                   </div>
                 </div>
@@ -696,15 +913,120 @@ const CardInfoModal = ({ cardId, onClose }) => {
                   <p className="text-xs text-zinc-600 mb-1">Agents:</p>
                   <div className="flex flex-wrap gap-1">
                     {associations.agents.map(a => (
-                      <span key={a.id} className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded">
-                        {a.name}
-                      </span>
+                      <ClickableTerm key={a.id} type="card" id={a.id}>
+                        <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded hover:bg-zinc-700 cursor-pointer">
+                          {a.name}
+                        </span>
+                      </ClickableTerm>
                     ))}
                   </div>
                 </div>
               )}
             </div>
           )}
+        </>
+      );
+    }
+    
+    if (type === 'channel') {
+      const channel = CHANNELS[id];
+      if (!channel) return null;
+      
+      return (
+        <>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-zinc-100">{channel.name}</h3>
+              <p className="text-sm text-zinc-500">{channel.traditional} • {channel.element}</p>
+            </div>
+            <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+          </div>
+          
+          <div className="mb-4">
+            <span className={`text-xs px-2 py-1 rounded-full bg-opacity-20 ${CHANNEL_COLORS[id]}`}>
+              Channel
+            </span>
+          </div>
+          
+          <p className="text-sm text-zinc-300 mb-4 leading-relaxed">{channel.extended}</p>
+        </>
+      );
+    }
+    
+    if (type === 'status') {
+      const status = STATUS_INFO[id];
+      if (!status) return null;
+      
+      return (
+        <>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-zinc-100">{status.name}</h3>
+              <p className="text-sm text-zinc-500">{status.orientation}</p>
+            </div>
+            <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+          </div>
+          
+          <div className="mb-4">
+            <span className={`text-xs px-2 py-1 rounded-full ${STATUS_COLORS[id]}`}>
+              Status
+            </span>
+          </div>
+          
+          <p className="text-sm text-zinc-300 mb-4 leading-relaxed">{status.extended}</p>
+        </>
+      );
+    }
+    
+    if (type === 'house') {
+      const house = HOUSES[id];
+      if (!house) return null;
+      const houseColors = HOUSE_COLORS[id];
+      
+      return (
+        <>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-zinc-100">{house.name} House</h3>
+              <p className="text-sm text-zinc-500">
+                {house.governor !== null ? `Governed by ${ARCHETYPES[house.governor]?.name}` : 'No governor'}
+              </p>
+            </div>
+            <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+          </div>
+          
+          <div className="mb-4">
+            <span className={`text-xs px-2 py-1 rounded-full ${houseColors?.bg} ${houseColors?.text}`}>
+              House
+            </span>
+          </div>
+          
+          <p className="text-sm text-zinc-300 mb-4 leading-relaxed">{house.extended}</p>
+          
+          <div className="border-t border-zinc-700/50 pt-4">
+            <p className="text-xs text-zinc-500 uppercase tracking-wider mb-2">Members</p>
+            <div className="flex flex-wrap gap-1">
+              {house.members.map(m => (
+                <ClickableTerm key={m} type="card" id={m}>
+                  <span className="text-xs bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded hover:bg-zinc-700 cursor-pointer">
+                    {ARCHETYPES[m]?.name}
+                  </span>
+                </ClickableTerm>
+              ))}
+            </div>
+          </div>
+        </>
+      );
+    }
+    
+    return null;
+  };
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-zinc-900 rounded-xl border border-zinc-700 max-w-md w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="p-5">
+          {renderContent()}
         </div>
       </div>
     </div>
@@ -723,7 +1045,8 @@ const ReadingSection = ({
   onExpand,
   showTraditional,
   spreadType,
-  spreadKey
+  spreadKey,
+  setSelectedInfo
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
   const stat = draw ? STATUSES[draw.status] : null;
@@ -742,23 +1065,64 @@ const ReadingSection = ({
   
   const houseColors = house ? HOUSE_COLORS[house] : null;
   
-  // Build section label and sublabel
-  let label = '';
-  let sublabel = '';
-  if (type === 'summary') {
-    label = 'Summary';
-  } else if (type === 'card') {
-    label = trans?.name || `Card ${index + 1}`;
-    sublabel = `${stat?.prefix ? stat.prefix + ' · ' : ''}${posLabel}`;
-    if (showTraditional && trans?.traditional) {
-      sublabel += ` · ${trans.traditional}`;
+  // Helper to make terms clickable
+  const ClickableTerm = ({ type: termType, id: termId, children, className = "" }) => (
+    <span 
+      className={`cursor-pointer hover:underline decoration-dotted underline-offset-2 ${className}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        let data = null;
+        if (termType === 'card') data = getComponent(termId);
+        else if (termType === 'channel') data = CHANNELS[termId];
+        else if (termType === 'status') data = STATUS_INFO[termId];
+        else if (termType === 'house') data = HOUSES[termId];
+        setSelectedInfo({ type: termType, id: termId, data });
+      }}
+    >
+      {children}
+    </span>
+  );
+  
+  // Build section label with clickable terms
+  const renderLabel = () => {
+    if (type === 'summary') {
+      return <span className="text-amber-300 font-medium">Overview</span>;
+    } else if (type === 'card') {
+      const statusPrefix = stat?.prefix || 'Balanced';
+      return (
+        <span className={houseColors?.text || 'text-zinc-300'}>
+          <ClickableTerm type="status" id={draw.status} className={STATUS_COLORS[draw.status]?.split(' ')[0]}>
+            {statusPrefix}
+          </ClickableTerm>
+          {' '}
+          <ClickableTerm type="card" id={draw.transient}>{trans?.name}</ClickableTerm>
+          {' in your '}
+          <ClickableTerm type={isDurable ? "house" : "card"} id={isDurable ? house : draw.position}>
+            {posLabel}
+          </ClickableTerm>
+        </span>
+      );
+    } else if (type === 'correction') {
+      return (
+        <span className="text-emerald-400">
+          Path Forward: <ClickableTerm type="card" id={draw.transient}>{trans?.name}</ClickableTerm>
+          {' → '}
+          {(() => {
+            const correction = getFullCorrection(draw.transient, draw.status);
+            const correctionText = getCorrectionText(correction, trans);
+            const correctionTargetId = getCorrectionTargetId(correction, trans);
+            if (correctionTargetId !== null) {
+              return <ClickableTerm type="card" id={correctionTargetId}>{correctionText}</ClickableTerm>;
+            }
+            return correctionText;
+          })()}
+        </span>
+      );
+    } else if (type === 'letter') {
+      return <span className="text-zinc-700">A Note for You</span>;
     }
-  } else if (type === 'correction') {
-    label = `Path Forward: ${trans?.name || `Card ${index + 1}`}`;
-    sublabel = posLabel;
-  } else if (type === 'letter') {
-    label = 'A Note for You';
-  }
+    return null;
+  };
   
   const sectionKey = type === 'summary' ? 'summary' : type === 'letter' ? 'letter' : `${type}:${index}`;
   const sectionExpansions = expansions[sectionKey] || {};
@@ -767,9 +1131,9 @@ const ReadingSection = ({
   // Determine section styling based on type
   const getSectionStyle = () => {
     if (type === 'summary') {
-      return 'bg-zinc-900/50 border-zinc-800/50';
+      return 'bg-gradient-to-br from-amber-950/40 to-amber-900/20 border-amber-500/50';
     } else if (type === 'letter') {
-      return 'bg-gradient-to-br from-zinc-900/70 to-zinc-800/30 border-zinc-700/50';
+      return 'bg-zinc-100 border-zinc-300';
     } else if (houseColors) {
       return `${houseColors.bg} ${houseColors.border}`;
     }
@@ -777,11 +1141,32 @@ const ReadingSection = ({
   };
   
   const getBadgeStyle = () => {
-    if (type === 'summary') return 'bg-zinc-700 text-zinc-300';
-    if (type === 'letter') return 'bg-rose-900/50 text-rose-300';
+    if (type === 'summary') return 'bg-amber-500/30 text-amber-300';
+    if (type === 'letter') return 'bg-zinc-200 text-zinc-600';
     if (type === 'correction') return 'bg-emerald-900/50 text-emerald-400';
     if (houseColors) return `${houseColors.bg} ${houseColors.text}`;
     return 'bg-zinc-800 text-zinc-400';
+  };
+  
+  const getContentStyle = () => {
+    if (type === 'letter') return 'text-zinc-800 italic';
+    if (type === 'summary') return 'text-amber-100/90';
+    return 'text-zinc-300';
+  };
+  
+  const getButtonStyle = (hasExpansion, isThisExpanding, isExpandingOther) => {
+    if (type === 'letter') {
+      return `text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+        hasExpansion 
+          ? 'bg-zinc-300 text-zinc-700 border border-zinc-400' 
+          : 'bg-zinc-200 text-zinc-500 hover:text-zinc-700 hover:bg-zinc-300'
+      } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`;
+    }
+    return `text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+      hasExpansion 
+        ? 'bg-zinc-700 text-zinc-200 border border-zinc-600' 
+        : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+    } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`;
   };
   
   return (
@@ -792,15 +1177,15 @@ const ReadingSection = ({
           <span className={`text-xs px-2 py-0.5 rounded-full ${getBadgeStyle()}`}>
             {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : type === 'correction' ? 'Action' : 'Letter'}
           </span>
-          <span className={`text-sm font-medium ${houseColors?.text || 'text-zinc-300'}`}>{label}</span>
+          <span className="text-sm font-medium">{renderLabel()}</span>
         </div>
-        {sublabel && (
-          <span className="text-xs text-zinc-500 ml-1">{sublabel}</span>
+        {type === 'card' && showTraditional && trans?.traditional && (
+          <span className="text-xs text-zinc-500 ml-1">{trans.traditional}</span>
         )}
       </div>
       
       {/* Main Content */}
-      <div className={`leading-relaxed text-sm mb-4 whitespace-pre-wrap ${type === 'letter' ? 'text-zinc-300 italic' : 'text-zinc-300'}`}>
+      <div className={`leading-relaxed text-sm mb-4 whitespace-pre-wrap ${getContentStyle()}`}>
         {content}
       </div>
       
@@ -809,20 +1194,17 @@ const ReadingSection = ({
         {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
           const isThisExpanding = isExpanding && expanding?.type === key;
           const hasExpansion = !!sectionExpansions[key];
+          const isExpandingOther = isExpanding && !isThisExpanding;
           
           return (
             <button
               key={key}
               onClick={() => onExpand(sectionKey, key)}
               disabled={isExpanding}
-              className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                hasExpansion 
-                  ? 'bg-zinc-700 text-zinc-200 border border-zinc-600' 
-                  : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-              } ${isExpanding && !isThisExpanding ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={getButtonStyle(hasExpansion, isThisExpanding, isExpandingOther)}
             >
               {isThisExpanding && (
-                <span className="inline-block w-3 h-3 border border-zinc-400 border-t-transparent rounded-full animate-spin"></span>
+                <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
               )}
               {label}
             </button>
@@ -832,19 +1214,19 @@ const ReadingSection = ({
       
       {/* Expansion Content */}
       {Object.entries(sectionExpansions).map(([expType, expContent]) => (
-        <div key={expType} className="mt-4 pt-4 border-t border-zinc-700/50">
+        <div key={expType} className={`mt-4 pt-4 ${type === 'letter' ? 'border-t border-zinc-300' : 'border-t border-zinc-700/50'}`}>
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs text-zinc-500 uppercase tracking-wider">
+            <span className={`text-xs uppercase tracking-wider ${type === 'letter' ? 'text-zinc-500' : 'text-zinc-500'}`}>
               {EXPANSION_PROMPTS[expType]?.label}
             </span>
             <button 
-              onClick={() => onExpand(sectionKey, expType, true)} // true = remove
-              className="text-zinc-600 hover:text-zinc-400 text-xs"
+              onClick={() => onExpand(sectionKey, expType, true)}
+              className={`text-xs ${type === 'letter' ? 'text-zinc-400 hover:text-zinc-600' : 'text-zinc-600 hover:text-zinc-400'}`}
             >
               ×
             </button>
           </div>
-          <div className="text-zinc-400 text-sm leading-relaxed whitespace-pre-wrap">
+          <div className={`text-sm leading-relaxed whitespace-pre-wrap ${type === 'letter' ? 'text-zinc-600' : 'text-zinc-400'}`}>
             {expContent}
           </div>
         </div>
@@ -899,7 +1281,7 @@ export default function NirmanakaReader() {
   const [showArchitecture, setShowArchitecture] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [isSharedReading, setIsSharedReading] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [selectedInfo, setSelectedInfo] = useState(null); // {type: 'card'|'channel'|'status'|'house', id: ..., data: ...}
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
 
@@ -956,14 +1338,14 @@ export default function NirmanakaReader() {
     catch { prompt('Copy this link:', shareUrl); }
   };
 
-  const performReadingWithDraws = async (drawsToUse) => {
+  const performReadingWithDraws = async (drawsToUse, questionToUse = question) => {
     setLoading(true); setError(''); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
     const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, showTraditional);
     const personaConfig = PERSONAS[persona];
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Random`;
     
     const systemPrompt = `${BASE_SYSTEM}\n\n${personaConfig.instruction}`;
-    const userMessage = `QUESTION: "${question}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:1], [CORRECTION:2], etc. Each marker on its own line.`;
+    const userMessage = `QUESTION: "${questionToUse}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:1], [CORRECTION:2], etc., [LETTER]. Each marker on its own line.`;
 
     try {
       const res = await fetch('/api/reading', {
@@ -982,12 +1364,13 @@ export default function NirmanakaReader() {
   };
 
   const performReading = async () => {
-    if (!question.trim()) { setError('Please enter your question.'); return; }
+    const actualQuestion = question.trim() || 'General reading';
+    setQuestion(actualQuestion);
     const isDurable = spreadType === 'durable';
     const count = isDurable ? DURABLE_SPREADS[spreadKey].count : RANDOM_SPREADS[spreadKey].count;
     const newDraws = generateSpread(count, isDurable);
     setDraws(newDraws);
-    await performReadingWithDraws(newDraws);
+    await performReadingWithDraws(newDraws, actualQuestion);
   };
 
   const handleExpand = async (sectionKey, expansionType, remove = false) => {
@@ -1158,11 +1541,34 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     
     const contextLabel = isDurable ? spreadConfig.frames[index].name : (draw.position !== null ? ARCHETYPES[draw.position]?.name : 'Draw');
     const contextSub = isDurable ? null : (draw.position !== null ? `Position ${draw.position}` : null);
+    
+    // Helper to open card info
+    const openCardInfo = (cardId) => {
+      setSelectedInfo({ type: 'card', id: cardId, data: getComponent(cardId) });
+    };
+    
+    // Helper to open status info
+    const openStatusInfo = (statusId) => {
+      setSelectedInfo({ type: 'status', id: statusId, data: STATUS_INFO[statusId] });
+    };
+    
+    // Helper to open channel info
+    const openChannelInfo = (channelName) => {
+      setSelectedInfo({ type: 'channel', id: channelName, data: CHANNELS[channelName] });
+    };
+    
+    // Helper to open house info
+    const openHouseInfo = (houseName) => {
+      setSelectedInfo({ type: 'house', id: houseName, data: HOUSES[houseName] });
+    };
 
     return (
       <div className={`rounded-xl border-2 p-4 ${houseColors.border} ${houseColors.bg} transition-all`}>
         <div className="mb-3">
-          <span className={`text-xs px-2 py-1 rounded-full ${STATUS_COLORS[draw.status]}`}>
+          <span 
+            className={`text-xs px-2 py-1 rounded-full cursor-pointer hover:opacity-80 ${STATUS_COLORS[draw.status]}`}
+            onClick={() => openStatusInfo(draw.status)}
+          >
             {stat.name}
           </span>
         </div>
@@ -1170,7 +1576,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="mb-3">
           <div 
             className="text-xl text-zinc-100 font-semibold cursor-pointer hover:text-zinc-300 transition-colors"
-            onClick={() => setSelectedCard(draw.transient)}
+            onClick={() => openCardInfo(draw.transient)}
             title="Click for details"
           >
             {trans.name}
@@ -1185,7 +1591,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         </div>
 
         <div className="text-sm text-zinc-400 mb-3">
-          in your <span className={`font-medium ${houseColors.text}`}>{contextLabel}</span>
+          in your <span 
+            className={`font-medium cursor-pointer hover:underline decoration-dotted ${houseColors.text}`}
+            onClick={() => isDurable ? openHouseInfo(house) : openCardInfo(draw.position)}
+          >{contextLabel}</span>
           {contextSub && <span className="text-zinc-600 text-xs ml-1">({contextSub})</span>}
         </div>
 
@@ -1193,13 +1602,16 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           {trans.type === "Bound" && (
             <>
               <div className="text-sm">
-                <span className={CHANNEL_COLORS[trans.channel]}>{trans.channel}</span>
+                <span 
+                  className={`cursor-pointer hover:underline decoration-dotted ${CHANNEL_COLORS[trans.channel]}`}
+                  onClick={() => openChannelInfo(trans.channel)}
+                >{trans.channel}</span>
                 <span className="text-zinc-500"> Channel</span>
               </div>
               <div className="text-sm text-zinc-400">
                 Expresses <span 
                   className="text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
-                  onClick={() => setSelectedCard(trans.archetype)}
+                  onClick={() => openCardInfo(trans.archetype)}
                 >{transArchetype?.name}</span>
               </div>
             </>
@@ -1209,12 +1621,15 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="text-sm">
                 <span className="text-zinc-300">{trans.role}</span>
                 <span className="text-zinc-500"> of </span>
-                <span className={CHANNEL_COLORS[trans.channel]}>{trans.channel}</span>
+                <span 
+                  className={`cursor-pointer hover:underline decoration-dotted ${CHANNEL_COLORS[trans.channel]}`}
+                  onClick={() => openChannelInfo(trans.channel)}
+                >{trans.channel}</span>
               </div>
               <div className="text-sm text-zinc-400">
                 Embodies <span 
                   className="text-zinc-300 cursor-pointer hover:text-zinc-100 transition-colors"
-                  onClick={() => setSelectedCard(trans.archetype)}
+                  onClick={() => openCardInfo(trans.archetype)}
                 >{transArchetype?.name}</span>
               </div>
             </>
@@ -1227,7 +1642,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             <div className="text-sm text-zinc-300">
               → <span 
                 className={correctionTargetId !== null ? "cursor-pointer hover:text-zinc-100 transition-colors" : ""}
-                onClick={() => correctionTargetId !== null && setSelectedCard(correctionTargetId)}
+                onClick={() => correctionTargetId !== null && openCardInfo(correctionTargetId)}
               >{correctionText}</span>
             </div>
           </div>
@@ -1303,7 +1718,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </button>
             </div>
 
-            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="What's your question?"
+            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="What's your question? (or leave blank for a general reading)"
               className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors mb-4" rows={3} />
 
             <button onClick={performReading} disabled={loading}
@@ -1342,7 +1757,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </div>
             </div>
             
-            <div className={`grid gap-4 ${draws.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : draws.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-3 lg:grid-cols-5'}`}>
+            <div className={`grid gap-4 ${
+              draws.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : 
+              draws.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 
+              draws.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
+              'grid-cols-1 sm:grid-cols-3 lg:grid-cols-5'
+            }`}>
               {draws.map((draw, i) => <CardDisplay key={i} draw={draw} index={i} />)}
             </div>
 
@@ -1410,10 +1830,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                             <div className="mt-1 pl-3 border-l-2 border-zinc-700 text-zinc-600">
                               {trans.type === "Archetype" && (
                                 <>
-                                  {draw.status === 2 && <div>Diagonal correction: 19 - {draw.transient} = {19 - draw.transient} → {ARCHETYPES[19 - draw.transient]?.name}</div>}
-                                  {draw.status === 3 && <div>Vertical correction: 20 - {draw.transient} = {20 - draw.transient} → {ARCHETYPES[20 - draw.transient]?.name}</div>}
+                                  {draw.status === 2 && <div>Diagonal correction: {draw.transient} ↔ {DIAGONAL_PAIRS[draw.transient]} (sum {draw.transient + DIAGONAL_PAIRS[draw.transient]}) → {ARCHETYPES[DIAGONAL_PAIRS[draw.transient]]?.name}</div>}
+                                  {draw.status === 3 && <div>Vertical correction: {draw.transient} ↔ {VERTICAL_PAIRS[draw.transient]} (sum 20) → {ARCHETYPES[VERTICAL_PAIRS[draw.transient]]?.name}</div>}
                                   {draw.status === 4 && correction.targets && (
-                                    <div>Reduction pair (digit sum): {correction.targets.map(t => `${ARCHETYPES[t]?.name} (${t})`).join(', ')}</div>
+                                    <div>Reduction pair (digit sum {getDigitSum(draw.transient)}): {correction.targets.map(t => `${ARCHETYPES[t]?.name} (${t})`).join(', ')}</div>
                                   )}
                                 </>
                               )}
@@ -1426,9 +1846,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                               )}
                               {trans.type === "Agent" && correction.target !== undefined && (
                                 <>
-                                  <div>Agent corrects through embodied Archetype ({transArchetype?.name})</div>
-                                  {draw.status === 2 && <div>Diagonal: 19 - {trans.archetype} = {correction.target} → {ARCHETYPES[correction.target]?.name}</div>}
-                                  {draw.status === 3 && <div>Vertical: 20 - {trans.archetype} = {correction.target} → {ARCHETYPES[correction.target]?.name}</div>}
+                                  <div>Agent corrects through embodied Archetype ({transArchetype?.name}, position {trans.archetype})</div>
+                                  {draw.status === 2 && <div>Diagonal: {trans.archetype} ↔ {DIAGONAL_PAIRS[trans.archetype]} → {ARCHETYPES[correction.target]?.name}</div>}
+                                  {draw.status === 3 && <div>Vertical: {trans.archetype} ↔ {VERTICAL_PAIRS[trans.archetype]} → {ARCHETYPES[correction.target]?.name}</div>}
                                 </>
                               )}
                             </div>
@@ -1531,6 +1951,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 showTraditional={showTraditional}
                 spreadType={spreadType}
                 spreadKey={spreadKey}
+                setSelectedInfo={setSelectedInfo}
               />
             )}
             
@@ -1549,6 +1970,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 showTraditional={showTraditional}
                 spreadType={spreadType}
                 spreadKey={spreadKey}
+                setSelectedInfo={setSelectedInfo}
               />
             ))}
             
@@ -1567,6 +1989,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 showTraditional={showTraditional}
                 spreadType={spreadType}
                 spreadKey={spreadKey}
+                setSelectedInfo={setSelectedInfo}
               />
             ))}
             
@@ -1582,6 +2005,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 showTraditional={showTraditional}
                 spreadType={spreadType}
                 spreadKey={spreadKey}
+                setSelectedInfo={setSelectedInfo}
               />
             )}
             
@@ -1617,8 +2041,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <p className="text-center text-zinc-800 text-[10px] mt-8 tracking-wider">The structure is the authority. Encounter precedes understanding.</p>
       </div>
       
-      {/* Card Info Modal */}
-      <CardInfoModal cardId={selectedCard} onClose={() => setSelectedCard(null)} />
+      {/* Info Modal */}
+      <InfoModal info={selectedInfo} onClose={() => setSelectedInfo(null)} setSelectedInfo={setSelectedInfo} />
     </div>
   );
 }
