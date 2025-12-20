@@ -1232,24 +1232,22 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   );
   
   const DimensionRow = ({ label, dimension, options }) => (
-    <div className="flex items-center gap-2 mb-2 flex-wrap">
-      <span className="text-xs text-zinc-500 w-16 shrink-0">{label}</span>
-      <div className="flex gap-1 flex-wrap">
-        {options.map(opt => (
-          <button
-            key={opt}
-            onClick={() => setStance({ ...stance, [dimension]: opt })}
-            className={`px-3 py-1 rounded-lg text-xs transition-all ${
-              stance[dimension] === opt 
-                ? 'bg-zinc-700 text-zinc-100 border border-zinc-500' 
-                : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-            }`}
-          >
-            {opt.charAt(0).toUpperCase() + opt.slice(1)}
-          </button>
-        ))}
-      </div>
-      <span className="text-xs text-zinc-600 italic ml-1">
+    <div className="grid grid-cols-[4rem_1fr_1fr_1fr_1fr_auto] gap-2 mb-2 items-center">
+      <span className="text-xs text-zinc-500">{label}</span>
+      {options.map(opt => (
+        <button
+          key={opt}
+          onClick={() => setStance({ ...stance, [dimension]: opt })}
+          className={`px-3 py-1.5 rounded-lg text-xs transition-all text-center ${
+            stance[dimension] === opt 
+              ? 'bg-zinc-700 text-zinc-100 border border-zinc-500' 
+              : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+          }`}
+        >
+          {opt.charAt(0).toUpperCase() + opt.slice(1)}
+        </button>
+      ))}
+      <span className="text-xs text-zinc-600 italic pl-2">
         — {DIMENSION_DESCRIPTIONS[dimension][stance[dimension]]}
       </span>
     </div>
@@ -1829,7 +1827,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.16 alpha • inline descriptions</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.17 alpha • grid alignment</p>
         </div>
 
         {!draws && <IntroSection />}
