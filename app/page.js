@@ -1252,45 +1252,79 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
     </div>
   );
   
+  // Stance dimension descriptions for display
+  const DIMENSION_DESCRIPTIONS = {
+    voice: { wonder: "Open & curious", warm: "Caring & relational", direct: "Precise & clear", grounded: "Solid & practical" },
+    focus: { do: "Action-oriented", feel: "Emotionally attuned", see: "Insight-focused", build: "Structure-focused" },
+    density: { luminous: "Layered & evocative", rich: "Full & expansive", clear: "Accessible & flowing", essential: "Minimal & bare" },
+    scope: { resonant: "Widest patterns", patterned: "Recurring dynamics", connected: "Relational web", here: "Immediate focus" }
+  };
+  
+  const getCurrentDescription = () => {
+    return `${DIMENSION_DESCRIPTIONS.voice[stance.voice]} • ${DIMENSION_DESCRIPTIONS.focus[stance.focus]} • ${DIMENSION_DESCRIPTIONS.density[stance.density]} • ${DIMENSION_DESCRIPTIONS.scope[stance.scope]}`;
+  };
+  
   // Compact mode for mid-reading stance changes
   if (compact) {
     return (
       <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 mb-4">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-xs text-zinc-500 uppercase tracking-wider">Adjust Delivery</span>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                setStance({ ...stance, density: 'essential', voice: 'direct' });
-              }}
-              className="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-all"
-            >
-              Simplify
-            </button>
-            {onReinterpret && (
+        {/* Current stance display */}
+        <div className="mb-4 pb-3 border-b border-zinc-800/50">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-zinc-300 font-medium">
+              {currentPreset ? currentPreset[1].name : "Custom Stance"}
+            </span>
+            <div className="flex gap-2">
               <button
-                onClick={onReinterpret}
-                className="text-xs px-3 py-1.5 rounded-lg bg-amber-900/50 text-amber-400 hover:bg-amber-900/70 transition-all"
+                onClick={() => {
+                  setStance({ ...stance, density: 'essential', voice: 'direct' });
+                }}
+                className="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-all"
               >
-                Re-interpret
+                Simplify
               </button>
-            )}
+              {onReinterpret && (
+                <button
+                  onClick={onReinterpret}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-amber-900/50 text-amber-400 hover:bg-amber-900/70 transition-all font-medium"
+                >
+                  Re-interpret ↻
+                </button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-zinc-500">{getCurrentDescription()}</p>
+        </div>
+        
+        {/* Preset quick-select */}
+        <div className="mb-4">
+          <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Presets</span>
+          <div className="flex gap-2 flex-wrap">
+            {Object.entries(STANCE_PRESETS).map(([key, preset]) => (
+              <button
+                key={key}
+                onClick={() => applyPreset(key)}
+                title={preset.description}
+                className={`px-2.5 py-1 rounded-lg text-xs transition-all ${
+                  currentPreset?.[0] === key
+                    ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                    : 'bg-zinc-800/50 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
+                }`}
+              >
+                {preset.name}
+              </button>
+            ))}
           </div>
         </div>
         
         {/* Inline dimension controls */}
         <div className="space-y-2">
+          <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Fine-tune</span>
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
           <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
           <DimensionRow label="Scope" dimension="scope" options={['resonant', 'patterned', 'connected', 'here']} />
         </div>
-        
-        {currentPreset ? (
-          <p className="text-xs text-zinc-600 mt-3 text-center">{currentPreset[1].name}</p>
-        ) : (
-          <p className="text-xs text-zinc-600 mt-3 text-center">Custom stance</p>
-        )}
       </div>
     );
   }
@@ -1792,7 +1826,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.14 alpha • re-interpret</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.15 alpha • adjust delivery</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2065,13 +2099,29 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {/* Parsed Reading Sections */}
         {parsedReading && !loading && (
           <div className="space-y-2">
-            {/* Mid-reading stance controls */}
+            {/* Mid-reading stance controls - more prominent */}
             <div className="mb-4">
               <button
                 onClick={() => setShowMidReadingStance(!showMidReadingStance)}
-                className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
+                  showMidReadingStance 
+                    ? 'bg-zinc-800/50 border border-zinc-700/50' 
+                    : 'bg-zinc-900/30 border border-zinc-800/30 hover:bg-zinc-900/50 hover:border-zinc-700/50'
+                }`}
               >
-                {showMidReadingStance ? '▾ Hide delivery options' : '▸ Adjust delivery / Re-interpret'}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm text-zinc-300">
+                      {showMidReadingStance ? '▾' : '▸'} Adjust Delivery
+                    </span>
+                    <span className="text-xs text-zinc-600 ml-2">
+                      {getCurrentStanceLabel()}
+                    </span>
+                  </div>
+                  <span className="text-xs text-zinc-500">
+                    {showMidReadingStance ? 'collapse' : 'change voice, simplify, re-interpret'}
+                  </span>
+                </div>
               </button>
               
               {showMidReadingStance && (
