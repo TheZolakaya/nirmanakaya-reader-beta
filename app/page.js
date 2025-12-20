@@ -320,153 +320,76 @@ const RANDOM_SPREADS = {
   five: { name: "Five", count: 5 }
 };
 
-const PERSONAS = {
-  seeker: {
-    name: "Seeker",
-    description: "Warm & accessible",
-    instruction: `You are warm and accessible, like a thoughtful friend.
+// === STANCE SYSTEM ===
+// The 16 modifiers that create 256 stances
 
-RESPONSE FORMAT — CRITICAL:
-Use these exact markers to structure your response. Each marker must be on its own line.
+const VOICE_MODIFIERS = {
+  wonder: `Speak with open curiosity, as if encountering the reading fresh. Wonder allows questions to stay open. Your tone is light, exploratory, inviting — not heavy with conclusions. Leave space for possibility.`,
+  warm: `Speak with caring presence. Hold the reading with warmth, as a trusted friend would. Your tone acknowledges the human navigating this. Relational without dilution — warmth does not soften truth.`,
+  direct: `Speak with precision. Cut through to what matters. No padding, no hedging, no softening that dilutes clarity. Your tone is clean and economical. Say what needs to be said.`,
+  grounded: `Speak from landed reality. Stay in the body, in the practical, in what's actually here. Your tone is solid, present, earthy. No floating, no abstraction that disconnects from the real.`
+};
 
-[SUMMARY]
-2-3 sentences directly answering their question based on the overall pattern. Reference their specific question.
+const FOCUS_MODIFIERS = {
+  do: `Emphasize action and direction. What should they do? What's the next step? Your response leans toward movement, will, concrete choices. The question "what do I do now?" should feel answered.`,
+  feel: `Emphasize emotional truth and resonance. What's actually felt here? What's the heart of it? Your response attunes to the relational, the felt sense, the emotional reality beneath the configuration.`,
+  see: `Emphasize clarity and insight. Help them understand what's happening. Your response illuminates pattern, mechanism, the logic of the structure. The question "what am I looking at?" should feel answered.`,
+  build: `Emphasize practical structure. What gets built from here? What's the tangible form this takes? Your response focuses on manifestation, resources, concrete outcomes. The question "how does this become real?" should feel answered.`
+};
 
-[CARD:1]
-What this card shows — the transient, status, and what's happening here. Use temporal framing (Too Much = future-projected, Too Little = past-anchored). Connect this specifically to their question. 2-3 sentences, warm and clear.
+const DENSITY_MODIFIERS = {
+  luminous: `Use full language — layered, evocative, spacious. Allow metaphor. Let sentences breathe. Depth comes from layering, not length. Give the reading room to land in multiple registers.`,
+  rich: `Use expansive language — warm, full, with breathing room. Not minimal, but not overwhelming. Give enough context for the reading to feel complete without crowding. Paragraphs are welcome.`,
+  clear: `Use accessible language — flowing, balanced, easy to follow. Not sparse, but not dense. The reading should feel readable, transmissible. Someone could explain this to a friend.`,
+  essential: `Use minimal language — bare, irreducible, core truth only. No padding. No extra context unless necessary. Short sentences. Every word earns its place. If it can be said in fewer words, say it in fewer words.`
+};
 
-[CARD:2]
-(Continue for each card... always connect back to their specific question)
+const SCOPE_MODIFIERS = {
+  resonant: `Frame the reading in the widest context — the deepest pattern showing up NOW across all experience. This isn't about history; it's about what's alive at the largest scale in this moment. Touch the archetypal without losing the personal.`,
+  patterned: `Frame the reading in terms of recurring dynamics — what's cycling back, what rhythm is alive now. Not "your past" but "this pattern" as it shows up in the present. Transformation cycles, not history.`,
+  connected: `Frame the reading in relational context — how this links to what's around it. Other people, other situations, adjacent concerns. The reading lives in a web. Do not enumerate endlessly — show connection, not accumulation.`,
+  here: `Frame the reading in immediate context — this moment, this question, this situation. Don't reach for larger patterns unless they're directly relevant. Stay close. The here and now is enough.`
+};
 
-[CORRECTION:1]
-For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. 2-3 sentences. Skip this section ENTIRELY if Card 1 is Balanced. For Unacknowledged, explain what's operating in shadow and how to bring it into awareness.
+// Stance presets
+const STANCE_PRESETS = {
+  startHere: { name: "Start Here", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Curious & accessible" },
+  quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
+  deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
+  justTheFacts: { name: "Just the Facts", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
+  crisisMode: { name: "Crisis Mode", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
+  oldSoul: { name: "Old Soul", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
+};
 
-[CORRECTION:2]
-For Card 2's imbalance. Skip ENTIRELY if Card 2 is Balanced.
+// Build the stance prompt from 4 dimensions
+const buildStancePrompt = (voice, focus, density, scope) => {
+  return `
+STANCE MODIFIERS:
+These affect tone, emphasis, framing, and language — they do not change archetypal interpretation, correction logic, or conclusions.
 
-(Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
+VOICE: ${VOICE_MODIFIERS[voice]}
 
-[LETTER]
-A brief, warm letter addressed directly to them (use "you"). Acknowledge what they're navigating with their question. Weave together the key insights from the reading into an empathetic overview. End with encouragement. 3-4 sentences, heartfelt but not saccharine.
+FOCUS: ${FOCUS_MODIFIERS[focus]}
 
-CONTENT GUIDELINES:
-- ALWAYS connect each section back to their specific question — don't speak generically
-- Use TEMPORAL framing: Too Much = "leaning into the future," Too Little = "caught in the past"
-- For corrections, explain WHY it helps and WHAT to actually do
-- Use simple, everyday language
-- Be warm but direct`
-  },
-  practitioner: {
-    name: "Practitioner", 
-    description: "Structural & precise",
-    instruction: `You speak with precision about the architecture.
+DENSITY: ${DENSITY_MODIFIERS[density]}
 
-RESPONSE FORMAT — CRITICAL:
-Use these exact markers to structure your response. Each marker must be on its own line.
+SCOPE: ${SCOPE_MODIFIERS[scope]}
+`;
+};
 
-[SUMMARY]
-2-3 sentences on the structural pattern — what the configuration reveals about their specific question.
-
-[CARD:1]
-Precise breakdown: transient, position context, status with temporal orientation. Note house dynamics through behavior (not jargon). Reference how this applies to their question. 2-4 sentences.
-
-[CARD:2]
-(Continue for each card... always ground in their question)
-
-[CORRECTION:1]
-For Card 1: Name the correction, show the logic briefly (diagonal/vertical/reduction), explain WHY this correction addresses their situation. Skip ENTIRELY if Balanced. For Unacknowledged, explain the reduction pair and how it brings shadow into awareness.
-
-[CORRECTION:2]
-For Card 2. Skip ENTIRELY if Balanced.
-
-(CORRECTION numbers MUST match CARD numbers. If Card 3 needs correction, use [CORRECTION:3]. If Card 5 needs correction, use [CORRECTION:5]. Never number sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
-
-[LETTER]
-A thoughtful note addressed to them. Acknowledge the structural reality they're facing with their question. Synthesize the key architectural insights into practical understanding. End with clear-eyed encouragement. 3-4 sentences, precise but warm.
-
-CONTENT GUIDELINES:
-- ALWAYS connect each section to their specific question
-- Use TEMPORAL framing precisely
-- Show correction logic briefly but clearly
-- Reference house dynamics through observable behavior
-- Maintain structural precision without coldness`
-  },
-  philosopher: {
-    name: "Philosopher",
-    description: "Deep & contemplative",
-    instruction: `You speak contemplatively, drawing out meaning.
-
-RESPONSE FORMAT — CRITICAL:
-Use these exact markers to structure your response. Each marker must be on its own line.
-
-[SUMMARY]
-A contemplative opening that addresses their question through the lens of presence and becoming. 2-3 sentences.
-
-[CARD:1]
-Reflective exploration of what this card reveals about their question — weaving temporal orientation poetically ("living in potential futures," "caught in echoes of the past," "not yet arrived in the now"). 3-4 sentences.
-
-[CARD:2]
-(Continue for each card... always returning to their question)
-
-[CORRECTION:1]
-Frame the correction as an invitation that restores presence in relation to their question. Connect to larger themes of time, awareness, becoming. What does this correction ask of them? Skip ENTIRELY if Balanced. For Unacknowledged, invite what's operating in shadow to come into conscious relationship.
-
-[CORRECTION:2]
-For Card 2. Skip ENTIRELY if Balanced.
-
-(CORRECTION numbers MUST match CARD numbers. [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc. Never number sequentially — skip numbers for balanced cards. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
-
-[LETTER]
-A contemplative letter addressed to them. Honor the depth of what they're asking. Weave the reading's insights into a reflection on their journey. Close with an open question or gentle invitation. 4-5 sentences, soulful.
-
-CONTENT GUIDELINES:
-- ALWAYS ground contemplation in their specific question
-- Use temporal framing poetically
-- Frame corrections as invitations
-- Connect to themes of presence and becoming
-- Maintain depth without obscurity`
-  },
-  direct: {
-    name: "Direct",
-    description: "Brief & actionable",
-    instruction: `Brief and clear. Minimum words, maximum clarity.
-
-RESPONSE FORMAT — CRITICAL:
-Use these exact markers to structure your response. Each marker must be on its own line.
-
-[SUMMARY]
-One sentence answering their question directly.
-
-[CARD:1]
-One sentence: what's happening with their question (include temporal frame in parentheses).
-
-[CARD:2]
-(Continue for each card...)
-
-[CORRECTION:1]
-One sentence: correction → what to do about their situation. Skip ENTIRELY if Balanced. For Unacknowledged: what's hidden that needs seeing.
-
-[CORRECTION:2]
-For Card 2. Skip ENTIRELY if Balanced.
-
-(CORRECTION numbers MUST match CARD numbers. Never number sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
-
-[LETTER]
-2-3 sentences max. Acknowledge their question. State the bottom line. One clear encouragement.
-
-CONTENT GUIDELINES:
-- ALWAYS tie each point to their specific question
-- Include temporal frame in parentheses: (future-leaning), (past-anchored), (shadow)
-- Simple words only
-- No filler`
-  }
+// Voice letter tone guidance
+const VOICE_LETTER_TONE = {
+  wonder: "curious, invitational",
+  warm: "relational, human",
+  direct: "concise, declarative",
+  grounded: "stabilizing, practical"
 };
 
 // Expansion type prompts
 const EXPANSION_PROMPTS = {
   unpack: {
     label: "Unpack",
-    prompt: "Go deeper on this specific section. Explore the layers, nuances, and implications. What's really happening here beneath the surface? Keep the same warm, clear tone."
+    prompt: "Go deeper on this specific section. Explore the layers, nuances, and implications. What's really happening here beneath the surface? Keep the same tone."
   },
   clarify: {
     label: "Clarify",
@@ -645,14 +568,32 @@ function generateSpread(count, isDurable = false) {
   });
 }
 
-function encodeDraws(draws, spreadType, spreadKey, persona, question) {
-  return btoa(JSON.stringify({ d: draws, t: spreadType, k: spreadKey, p: persona, q: question }));
+function encodeDraws(draws, spreadType, spreadKey, stance, question) {
+  return btoa(JSON.stringify({ d: draws, t: spreadType, k: spreadKey, s: stance, q: question }));
 }
 
 function decodeDraws(encoded) {
   try {
     const data = JSON.parse(atob(encoded));
-    return { draws: data.d, spreadType: data.t, spreadKey: data.k, persona: data.p, question: data.q };
+    // Handle legacy persona format
+    if (data.p && !data.s) {
+      // Convert old persona to closest stance preset
+      const legacyMap = {
+        seeker: 'startHere',
+        practitioner: 'justTheFacts',
+        philosopher: 'deepDive',
+        direct: 'quickAnswer'
+      };
+      const preset = STANCE_PRESETS[legacyMap[data.p] || 'startHere'];
+      return { 
+        draws: data.d, 
+        spreadType: data.t, 
+        spreadKey: data.k, 
+        stance: { voice: preset.voice, focus: preset.focus, density: preset.density, scope: preset.scope },
+        question: data.q 
+      };
+    }
+    return { draws: data.d, spreadType: data.t, spreadKey: data.k, stance: data.s, question: data.q };
   } catch { return null; }
 }
 
@@ -740,7 +681,7 @@ const BASE_SYSTEM = `You are a structural reader within the Nirmanakaya Consciou
 
 YOUR ROLE: Mirror, not mentor. You reflect what the structure shows. You do not diagnose, prescribe, or claim to see what the user cannot.
 
-CRITICAL: Structure your response using the exact markers specified in the persona instructions. Each marker ([SUMMARY], [CARD:1], [CORRECTION:1], etc.) must be on its own line.
+STANCE MODIFIERS affect tone, emphasis, framing, and language — they do not change archetypal interpretation, correction logic, or conclusions.
 
 CRITICAL PRINCIPLES:
 
@@ -801,6 +742,29 @@ CORRECTION FRAMING BY STATUS:
 HOUSE DYNAMICS — SHOW, DON'T NAME:
 - Reference house qualities through behavior, not technical terms
 - Let them feel the house without jargon`;
+
+const FORMAT_INSTRUCTIONS = `RESPONSE FORMAT:
+Use these exact markers. Each marker must be on its own line.
+
+[SUMMARY]
+2-3 sentences directly answering their question based on the overall pattern. Reference their specific question.
+
+[CARD:1]
+What this card shows — the transient, status, and what's happening here. Use temporal framing (Too Much = future-projected, Too Little = past-anchored). Connect this specifically to their question. Respect density setting for length.
+
+[CARD:2]
+(Continue for each card... always connect back to their specific question)
+
+[CORRECTION:1]
+For Card 1's imbalance: Name the correction and explain what it means practically — what to actually do. Frame it in terms of their question. Skip this section ENTIRELY if Card 1 is Balanced. For Unacknowledged, explain what's operating in shadow and how to bring it into awareness.
+
+[CORRECTION:2]
+For Card 2's imbalance. Skip ENTIRELY if Card 2 is Balanced.
+
+(Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
+
+[LETTER]
+A brief letter addressed directly to them (use "you"). Acknowledge what they're navigating with their question. Weave together the key insights from the reading. Voice modulates tone — the letter's function stays invariant (it does not change advice or soften corrections).`;
 
 // === CLICKABLE TERM COMPONENT ===
 // Must be used inside a component that has access to setSelectedInfo
@@ -1250,6 +1214,91 @@ const ReadingSection = ({
   );
 };
 
+// === STANCE SELECTOR COMPONENT ===
+const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize }) => {
+  const applyPreset = (presetKey) => {
+    const preset = STANCE_PRESETS[presetKey];
+    setStance({
+      voice: preset.voice,
+      focus: preset.focus,
+      density: preset.density,
+      scope: preset.scope
+    });
+  };
+  
+  const currentPreset = Object.entries(STANCE_PRESETS).find(([_, p]) => 
+    p.voice === stance.voice && p.focus === stance.focus && 
+    p.density === stance.density && p.scope === stance.scope
+  );
+  
+  const DimensionRow = ({ label, dimension, options }) => (
+    <div className="flex items-center gap-2 mb-2">
+      <span className="text-xs text-zinc-500 w-16">{label}</span>
+      <div className="flex gap-1 flex-wrap">
+        {options.map(opt => (
+          <button
+            key={opt}
+            onClick={() => setStance({ ...stance, [dimension]: opt })}
+            className={`px-3 py-1 rounded-lg text-xs transition-all ${
+              stance[dimension] === opt 
+                ? 'bg-zinc-700 text-zinc-100 border border-zinc-500' 
+                : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+            }`}
+          >
+            {opt.charAt(0).toUpperCase() + opt.slice(1)}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+  
+  return (
+    <div className="mb-6">
+      {/* Preset selector */}
+      <div className="flex gap-2 mb-3 justify-center flex-wrap">
+        {Object.entries(STANCE_PRESETS).map(([key, preset]) => (
+          <button
+            key={key}
+            onClick={() => applyPreset(key)}
+            title={preset.description}
+            className={`px-3 py-1.5 rounded-lg text-xs transition-all ${
+              currentPreset?.[0] === key
+                ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
+            }`}
+          >
+            {preset.name}
+          </button>
+        ))}
+      </div>
+      
+      {/* Customize toggle */}
+      <div className="flex justify-center mb-3">
+        <button
+          onClick={() => setShowCustomize(!showCustomize)}
+          className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+        >
+          {showCustomize ? '▾ Hide customization' : '▸ Customize delivery'}
+        </button>
+      </div>
+      
+      {/* Custom sliders */}
+      {showCustomize && (
+        <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+          <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
+          <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
+          <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
+          <DimensionRow label="Scope" dimension="scope" options={['resonant', 'patterned', 'connected', 'here']} />
+          
+          {!currentPreset && (
+            <p className="text-xs text-zinc-600 mt-3 text-center">Custom stance</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // === INTRO COMPONENT ===
 const IntroSection = () => (
   <div className="mb-8 text-center">
@@ -1284,7 +1333,8 @@ export default function NirmanakaReader() {
   const [followUp, setFollowUp] = useState('');
   const [spreadType, setSpreadType] = useState('random');
   const [spreadKey, setSpreadKey] = useState('single');
-  const [persona, setPersona] = useState('seeker');
+  const [stance, setStance] = useState({ voice: 'wonder', focus: 'see', density: 'clear', scope: 'here' }); // Default: Start Here
+  const [showCustomize, setShowCustomize] = useState(false);
   const [draws, setDraws] = useState(null);
   const [parsedReading, setParsedReading] = useState(null);
   const [expansions, setExpansions] = useState({}); // {sectionKey: {unpack: '...', clarify: '...'}}
@@ -1309,7 +1359,7 @@ export default function NirmanakaReader() {
         setDraws(decoded.draws);
         setSpreadType(decoded.spreadType);
         setSpreadKey(decoded.spreadKey);
-        setPersona(decoded.persona);
+        setStance(decoded.stance);
         if (decoded.question) {
           setQuestion(decoded.question);
           setIsSharedReading(true);
@@ -1336,10 +1386,10 @@ export default function NirmanakaReader() {
 
   useEffect(() => {
     if (draws && question) {
-      const encoded = encodeDraws(draws, spreadType, spreadKey, persona, question);
+      const encoded = encodeDraws(draws, spreadType, spreadKey, stance, question);
       setShareUrl(`${window.location.origin}${window.location.pathname}?r=${encoded}`);
     }
-  }, [draws, spreadType, spreadKey, persona, question]);
+  }, [draws, spreadType, spreadKey, stance, question]);
 
   const copyShareUrl = async () => {
     try { await navigator.clipboard.writeText(shareUrl); alert('Link copied!'); }
@@ -1349,10 +1399,11 @@ export default function NirmanakaReader() {
   const performReadingWithDraws = async (drawsToUse, questionToUse = question) => {
     setLoading(true); setError(''); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
     const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, showTraditional);
-    const personaConfig = PERSONAS[persona];
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Random`;
     
-    const systemPrompt = `${BASE_SYSTEM}\n\n${personaConfig.instruction}`;
+    const stancePrompt = buildStancePrompt(stance.voice, stance.focus, stance.density, stance.scope);
+    const letterTone = VOICE_LETTER_TONE[stance.voice];
+    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${FORMAT_INSTRUCTIONS}\n\nLetter tone for this stance: ${letterTone}`;
     const userMessage = `QUESTION: "${questionToUse}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:N] for each imbalanced card (where N matches the card number — use [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc.), [LETTER]. Each marker on its own line.`;
 
     try {
@@ -1433,9 +1484,10 @@ export default function NirmanakaReader() {
     }
     
     const expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
-    const personaConfig = PERSONAS[persona];
     
-    const systemPrompt = `${BASE_SYSTEM}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough. Always connect your expansion back to the querent's specific question.`;
+    // Pass the original stance to expansion
+    const stancePrompt = buildStancePrompt(stance.voice, stance.focus, stance.density, stance.scope);
+    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough. Always connect your expansion back to the querent's specific question.`;
     const userMessage = `QUERENT'S QUESTION: "${question}"
 
 THE DRAW:
@@ -1475,7 +1527,6 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     if (!followUp.trim() || !draws) return;
     setLoading(true); setError('');
     const drawText = formatDrawForAI(draws, spreadType, spreadKey, showTraditional);
-    const personaConfig = PERSONAS[persona];
     
     // Build context from parsed reading
     let readingContext = '';
@@ -1489,7 +1540,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       });
     }
     
-    const systemPrompt = `${BASE_SYSTEM}\n\nYou are continuing a conversation about a reading. Answer their follow-up question directly, referencing the reading context as needed. No section markers — just respond naturally.`;
+    // Pass stance to follow-up
+    const stancePrompt = buildStancePrompt(stance.voice, stance.focus, stance.density, stance.scope);
+    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\nYou are continuing a conversation about a reading. Answer their follow-up question directly, referencing the reading context as needed. No section markers — just respond naturally.`;
     
     const messages = [
       ...followUpMessages,
@@ -1669,6 +1722,16 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     );
   };
 
+  // Get current stance label for display
+  const getCurrentStanceLabel = () => {
+    const preset = Object.entries(STANCE_PRESETS).find(([_, p]) => 
+      p.voice === stance.voice && p.focus === stance.focus && 
+      p.density === stance.density && p.scope === stance.scope
+    );
+    if (preset) return preset[1].name;
+    return `${stance.voice}/${stance.focus}/${stance.density}/${stance.scope}`;
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -1677,7 +1740,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.12 alpha • experimental</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.13 alpha • stance system</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -1720,14 +1783,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <p className="text-center text-zinc-600 text-xs mb-4">{DURABLE_SPREADS[spreadKey].description}</p>
             )}
 
-            <div className="flex gap-2 mb-4 justify-center flex-wrap">
-              {Object.entries(PERSONAS).map(([key, value]) => (
-                <button key={key} onClick={() => setPersona(key)} title={value.description}
-                  className={`px-3 py-1.5 rounded-lg text-xs transition-all ${persona === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                  {value.name}
-                </button>
-              ))}
-            </div>
+            {/* Stance Selector */}
+            <StanceSelector 
+              stance={stance} 
+              setStance={setStance} 
+              showCustomize={showCustomize}
+              setShowCustomize={setShowCustomize}
+            />
 
             <div className="flex justify-center mb-6">
               <button onClick={() => setShowTraditional(!showTraditional)}
@@ -1765,7 +1827,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <span className="text-xs text-zinc-500 uppercase tracking-wider">
-                {spreadType === 'durable' ? DURABLE_SPREADS[spreadKey]?.name : `${RANDOM_SPREADS[spreadKey]?.name} Random`} • {PERSONAS[persona].name}
+                {spreadType === 'durable' ? DURABLE_SPREADS[spreadKey]?.name : `${RANDOM_SPREADS[spreadKey]?.name} Random`} • {getCurrentStanceLabel()}
               </span>
               <div className="flex gap-2">
                 <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
