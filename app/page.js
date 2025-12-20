@@ -1215,7 +1215,7 @@ const ReadingSection = ({
 };
 
 // === STANCE SELECTOR COMPONENT ===
-const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize }) => {
+const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, compact = false, onReinterpret = null }) => {
   const applyPreset = (presetKey) => {
     const preset = STANCE_PRESETS[presetKey];
     setStance({
@@ -1252,6 +1252,50 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize }) 
     </div>
   );
   
+  // Compact mode for mid-reading stance changes
+  if (compact) {
+    return (
+      <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs text-zinc-500 uppercase tracking-wider">Adjust Delivery</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setStance({ ...stance, density: 'essential', voice: 'direct' });
+              }}
+              className="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-all"
+            >
+              Simplify
+            </button>
+            {onReinterpret && (
+              <button
+                onClick={onReinterpret}
+                className="text-xs px-3 py-1.5 rounded-lg bg-amber-900/50 text-amber-400 hover:bg-amber-900/70 transition-all"
+              >
+                Re-interpret
+              </button>
+            )}
+          </div>
+        </div>
+        
+        {/* Inline dimension controls */}
+        <div className="space-y-2">
+          <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
+          <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
+          <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
+          <DimensionRow label="Scope" dimension="scope" options={['resonant', 'patterned', 'connected', 'here']} />
+        </div>
+        
+        {currentPreset ? (
+          <p className="text-xs text-zinc-600 mt-3 text-center">{currentPreset[1].name}</p>
+        ) : (
+          <p className="text-xs text-zinc-600 mt-3 text-center">Custom stance</p>
+        )}
+      </div>
+    );
+  }
+  
+  // Full mode for pre-reading selection
   return (
     <div className="mb-6">
       {/* Preset selector */}
@@ -1347,8 +1391,15 @@ export default function NirmanakaReader() {
   const [shareUrl, setShareUrl] = useState('');
   const [isSharedReading, setIsSharedReading] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState(null); // {type: 'card'|'channel'|'status'|'house', id: ..., data: ...}
+  const [showMidReadingStance, setShowMidReadingStance] = useState(false);
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
+
+  // Re-interpret with current stance (same draws)
+  const reinterpret = async () => {
+    if (!draws) return;
+    await performReadingWithDraws(draws, question);
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1572,6 +1623,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     setDraws(null); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
     setQuestion(''); setFollowUp(''); setError('');
     setShareUrl(''); setIsSharedReading(false); setShowArchitecture(false);
+    setShowMidReadingStance(false);
     hasAutoInterpreted.current = false;
     window.history.replaceState({}, '', window.location.pathname);
   };
@@ -1740,7 +1792,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.13 alpha • stance system</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.14 alpha • re-interpret</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2013,6 +2065,29 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {/* Parsed Reading Sections */}
         {parsedReading && !loading && (
           <div className="space-y-2">
+            {/* Mid-reading stance controls */}
+            <div className="mb-4">
+              <button
+                onClick={() => setShowMidReadingStance(!showMidReadingStance)}
+                className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+              >
+                {showMidReadingStance ? '▾ Hide delivery options' : '▸ Adjust delivery / Re-interpret'}
+              </button>
+              
+              {showMidReadingStance && (
+                <div className="mt-3">
+                  <StanceSelector
+                    stance={stance}
+                    setStance={setStance}
+                    showCustomize={true}
+                    setShowCustomize={() => {}}
+                    compact={true}
+                    onReinterpret={reinterpret}
+                  />
+                </div>
+              )}
+            </div>
+            
             {/* Your Question */}
             <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 ml-8">
               <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question</div>
