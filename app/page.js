@@ -1232,13 +1232,13 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   );
   
   const DimensionRow = ({ label, dimension, options }) => (
-    <div className="grid grid-cols-[4rem_6rem_6rem_6rem_6rem_1fr] gap-2 mb-2 items-center">
+    <div className="grid grid-cols-[3rem_1fr_1fr_1fr_1fr] sm:grid-cols-[4rem_6rem_6rem_6rem_6rem_1fr] gap-1 sm:gap-2 mb-2 items-center">
       <span className="text-xs text-zinc-500">{label}</span>
       {options.map(opt => (
         <button
           key={opt}
           onClick={() => setStance({ ...stance, [dimension]: opt })}
-          className={`py-1.5 rounded-lg text-xs transition-all text-center ${
+          className={`py-1.5 px-1 sm:px-0 rounded-lg text-xs transition-all text-center ${
             stance[dimension] === opt 
               ? 'bg-zinc-700 text-zinc-100 border border-zinc-500' 
               : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
@@ -1247,7 +1247,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
           {opt.charAt(0).toUpperCase() + opt.slice(1)}
         </button>
       ))}
-      <span className="text-xs text-zinc-600 italic pl-2">
+      <span className="hidden sm:inline text-xs text-zinc-600 italic pl-2">
         — {DIMENSION_DESCRIPTIONS[dimension][stance[dimension]]}
       </span>
     </div>
@@ -1268,9 +1268,9 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   // Compact mode for mid-reading stance changes
   if (compact) {
     return (
-      <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 mb-4">
+      <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 mb-4 max-w-2xl mx-auto">
         {/* Current stance display */}
-        <div className="mb-4 pb-3 border-b border-zinc-800/50">
+        <div className="mb-4 pb-3 border-b border-zinc-800/50 max-w-xl mx-auto">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-zinc-300 font-medium">
               {currentPreset ? currentPreset[1].name : "Custom Stance"}
@@ -1298,9 +1298,9 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
         </div>
         
         {/* Preset quick-select */}
-        <div className="mb-4">
+        <div className="mb-4 max-w-xl mx-auto">
           <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Presets</span>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap justify-center">
             {Object.entries(STANCE_PRESETS).map(([key, preset]) => (
               <button
                 key={key}
@@ -1319,7 +1319,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
         </div>
         
         {/* Inline dimension controls */}
-        <div className="space-y-2">
+        <div className="space-y-2 max-w-xl mx-auto">
           <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Fine-tune</span>
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
@@ -1363,7 +1363,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
       
       {/* Custom sliders */}
       {showCustomize && (
-        <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+        <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 max-w-xl mx-auto">
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
           <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
@@ -1827,7 +1827,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.18 alpha • fixed grid</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.19 alpha • centered responsive</p>
         </div>
 
         {!draws && <IntroSection />}
