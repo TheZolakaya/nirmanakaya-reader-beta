@@ -1590,6 +1590,7 @@ export default function NirmanakaReader() {
   const [selectedInfo, setSelectedInfo] = useState(null); // {type: 'card'|'channel'|'status'|'house', id: ..., data: ...}
   const [showMidReadingStance, setShowMidReadingStance] = useState(false);
   const [helpPopover, setHelpPopover] = useState(null); // 'dynamicLens' | 'fixedLayout' | 'stance' | null
+  const [loadingPhrases, setLoadingPhrases] = useState([]);
   const [loadingPhraseIndex, setLoadingPhraseIndex] = useState(0);
   const [loadingPhraseVisible, setLoadingPhraseVisible] = useState(true);
   const messagesEndRef = useRef(null);
@@ -1642,13 +1643,22 @@ export default function NirmanakaReader() {
     }
   }, [draws, spreadType, spreadKey, stance, question]);
 
-  // Cycle loading phrases with fade effect
+  // Select random loading phrases when loading starts, cycle through only those 3
   useEffect(() => {
     if (!loading) return;
+
+    // Pick 3 random unique phrases when loading starts
+    const shuffled = [...LOADING_PHRASES].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, 3);
+    setLoadingPhrases(selected);
+    setLoadingPhraseIndex(0);
+    setLoadingPhraseVisible(true);
+
+    // Cycle through the 3 selected phrases
     const fadeInterval = setInterval(() => {
       setLoadingPhraseVisible(false);
       setTimeout(() => {
-        setLoadingPhraseIndex(prev => (prev + 1) % LOADING_PHRASES.length);
+        setLoadingPhraseIndex(prev => (prev + 1) % 3);
         setLoadingPhraseVisible(true);
       }, 300);
     }, 5000);
@@ -2240,7 +2250,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.23 alpha • signatures & polish</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.24 alpha • presets & loading</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2395,7 +2405,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               className="mt-6 text-zinc-500 text-sm text-center max-w-xs transition-opacity duration-300"
               style={{ opacity: loadingPhraseVisible ? 1 : 0 }}
             >
-              {LOADING_PHRASES[loadingPhraseIndex]}
+              {loadingPhrases[loadingPhraseIndex] || ''}
             </p>
           </div>
         )}
