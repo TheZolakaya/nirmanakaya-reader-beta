@@ -2180,29 +2180,29 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .question-text { color: #d4d4d8; }
     .section { margin-bottom: 2rem; }
     .section-title { color: #71717a; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; border-bottom: 1px solid #3f3f46; padding-bottom: 0.5rem; }
-    .summary-box { background: linear-gradient(to bottom right, rgba(120, 53, 15, 0.4), rgba(120, 53, 15, 0.2)); border: 2px solid rgba(245, 158, 11, 0.5); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; }
+    .summary-box { background: linear-gradient(to bottom right, rgba(69, 26, 3, 0.4), rgba(120, 53, 15, 0.2)); border: 2px solid rgba(245, 158, 11, 0.5); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; }
     .summary-badge { display: inline-block; background: rgba(245, 158, 11, 0.3); color: #fcd34d; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
     .summary { color: #fef3c7; }
     .signature { background: rgba(8, 51, 68, 0.3); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 2px solid rgba(6, 182, 212, 0.5); }
     .signature-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .signature-badge { display: inline-block; background: rgba(6, 182, 212, 0.2); color: #06b6d4; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-right: 0.5rem; vertical-align: middle; }
+    .signature-badge { display: inline-block; background: rgba(8, 51, 68, 0.5); color: #22d3ee; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-right: 0.5rem; vertical-align: middle; }
     .signature-title { color: #fafafa; font-weight: 500; }
     .signature-status { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; }
     .status-balanced { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-    .status-too-much { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
-    .status-too-little { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
-    .status-unacknowledged { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
-    .signature-name { color: #d4d4d8; margin-bottom: 0.5rem; }
+    .status-too-much { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .status-too-little { background: rgba(14, 165, 233, 0.2); color: #38bdf8; }
+    .status-unacknowledged { background: rgba(139, 92, 246, 0.2); color: #a78bfa; }
+    .signature-name { color: #22d3ee; margin-bottom: 0.5rem; }
     .traditional { color: #71717a; }
-    .arch-details { color: #52525b; font-size: 0.75rem; margin-bottom: 0.75rem; padding: 0.5rem; background: #1f1f23; border-radius: 0.5rem; }
-    .signature-content { color: #d4d4d8; font-size: 0.875rem; }
+    .arch-details { color: #a1a1aa; font-size: 0.75rem; margin-bottom: 0.75rem; padding: 0.5rem; background: rgba(39, 39, 42, 0.5); border-radius: 0.5rem; }
+    .signature-content { color: #d4d4d8; font-size: 0.875rem; line-height: 1.6; }
     .rebalancer { margin-top: 1rem; padding: 1rem; background: rgba(2, 44, 34, 0.3); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 0.5rem; margin-left: 1rem; }
     .rebalancer-badge { display: inline-block; background: rgba(16, 185, 129, 0.3); color: #6ee7b7; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-bottom: 0.5rem; }
-    .rebalancer-header { color: #6ee7b7; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
-    .rebalancer-content { color: #d1fae5; font-size: 0.875rem; }
+    .rebalancer-header { color: #34d399; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .rebalancer-content { color: #a7f3d0; font-size: 0.875rem; line-height: 1.6; }
     .letter-box { background: rgba(46, 16, 101, 0.3); border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 0.75rem; padding: 1.5rem; }
     .letter-badge { display: inline-block; background: rgba(139, 92, 246, 0.3); color: #c4b5fd; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
-    .letter { color: #ddd6fe; font-style: italic; }
+    .letter { color: #ddd6fe; font-style: italic; line-height: 1.6; }
     .footer { text-align: center; color: #3f3f46; font-size: 0.625rem; margin-top: 3rem; letter-spacing: 0.1em; }
   </style>
 </head>
