@@ -1963,6 +1963,146 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     URL.revokeObjectURL(url);
   };
 
+  // Export reading to HTML
+  const exportToHTML = () => {
+    if (!parsedReading || !draws) return;
+
+    const spreadName = spreadType === 'durable'
+      ? `Fixed Layout • ${DURABLE_SPREADS[spreadKey]?.name}`
+      : `Dynamic Lens • ${RANDOM_SPREADS[spreadKey]?.name}`;
+    const isDurable = spreadType === 'durable';
+    const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : null;
+
+    const escapeHtml = (text) => text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/\n/g, '<br>');
+
+    let signaturesHtml = '';
+    parsedReading.cards.forEach((card) => {
+      const draw = draws[card.index];
+      const trans = getComponent(draw.transient);
+      const stat = STATUSES[draw.status];
+      const correction = parsedReading.corrections.find(c => c.cardIndex === card.index);
+      const context = isDurable && spreadConfig ? spreadConfig.frames[card.index]?.name : `Position ${card.index + 1}`;
+      const statusPhrase = stat.prefix ? `${stat.prefix} ${trans.name}` : `Balanced ${trans.name}`;
+
+      let archDetails = '';
+      if (trans.type === 'Archetype') {
+        archDetails = `<div class="arch-details">House: ${trans.house}${trans.channel ? ` • Channel: ${trans.channel}` : ''}</div>`;
+      } else if (trans.type === 'Bound') {
+        const assoc = ARCHETYPES[trans.archetype];
+        archDetails = `<div class="arch-details">Channel: ${trans.channel} • Associated: ${assoc?.name}</div>`;
+      } else if (trans.type === 'Agent') {
+        const assoc = ARCHETYPES[trans.archetype];
+        archDetails = `<div class="arch-details">Role: ${trans.role} • Channel: ${trans.channel} • Associated: ${assoc?.name}</div>`;
+      }
+
+      let correctionHtml = '';
+      if (correction) {
+        const fullCorr = getFullCorrection(draw.transient, draw.status);
+        const corrText = getCorrectionText(fullCorr, trans);
+        correctionHtml = `
+          <div class="correction">
+            <div class="correction-header">Correction: ${corrText || ''}</div>
+            <div class="correction-content">${escapeHtml(correction.content)}</div>
+          </div>`;
+      }
+
+      signaturesHtml += `
+        <div class="signature">
+          <div class="signature-header">
+            <span class="signature-title">Signature ${card.index + 1} — ${context}</span>
+            <span class="signature-status status-${stat.name.toLowerCase().replace(' ', '-')}">${stat.name}</span>
+          </div>
+          <div class="signature-name">${statusPhrase} <span class="traditional">(${trans.traditional})</span></div>
+          ${archDetails}
+          <div class="signature-content">${escapeHtml(card.content)}</div>
+          ${correctionHtml}
+        </div>`;
+    });
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nirmanakaya Reading - ${new Date().toLocaleDateString()}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #18181b; color: #e4e4e7; font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    h1 { font-weight: 200; letter-spacing: 0.2em; text-align: center; margin-bottom: 0.5rem; color: #fafafa; }
+    .subtitle { text-align: center; color: #52525b; font-size: 0.75rem; margin-bottom: 2rem; }
+    .meta { text-align: center; color: #71717a; font-size: 0.875rem; margin-bottom: 2rem; }
+    .question-box { background: #27272a; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 2rem; }
+    .question-label { color: #71717a; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+    .question-text { color: #d4d4d8; }
+    .section { margin-bottom: 2rem; }
+    .section-title { color: #71717a; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; border-bottom: 1px solid #3f3f46; padding-bottom: 0.5rem; }
+    .summary { color: #a1a1aa; }
+    .signature { background: #27272a; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 1px solid #3f3f46; }
+    .signature-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .signature-title { color: #fafafa; font-weight: 500; }
+    .signature-status { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; }
+    .status-balanced { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .status-too-much { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+    .status-too-little { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .status-unacknowledged { background: rgba(167, 139, 250, 0.2); color: #a78bfa; }
+    .signature-name { color: #d4d4d8; margin-bottom: 0.5rem; }
+    .traditional { color: #71717a; }
+    .arch-details { color: #52525b; font-size: 0.75rem; margin-bottom: 0.75rem; padding: 0.5rem; background: #1f1f23; border-radius: 0.5rem; }
+    .signature-content { color: #a1a1aa; font-size: 0.875rem; }
+    .correction { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #3f3f46; margin-left: 1rem; padding-left: 1rem; border-left: 2px solid #52525b; }
+    .correction-header { color: #71717a; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .correction-content { color: #a1a1aa; font-size: 0.875rem; }
+    .letter { background: #1f1f23; border-radius: 0.75rem; padding: 1.5rem; color: #a1a1aa; font-style: italic; }
+    .footer { text-align: center; color: #3f3f46; font-size: 0.625rem; margin-top: 3rem; letter-spacing: 0.1em; }
+  </style>
+</head>
+<body>
+  <h1>NIRMANAKAYA</h1>
+  <p class="subtitle">Consciousness Architecture Reader</p>
+  <p class="meta">${spreadName} • ${getCurrentStanceLabel()} • ${new Date().toLocaleDateString()}</p>
+
+  <div class="question-box">
+    <div class="question-label">Your Question or Intention</div>
+    <div class="question-text">${escapeHtml(question || 'General reading')}</div>
+  </div>
+
+  ${parsedReading.summary ? `
+  <div class="section">
+    <div class="section-title">Summary</div>
+    <div class="summary">${escapeHtml(parsedReading.summary)}</div>
+  </div>` : ''}
+
+  <div class="section">
+    <div class="section-title">Signatures</div>
+    ${signaturesHtml}
+  </div>
+
+  ${parsedReading.letter ? `
+  <div class="section">
+    <div class="section-title">Letter</div>
+    <div class="letter">${escapeHtml(parsedReading.letter)}</div>
+  </div>` : ''}
+
+  <p class="footer">Generated by Nirmanakaya Consciousness Architecture Reader</p>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `nirmanakaya-reading-${new Date().toISOString().split('T')[0]}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -2122,7 +2262,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="flex gap-2 items-center relative">
                 <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
                 {parsedReading && !loading && (
-                  <button onClick={exportToMarkdown} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
+                  <button onClick={exportToHTML} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
                 )}
                 <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Trad.' : 'Trad.'}</button>
                 <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Arch.' : 'Arch.'}</button>
@@ -2138,7 +2278,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl text-xs">
                       <div className="space-y-1.5 text-zinc-400">
                         <p><span className="text-zinc-200">Share</span> — Copy link to this reading</p>
-                        <p><span className="text-zinc-200">Export</span> — Download as file</p>
+                        <p><span className="text-zinc-200">Export</span> — Download as HTML file</p>
                         <p><span className="text-zinc-200">Trad.</span> — Toggle traditional tarot names</p>
                         <p><span className="text-zinc-200">Arch.</span> — Show architectural details</p>
                         <p><span className="text-zinc-200">New</span> — Start a fresh reading</p>
