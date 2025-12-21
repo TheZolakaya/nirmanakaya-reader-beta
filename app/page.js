@@ -284,10 +284,10 @@ const DURABLE_SPREADS = {
     count: 3, 
     frames: [
       { name: "Situation", house: "Mind" },
-      { name: "Path", house: "Spirit" },
-      { name: "Outcome", house: "Gestalt" }
+      { name: "Movement", house: "Spirit" },
+      { name: "Integration", house: "Gestalt" }
     ],
-    description: "Situation → Path → Outcome"
+    description: "Situation → Movement → Integration"
   },
   fourAspects: {
     name: "Four Aspects",
@@ -1531,7 +1531,7 @@ export default function NirmanakaReader() {
         setLoadingPhraseIndex(prev => (prev + 1) % LOADING_PHRASES.length);
         setLoadingPhraseVisible(true);
       }, 300);
-    }, 2500);
+    }, 5000);
     return () => clearInterval(fadeInterval);
   }, [loading]);
 
@@ -1999,7 +1999,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     <div className="space-y-3 text-sm">
                       <div>
                         <span className="text-zinc-200 font-medium">Dynamic Lens:</span>
-                        <p className="text-zinc-400 text-xs mt-1">Both the energy and where it's showing up are randomly drawn — a complete snapshot of what's active right now.</p>
+                        <p className="text-zinc-400 text-xs mt-1">Both the energy and where it's showing up emerge together — a complete snapshot of what's active right now.</p>
                       </div>
                       <div>
                         <span className="text-zinc-200 font-medium">Fixed Layout:</span>
