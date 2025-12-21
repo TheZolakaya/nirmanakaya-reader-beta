@@ -1560,30 +1560,10 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
 const IntroSection = () => (
   <div className="mb-6 text-center">
     <div className="max-w-2xl mx-auto">
-      <p className="text-zinc-400 text-sm leading-relaxed mb-4">
+      <p className="text-zinc-400 text-sm leading-relaxed">
         The Nirmanakaya is both mirror and forge. Bring a question or declare an intention —
         the draw finds what's ready to be seen. Where you are, what's moving, what might need attention.
       </p>
-
-      <div className="bg-zinc-900/50 rounded-xl p-4 mb-4 border border-zinc-800/50">
-        <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-2">Examples</p>
-        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-zinc-500">
-          <span>"What do I need to see about this relationship?"</span>
-          <span>•</span>
-          <span>"Where am I stuck in my work right now?"</span>
-          <span>•</span>
-          <span>"I'm going to start a new project."</span>
-          <span>•</span>
-          <span>"What's asking for my attention today?"</span>
-          <span>•</span>
-          <span>"I'm going to stop worrying so much."</span>
-          <span>•</span>
-          <span>"Am I on the right path with this decision?"</span>
-        </div>
-        <p className="text-zinc-600 text-[10px] mt-3 italic">
-          The more detailed your entry, the more specific the response will be.
-        </p>
-      </div>
     </div>
   </div>
 );
@@ -2347,7 +2327,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
-                  placeholder="Name your question or declare your intent... or leave blank for a general reading"
+                  placeholder="Enter a question, intention, or situation..."
                   className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
                   rows={3}
                 />
@@ -2373,6 +2353,26 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   </div>
                 </div>
               )}
+
+              {/* Preset chips - fade when user is typing */}
+              <div className={`flex flex-wrap justify-center gap-2 mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+                {[
+                  "What needs my attention today?",
+                  "Where am I stuck right now?",
+                  "What am I not seeing?",
+                  "I'm starting something new.",
+                  "Am I on the right path?",
+                  "What wants to change?"
+                ].map((preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => setQuestion(preset)}
+                    className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all"
+                  >
+                    {preset}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <button onClick={performReading} disabled={loading}
