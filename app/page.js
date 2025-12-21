@@ -357,9 +357,21 @@ const STANCE_PRESETS = {
   quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
   deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
   justTheFacts: { name: "Just the Facts", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
-  crisisMode: { name: "Crisis Mode", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
+  grounded: { name: "Grounded", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
   oldSoul: { name: "Old Soul", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
 };
+
+// Loading phrases for cycling display
+const LOADING_PHRASES = [
+  "You are a creator and consumer.",
+  "The map is both mirror and forge.",
+  "Polarity and recursion are the beating heart of consciousness.",
+  "Your authentic presence in the now expands reality.",
+  "The structure is the authority.",
+  "Encounter precedes understanding.",
+  "The draw finds what's ready to be seen.",
+  "Correction enables purpose."
+];
 
 // Build the stance prompt from 4 dimensions
 const buildStancePrompt = (voice, focus, density, scope) => {
@@ -1216,6 +1228,8 @@ const ReadingSection = ({
 
 // === STANCE SELECTOR COMPONENT ===
 const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, compact = false, onReinterpret = null }) => {
+  const [showStanceHelp, setShowStanceHelp] = useState(false);
+
   const applyPreset = (presetKey) => {
     const preset = STANCE_PRESETS[presetKey];
     setStance({
@@ -1332,7 +1346,34 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   
   // Full mode for pre-reading selection
   return (
-    <div className="mb-6">
+    <div className="mb-6 relative">
+      {/* Header with help */}
+      <div className="flex items-center justify-center gap-2 mb-3">
+        <span className="text-zinc-500 text-xs uppercase tracking-wider">How should this land?</span>
+        <button
+          onClick={() => setShowStanceHelp(!showStanceHelp)}
+          className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
+        >
+          ?
+        </button>
+      </div>
+
+      {showStanceHelp && (
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80">
+          <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+            <p className="text-zinc-400 text-xs leading-relaxed">
+              Stance shapes the voice and depth of your reading — from quick and direct to layered and contemplative. The structure stays the same; the delivery adapts to you.
+            </p>
+            <button
+              onClick={() => setShowStanceHelp(false)}
+              className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Preset selector */}
       <div className="flex gap-2 mb-3 justify-center flex-wrap">
         {Object.entries(STANCE_PRESETS).map(([key, preset]) => (
@@ -1383,23 +1424,24 @@ const IntroSection = () => (
   <div className="mb-8 text-center">
     <div className="max-w-2xl mx-auto">
       <p className="text-zinc-400 text-sm leading-relaxed mb-6">
-        The Nirmanakaya Reader reflects your present moment through the architecture of consciousness. 
-        Ask any question — about decisions, relationships, work, direction, or what's alive for you right now — 
-        and receive a reading that illuminates where you are, what's moving, and what might need attention.
+        The Nirmanakaya is both mirror and forge. Bring a question or declare an intention —
+        the draw finds what's ready to be seen. Where you are, what's moving, what might need attention.
       </p>
-      
+
       <div className="bg-zinc-900/50 rounded-xl p-5 mb-6 border border-zinc-800/50">
-        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-3">Example Questions</p>
+        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-3">Examples</p>
         <div className="space-y-2 text-sm text-zinc-400">
           <p>"What do I need to see about this relationship?"</p>
           <p>"Where am I stuck in my work right now?"</p>
+          <p>"I'm going to leave this job."</p>
           <p>"What's asking for my attention today?"</p>
+          <p>"I'm choosing to prioritize my health."</p>
           <p>"Am I on the right path with this decision?"</p>
         </div>
       </div>
-      
+
       <p className="text-zinc-600 text-xs">
-        Every reading captures a snapshot of your moment in relation to your question. 
+        Every reading captures a snapshot of your moment in relation to your question.
         The structure doesn't predict — it reveals what's already present.
       </p>
     </div>
@@ -1427,6 +1469,9 @@ export default function NirmanakaReader() {
   const [isSharedReading, setIsSharedReading] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState(null); // {type: 'card'|'channel'|'status'|'house', id: ..., data: ...}
   const [showMidReadingStance, setShowMidReadingStance] = useState(false);
+  const [helpPopover, setHelpPopover] = useState(null); // 'dynamicLens' | 'fixedLayout' | 'stance' | null
+  const [loadingPhraseIndex, setLoadingPhraseIndex] = useState(0);
+  const [loadingPhraseVisible, setLoadingPhraseVisible] = useState(true);
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
 
@@ -1476,6 +1521,19 @@ export default function NirmanakaReader() {
       setShareUrl(`${window.location.origin}${window.location.pathname}?r=${encoded}`);
     }
   }, [draws, spreadType, spreadKey, stance, question]);
+
+  // Cycle loading phrases with fade effect
+  useEffect(() => {
+    if (!loading) return;
+    const fadeInterval = setInterval(() => {
+      setLoadingPhraseVisible(false);
+      setTimeout(() => {
+        setLoadingPhraseIndex(prev => (prev + 1) % LOADING_PHRASES.length);
+        setLoadingPhraseVisible(true);
+      }, 300);
+    }, 2500);
+    return () => clearInterval(fadeInterval);
+  }, [loading]);
 
   const copyShareUrl = async () => {
     try { await navigator.clipboard.writeText(shareUrl); alert('Link copied!'); }
@@ -1908,7 +1966,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.21 alpha • export with architecture</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.22 alpha • mirror & forge</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -1916,17 +1974,47 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {/* Controls */}
         {!draws && (
           <>
-            <div className="flex justify-center mb-4">
-              <div className="inline-flex rounded-lg bg-zinc-900 p-1">
-                <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
-                  className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                  Random Positions
-                </button>
-                <button onClick={() => { setSpreadType('durable'); setSpreadKey('threeCard'); }}
-                  className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                  Durable Spreads
+            <div className="flex justify-center mb-4 relative">
+              <div className="inline-flex items-center gap-2">
+                <div className="inline-flex rounded-lg bg-zinc-900 p-1">
+                  <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
+                    className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    Dynamic Lens
+                  </button>
+                  <button onClick={() => { setSpreadType('durable'); setSpreadKey('threeCard'); }}
+                    className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    Fixed Layout
+                  </button>
+                </div>
+                <button
+                  onClick={() => setHelpPopover(helpPopover === 'spreadType' ? null : 'spreadType')}
+                  className="w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
+                >
+                  ?
                 </button>
               </div>
+              {helpPopover === 'spreadType' && (
+                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80">
+                  <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <span className="text-zinc-200 font-medium">Dynamic Lens:</span>
+                        <p className="text-zinc-400 text-xs mt-1">Both the energy and where it's showing up are randomly drawn — a complete snapshot of what's active right now.</p>
+                      </div>
+                      <div>
+                        <span className="text-zinc-200 font-medium">Fixed Layout:</span>
+                        <p className="text-zinc-400 text-xs mt-1">The energy is random, but it lands in specific life areas you choose — like your five houses or a relationship spread.</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setHelpPopover(null)}
+                      className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2 mb-4 justify-center flex-wrap">
@@ -1966,7 +2054,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </button>
             </div>
 
-            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="What's your question? (or leave blank for a general reading)"
+            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Name your question or declare your intent..."
               className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors mb-4" rows={3} />
 
             <button onClick={performReading} disabled={loading}
@@ -1983,7 +2071,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="w-16 h-16 border-2 border-zinc-800 rounded-full"></div>
               <div className="absolute inset-0 w-16 h-16 border-2 border-transparent border-t-zinc-400 rounded-full animate-spin"></div>
             </div>
-            <p className="mt-6 text-zinc-500 text-sm animate-pulse">Analyzing your reflection of this moment...</p>
+            <p
+              className="mt-6 text-zinc-500 text-sm text-center max-w-xs transition-opacity duration-300"
+              style={{ opacity: loadingPhraseVisible ? 1 : 0 }}
+            >
+              {LOADING_PHRASES[loadingPhraseIndex]}
+            </p>
           </div>
         )}
 
@@ -2225,7 +2318,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             
             {/* Your Question */}
             <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 ml-8">
-              <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question</div>
+              <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question or Intention</div>
               <div className="text-zinc-300 text-sm">{question}</div>
             </div>
             
