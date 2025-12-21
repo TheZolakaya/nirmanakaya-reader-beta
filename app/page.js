@@ -2355,23 +2355,25 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               )}
 
               {/* Preset chips - fade when user is typing */}
-              <div className={`flex flex-wrap justify-center gap-2 mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-                {[
-                  "What needs my attention today?",
-                  "Where am I stuck right now?",
-                  "What am I not seeing?",
-                  "I'm starting something new.",
-                  "Am I on the right path?",
-                  "What wants to change?"
-                ].map((preset) => (
-                  <button
-                    key={preset}
-                    onClick={() => setQuestion(preset)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all"
-                  >
-                    {preset}
-                  </button>
-                ))}
+              <div className={`text-center mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+                <div className="inline-flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                  {[
+                    "What needs my attention today?",
+                    "Where am I stuck right now?",
+                    "What am I not seeing?",
+                    "I'm starting something new.",
+                    "Am I on the right path?",
+                    "What wants to change?"
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      onClick={() => setQuestion(preset)}
+                      className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
