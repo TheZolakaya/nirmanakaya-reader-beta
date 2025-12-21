@@ -1857,6 +1857,20 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       md += `### Card ${card.index + 1} — ${context}\n\n`;
       md += `**${statusPhrase}** (${trans.traditional})  \n`;
       md += `*Status: ${stat.name}*\n\n`;
+
+      // Architecture details
+      if (trans.type === 'Archetype') {
+        md += `> **House:** ${trans.house}`;
+        if (trans.channel) md += ` | **Channel:** ${trans.channel}`;
+        md += `\n\n`;
+      } else if (trans.type === 'Bound') {
+        const assocArchetype = ARCHETYPES[trans.archetype];
+        md += `> **Channel:** ${trans.channel} | **Associated Archetype:** ${assocArchetype?.name} (${assocArchetype?.traditional})\n\n`;
+      } else if (trans.type === 'Agent') {
+        const assocArchetype = ARCHETYPES[trans.archetype];
+        md += `> **Role:** ${trans.role} | **Channel:** ${trans.channel} | **Associated Archetype:** ${assocArchetype?.name} (${assocArchetype?.traditional})\n\n`;
+      }
+
       md += `${card.content}\n\n`;
 
       if (correction) {
@@ -1894,7 +1908,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.20 alpha • export to markdown</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.21 alpha • export with architecture</p>
         </div>
 
         {!draws && <IntroSection />}
