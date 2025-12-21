@@ -246,6 +246,34 @@ const HOUSES = {
   }
 };
 
+// Role data for Agent popups
+const ROLES = {
+  Initiate: {
+    name: "Initiate",
+    traditional: "Page",
+    description: "Fresh engagement with the channel's energy — curious, learning, discovering.",
+    extended: "The Initiate represents the beginning of conscious work with a channel's energy. Like a student encountering a discipline for the first time, there's freshness, curiosity, and the potential for growth. The Initiate brings enthusiasm and openness, though the energy is not yet fully integrated or mature."
+  },
+  Catalyst: {
+    name: "Catalyst",
+    traditional: "Knight",
+    description: "Energy in motion — active, pursuing, creating change through momentum.",
+    extended: "The Catalyst represents the channel's energy in dynamic motion. Like a knight charging forward, this role embodies active pursuit and transformation through action. The Catalyst creates change, sometimes dramatically, by applying the channel's energy with force and direction."
+  },
+  Steward: {
+    name: "Steward",
+    traditional: "Queen",
+    description: "Mature holding of the energy — nurturing, sustaining, creating conditions for growth.",
+    extended: "The Steward represents the channel's energy held with maturity and care. Like a queen who tends to her realm, this role nurtures and sustains the energy, creating conditions for others to flourish. The Steward embodies receptive mastery — power through presence rather than force."
+  },
+  Executor: {
+    name: "Executor",
+    traditional: "King",
+    description: "Mastery and authority — directing, deciding, embodying the channel's fullest expression.",
+    extended: "The Executor represents the channel's energy at its most masterful and authoritative. Like a king who commands with earned wisdom, this role directs the energy with full knowledge of its nature and consequences. The Executor embodies active mastery — the ability to wield the channel's power decisively."
+  }
+};
+
 // House colors matching Channel scheme
 const HOUSE_COLORS = {
   Gestalt: { border: 'border-amber-500/50', bg: 'bg-amber-950/30', text: 'text-amber-400' },
@@ -315,8 +343,10 @@ const DURABLE_SPREADS = {
 };
 
 const RANDOM_SPREADS = {
-  single: { name: "One", count: 1 },
-  three: { name: "Arc", count: 3 },
+  one: { name: "One", count: 1 },
+  two: { name: "Two", count: 2 },
+  three: { name: "Three", count: 3 },
+  four: { name: "Four", count: 4 },
   five: { name: "Five", count: 5 }
 };
 
@@ -794,6 +824,8 @@ const ClickableTermContext = ({ type, id, children, setSelectedInfo }) => {
       data = STATUS_INFO[id];
     } else if (type === 'house') {
       data = HOUSES[id];
+    } else if (type === 'role') {
+      data = ROLES[id];
     }
     setSelectedInfo({ type, id, data });
   };
@@ -861,7 +893,7 @@ const InfoModal = ({ info, onClose, setSelectedInfo }) => {
             )}
             {isAgent && (
               <span className="text-xs text-zinc-500 ml-2">
-                {component.role} • <ClickableTerm type="channel" id={component.channel}>{component.channel}</ClickableTerm>
+                <ClickableTerm type="role" id={component.role}>{component.role}</ClickableTerm> • <ClickableTerm type="channel" id={component.channel}>{component.channel}</ClickableTerm>
               </span>
             )}
           </div>
@@ -1011,10 +1043,35 @@ const InfoModal = ({ info, onClose, setSelectedInfo }) => {
         </>
       );
     }
-    
+
+    if (type === 'role') {
+      const role = ROLES[id];
+      if (!role) return null;
+
+      return (
+        <>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-xl font-semibold text-zinc-100">{role.name}</h3>
+              <p className="text-sm text-zinc-500">{role.traditional} in traditional tarot</p>
+            </div>
+            <button onClick={onClose} className="text-zinc-500 hover:text-zinc-300 text-xl">×</button>
+          </div>
+
+          <div className="mb-4">
+            <span className="text-xs px-2 py-1 rounded-full bg-violet-500/20 text-violet-300">
+              Agent Role
+            </span>
+          </div>
+
+          <p className="text-sm text-zinc-300 mb-4 leading-relaxed">{role.extended}</p>
+        </>
+      );
+    }
+
     return null;
   };
-  
+
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-zinc-900 rounded-xl border border-zinc-700 max-w-md w-full max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
@@ -1458,7 +1515,7 @@ export default function NirmanakaReader() {
   const [question, setQuestion] = useState('');
   const [followUp, setFollowUp] = useState('');
   const [spreadType, setSpreadType] = useState('random');
-  const [spreadKey, setSpreadKey] = useState('single');
+  const [spreadKey, setSpreadKey] = useState('one');
   const [stance, setStance] = useState({ voice: 'wonder', focus: 'see', density: 'clear', scope: 'here' }); // Default: Start Here
   const [showCustomize, setShowCustomize] = useState(false);
   const [draws, setDraws] = useState(null);
