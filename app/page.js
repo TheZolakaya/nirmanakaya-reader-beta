@@ -448,77 +448,111 @@ const EXPANSION_PROMPTS = {
 };
 
 // === CORRECTION LOGIC ===
-// Diagonal pairs by position (staying within same house)
+// CANONICAL CORRECTION LOOKUP TABLES
+// Source: The_New_Nirmanakaya_Card_Table_With_Balancing.xlsx
+// DO NOT USE FORMULAS - these are authoritative lookup values
+
+// DIAGONAL_PAIRS (Too Much correction)
 const DIAGONAL_PAIRS = {
-  0: 19, 19: 0,   // Gestalt (sum 19)
-  1: 20, 20: 1,   // Gestalt (sum 21)
-  2: 17, 17: 2,   // Spirit (sum 19)
-  3: 18, 18: 3,   // Spirit (sum 21)
-  4: 15, 15: 4,   // Mind (sum 19)
-  5: 16, 16: 5,   // Mind (sum 21)
-  6: 13, 13: 6,   // Emotion (sum 19)
-  7: 14, 14: 7,   // Emotion (sum 21)
-  8: 11, 11: 8,   // Body (sum 19)
-  9: 12, 12: 9,   // Body (sum 21)
-  10: 21, 21: 10  // Portal (sum 31 - Portal pairs with itself)
+  0: 19,   // Potential → Actualization
+  1: 20,   // Will → Awareness
+  2: 17,   // Wisdom → Inspiration
+  3: 18,   // Nurturing → Imagination
+  4: 15,   // Order → Abstraction
+  5: 16,   // Culture → Breakthrough
+  6: 13,   // Compassion → Change
+  7: 14,   // Drive → Balance
+  8: 11,   // Fortitude → Equity
+  9: 12,   // Discipline → Sacrifice
+  10: 1,   // Cycles (Portal) → Will
+  11: 8,   // Equity → Fortitude
+  12: 9,   // Sacrifice → Discipline
+  13: 6,   // Change → Compassion
+  14: 7,   // Balance → Drive
+  15: 4,   // Abstraction → Order
+  16: 5,   // Breakthrough → Culture
+  17: 2,   // Inspiration → Wisdom
+  18: 3,   // Imagination → Nurturing
+  19: 0,   // Actualization → Potential
+  20: 1,   // Awareness → Will
+  21: 0    // Wholeness (Portal) → Potential
 };
 
-// Vertical pairs (all sum to 20)
+// VERTICAL_PAIRS (Too Little correction)
 const VERTICAL_PAIRS = {
-  0: 20, 20: 0,
-  1: 19, 19: 1,
-  2: 18, 18: 2,
-  3: 17, 17: 3,
-  4: 16, 16: 4,
-  5: 15, 15: 5,
-  6: 14, 14: 6,
-  7: 13, 13: 7,
-  8: 12, 12: 8,
-  9: 11, 11: 9,
-  10: null, // Portal: Cycles has no vertical partner (20-10=10, self)
-  21: null  // Portal: Wholeness has no vertical partner (20-21=-1, invalid)
+  0: 20,   // Potential → Awareness
+  1: 19,   // Will → Actualization
+  2: 18,   // Wisdom → Imagination
+  3: 17,   // Nurturing → Inspiration
+  4: 16,   // Order → Breakthrough
+  5: 15,   // Culture → Abstraction
+  6: 14,   // Compassion → Balance
+  7: 13,   // Drive → Change
+  8: 12,   // Fortitude → Sacrifice
+  9: 11,   // Discipline → Equity
+  10: 19,  // Cycles (Portal) → Actualization
+  11: 9,   // Equity → Discipline
+  12: 8,   // Sacrifice → Fortitude
+  13: 7,   // Change → Drive
+  14: 6,   // Balance → Compassion
+  15: 5,   // Abstraction → Culture
+  16: 4,   // Breakthrough → Order
+  17: 3,   // Inspiration → Nurturing
+  18: 2,   // Imagination → Wisdom
+  19: 1,   // Actualization → Will
+  20: 0,   // Awareness → Potential
+  21: 20   // Wholeness (Portal) → Awareness
 };
 
-// Reduction pairs (same digit sum)
-const REDUCTION_GROUPS = {
-  1: [1, 10, 19],
-  2: [2, 11, 20],
-  3: [3, 12, 21],
-  4: [4, 13],
-  5: [5, 14],
-  6: [6, 15],
-  7: [7, 16],
-  8: [8, 17],
-  9: [9, 18]
+// REDUCTION_PAIRS (Unacknowledged correction)
+// null means no reduction pair exists for that position
+const REDUCTION_PAIRS = {
+  0: null,  // Potential - no reduction
+  1: null,  // Will - no reduction
+  2: 11,    // Wisdom → Equity
+  3: 12,    // Nurturing → Sacrifice
+  4: 13,    // Order → Change
+  5: 14,    // Culture → Balance
+  6: 15,    // Compassion → Abstraction
+  7: 16,    // Drive → Breakthrough
+  8: 17,    // Fortitude → Inspiration
+  9: 18,    // Discipline → Imagination
+  10: null, // Cycles (Portal) - no reduction
+  11: 2,    // Equity → Wisdom
+  12: 3,    // Sacrifice → Nurturing
+  13: 4,    // Change → Order
+  14: 5,    // Balance → Culture
+  15: 6,    // Abstraction → Compassion
+  16: 7,    // Breakthrough → Drive
+  17: 8,    // Inspiration → Fortitude
+  18: 9,    // Imagination → Discipline
+  19: null, // Actualization - no reduction
+  20: null, // Awareness - no reduction
+  21: null  // Wholeness (Portal) - no reduction
 };
 
-function getDigitSum(n) {
-  let sum = String(n).split('').reduce((a, b) => a + parseInt(b), 0);
-  return sum > 9 ? (sum % 9 || 9) : sum;
-}
+// Simple lookup-based correction - NO FORMULAS
+function getArchetypeCorrection(transientPosition, status) {
+  if (status === 1) return null; // Balanced - no correction needed
 
-function getArchetypeCorrection(position, status) {
-  if (status === 1) return null;
-  
   if (status === 2) {
     // Too Much → Diagonal partner
-    const target = DIAGONAL_PAIRS[position];
+    const target = DIAGONAL_PAIRS[transientPosition];
     return target !== undefined ? { type: "diagonal", target } : null;
   }
-  
+
   if (status === 3) {
     // Too Little → Vertical partner
-    const target = VERTICAL_PAIRS[position];
-    return (target !== null && target !== undefined) ? { type: "vertical", target } : null;
+    const target = VERTICAL_PAIRS[transientPosition];
+    return target !== undefined ? { type: "vertical", target } : null;
   }
-  
+
   if (status === 4) {
-    // Unacknowledged → Reduction pair(s)
-    const key = getDigitSum(position);
-    const targets = (REDUCTION_GROUPS[key] || []).filter(p => p !== position);
-    return targets.length > 0 ? { type: "reduction", targets } : null;
+    // Unacknowledged → Reduction pair
+    const target = REDUCTION_PAIRS[transientPosition];
+    return target !== null ? { type: "reduction", target } : null;
   }
-  
+
   return null;
 }
 
