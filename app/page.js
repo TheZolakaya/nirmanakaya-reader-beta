@@ -148,23 +148,23 @@ const STATUS_INFO = {
     description: "Authentic expression — the function is operating correctly, present-centered, integrated.",
     extended: "When an archetype is balanced, it expresses naturally without excess or deficiency. There's no correction needed because the energy is flowing appropriately for the moment. This is the optimal state — full presence without distortion."
   },
-  2: { 
-    name: "Too Much", 
-    orientation: "Future-projected", 
+  2: {
+    name: "Too Much",
+    orientation: "Future-projected",
     description: "Over-expressing — anxiety, control, pushing ahead of natural timing.",
-    extended: "Too Much indicates future-projection: you're leaning into what hasn't arrived yet, trying to control outcomes, or over-applying this energy. The correction is the Diagonal partner — the opposite pole that counterbalances the excess and rotates runaway momentum back into alignment."
+    extended: "Too Much indicates future-projection: energy is pushed forward, grasping at what hasn't arrived. Often shows up as anxiety, fear, or the need to control outcomes. The correction is the Diagonal partner — the opposite pole that counterbalances the excess and rotates runaway momentum back into alignment."
   },
-  3: { 
-    name: "Too Little", 
-    orientation: "Past-anchored", 
+  3: {
+    name: "Too Little",
+    orientation: "Past-anchored",
     description: "Under-expressing — withdrawn, avoidant, not fully arriving in the present.",
-    extended: "Too Little indicates past-anchoring: energy is withdrawn, held back, caught in what was rather than what is. The correction is the Vertical partner — the same archetypal identity at the other scale, which restores recursion and reconnects you to your complete capacity."
+    extended: "Too Little indicates past-anchoring: energy is withdrawn, held back, caught in what was rather than what is. Often shows up as regret, shame, or guilt keeping you from fully arriving in the present. The correction is the Vertical partner — the same archetypal identity at the other scale, which restores recursion and reconnects you to your complete capacity."
   },
-  4: { 
-    name: "Unacknowledged", 
-    orientation: "Shadow", 
+  4: {
+    name: "Unacknowledged",
+    orientation: "Shadow",
     description: "Operating without awareness — steering without conscious integration.",
-    extended: "Unacknowledged is shadow operation: this energy is running but you can't see it. It's influencing behavior without consent or alignment. The correction is the Reduction pair — returning to the generating source, the micro-level node from which this emerged. Going back to basics makes the shadow visible."
+    extended: "Unacknowledged is shadow operation: this energy is running but you can't see it. It's influencing behavior without consent or alignment. The correction is the Reduction pair — returning to the generating source to make the shadow visible."
   }
 };
 
@@ -279,44 +279,44 @@ const CHANNEL_COLORS = {
 
 // === SPREAD DEFINITIONS ===
 const DURABLE_SPREADS = {
-  threeCard: { 
-    name: "Three Card", 
-    count: 3, 
+  arc: {
+    name: "Arc",
+    count: 3,
     frames: [
-      { name: "Situation", house: "Mind" },
-      { name: "Movement", house: "Spirit" },
-      { name: "Integration", house: "Gestalt" }
+      { name: "Situation", house: "Mind", meaning: "what is" },
+      { name: "Movement", house: "Spirit", meaning: "what's in motion" },
+      { name: "Integration", house: "Gestalt", meaning: "what completes" }
     ],
     description: "Situation → Movement → Integration"
   },
-  fourAspects: {
-    name: "Four Aspects",
+  quadraverse: {
+    name: "Quadraverse",
     count: 4,
     frames: [
-      { name: "Spirit", house: "Spirit" },
-      { name: "Mind", house: "Mind" },
-      { name: "Emotion", house: "Emotion" },
-      { name: "Body", house: "Body" }
+      { name: "Spirit", house: "Spirit", meaning: "inner knowing" },
+      { name: "Mind", house: "Mind", meaning: "pattern and structure" },
+      { name: "Emotion", house: "Emotion", meaning: "feeling and drive" },
+      { name: "Body", house: "Body", meaning: "form and practice" }
     ],
     description: "The four aspects of self"
   },
-  fiveHouse: { 
-    name: "Five Houses", 
-    count: 5, 
+  fiveHouse: {
+    name: "Five Houses",
+    count: 5,
     frames: [
-      { name: "Gestalt", house: "Gestalt" },
-      { name: "Spirit", house: "Spirit" },
-      { name: "Mind", house: "Mind" },
-      { name: "Emotion", house: "Emotion" },
-      { name: "Body", house: "Body" }
+      { name: "Gestalt", house: "Gestalt", meaning: "the integrative whole" },
+      { name: "Spirit", house: "Spirit", meaning: "inner knowing" },
+      { name: "Mind", house: "Mind", meaning: "pattern and structure" },
+      { name: "Emotion", house: "Emotion", meaning: "feeling and drive" },
+      { name: "Body", house: "Body", meaning: "form and practice" }
     ],
     description: "Your five domains of experience"
   }
 };
 
 const RANDOM_SPREADS = {
-  single: { name: "Single", count: 1 },
-  three: { name: "Three", count: 3 },
+  single: { name: "One", count: 1 },
+  three: { name: "Arc", count: 3 },
   five: { name: "Five", count: 5 }
 };
 
@@ -353,7 +353,7 @@ const SCOPE_MODIFIERS = {
 
 // Stance presets
 const STANCE_PRESETS = {
-  startHere: { name: "Start Here", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Curious & accessible" },
+  curious: { name: "Curious", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
   quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
   deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
   justTheFacts: { name: "Just the Facts", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
@@ -620,7 +620,9 @@ function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
     const correctionText = getCorrectionText(correction, trans);
     const transArchetype = trans.archetype !== undefined ? ARCHETYPES[trans.archetype] : null;
     
-    let context = isDurable ? spreadConfig.frames[i].name : (draw.position !== null ? `${ARCHETYPES[draw.position]?.name} (Position ${draw.position})` : 'Draw');
+    let context = isDurable
+      ? `${spreadConfig.frames[i].name} (${spreadConfig.frames[i].meaning})`
+      : (draw.position !== null ? `${ARCHETYPES[draw.position]?.name} (Position ${draw.position})` : 'Draw');
     
     let transInfo = trans.name;
     if (showTraditional) transInfo += ` (${trans.traditional})`;
@@ -630,7 +632,7 @@ function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
     
     const statusPhrase = stat.prefix ? `${stat.prefix} ${trans.name}` : `Balanced ${trans.name}`;
     
-    return `**Card ${i + 1} — ${context}**: ${statusPhrase}
+    return `**Signature ${i + 1} — ${context}**: ${statusPhrase}
 Transient: ${transInfo}
 Status: ${stat.name} — ${stat.desc}
 ${correctionText ? `Correction: ${correctionText}` : 'No correction needed (Balanced)'}`;
@@ -1421,29 +1423,32 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
 
 // === INTRO COMPONENT ===
 const IntroSection = () => (
-  <div className="mb-8 text-center">
+  <div className="mb-6 text-center">
     <div className="max-w-2xl mx-auto">
-      <p className="text-zinc-400 text-sm leading-relaxed mb-6">
+      <p className="text-zinc-400 text-sm leading-relaxed mb-4">
         The Nirmanakaya is both mirror and forge. Bring a question or declare an intention —
         the draw finds what's ready to be seen. Where you are, what's moving, what might need attention.
       </p>
 
-      <div className="bg-zinc-900/50 rounded-xl p-5 mb-6 border border-zinc-800/50">
-        <p className="text-zinc-500 text-xs uppercase tracking-wider mb-3">Examples</p>
-        <div className="space-y-2 text-sm text-zinc-400">
-          <p>"What do I need to see about this relationship?"</p>
-          <p>"Where am I stuck in my work right now?"</p>
-          <p>"I'm going to leave this job."</p>
-          <p>"What's asking for my attention today?"</p>
-          <p>"I'm choosing to prioritize my health."</p>
-          <p>"Am I on the right path with this decision?"</p>
+      <div className="bg-zinc-900/50 rounded-xl p-4 mb-4 border border-zinc-800/50">
+        <p className="text-zinc-500 text-[10px] uppercase tracking-wider mb-2">Examples</p>
+        <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-zinc-500">
+          <span>"What do I need to see about this relationship?"</span>
+          <span>•</span>
+          <span>"Where am I stuck in my work right now?"</span>
+          <span>•</span>
+          <span>"I'm going to start a new project."</span>
+          <span>•</span>
+          <span>"What's asking for my attention today?"</span>
+          <span>•</span>
+          <span>"I'm going to stop worrying so much."</span>
+          <span>•</span>
+          <span>"Am I on the right path with this decision?"</span>
         </div>
+        <p className="text-zinc-600 text-[10px] mt-3 italic">
+          The more detailed your entry, the more specific the response will be.
+        </p>
       </div>
-
-      <p className="text-zinc-600 text-xs">
-        Every reading captures a snapshot of your moment in relation to your question.
-        The structure doesn't predict — it reveals what's already present.
-      </p>
     </div>
   </div>
 );
@@ -1617,14 +1622,14 @@ export default function NirmanakaReader() {
       const draw = draws[cardIndex];
       const trans = getComponent(draw.transient);
       sectionContent = cardSection?.content || '';
-      sectionContext = `the reading for ${trans.name} (Card ${cardIndex + 1})`;
+      sectionContext = `the reading for ${trans.name} (Signature ${cardIndex + 1})`;
     } else if (sectionKey.startsWith('correction:')) {
       const cardIndex = parseInt(sectionKey.split(':')[1]);
       const corrSection = parsedReading.corrections.find(c => c.cardIndex === cardIndex);
       const draw = draws[cardIndex];
       const trans = getComponent(draw.transient);
       sectionContent = corrSection?.content || '';
-      sectionContext = `the correction path for ${trans.name} (Card ${cardIndex + 1})`;
+      sectionContext = `the correction path for ${trans.name} (Signature ${cardIndex + 1})`;
     }
     
     const expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
@@ -1677,7 +1682,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     if (parsedReading) {
       readingContext = `PREVIOUS READING:\n\nSummary: ${parsedReading.summary}\n\n`;
       parsedReading.cards.forEach((card, i) => {
-        readingContext += `Card ${card.index + 1}: ${card.content}\n\n`;
+        readingContext += `Signature ${card.index + 1}: ${card.content}\n\n`;
       });
       parsedReading.corrections.forEach(corr => {
         readingContext += `Correction ${corr.cardIndex + 1}: ${corr.content}\n\n`;
@@ -1900,7 +1905,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     }
 
     // Cards with corrections
-    md += `## Cards\n\n`;
+    md += `## Signatures\n\n`;
     parsedReading.cards.forEach((card) => {
       const draw = draws[card.index];
       const trans = getComponent(draw.transient);
@@ -1912,7 +1917,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         : `Position ${card.index + 1}`;
       const statusPhrase = stat.prefix ? `${stat.prefix} ${trans.name}` : `Balanced ${trans.name}`;
 
-      md += `### Card ${card.index + 1} — ${context}\n\n`;
+      md += `### Signature ${card.index + 1} — ${context}\n\n`;
       md += `**${statusPhrase}** (${trans.traditional})  \n`;
       md += `*Status: ${stat.name}*\n\n`;
 
@@ -1966,7 +1971,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.22 alpha • mirror & forge</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.23 alpha • signatures & polish</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -1981,7 +1986,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
                     Dynamic Lens
                   </button>
-                  <button onClick={() => { setSpreadType('durable'); setSpreadKey('threeCard'); }}
+                  <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
                     className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
                     Fixed Layout
                   </button>
@@ -2047,15 +2052,39 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               setShowCustomize={setShowCustomize}
             />
 
-            <div className="flex justify-center mb-6">
-              <button onClick={() => setShowTraditional(!showTraditional)}
-                className={`text-xs px-3 py-1.5 rounded-lg transition-all ${showTraditional ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-900/50 text-zinc-600 hover:text-zinc-400'}`}>
-                {showTraditional ? '✓ Traditional Names' : 'Show Traditional Names'}
-              </button>
+            <div className="relative mb-4">
+              <div className="flex items-start gap-2">
+                <textarea
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
+                  placeholder="Name your question or declare your intent... or leave blank for a general reading"
+                  className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
+                  rows={3}
+                />
+                <button
+                  onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
+                  className="mt-4 w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all flex-shrink-0"
+                >
+                  ?
+                </button>
+              </div>
+              {helpPopover === 'input' && (
+                <div className="absolute top-full right-0 mt-2 z-50 w-72">
+                  <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+                    <p className="text-zinc-400 text-xs leading-relaxed">
+                      Ask about anything — relationships, work, decisions, direction. Or declare an action you're taking and see how it lands. The more specific you are, the more specific the reading will be.
+                    </p>
+                    <button
+                      onClick={() => setHelpPopover(null)}
+                      className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+                    >
+                      Got it
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-
-            <textarea value={question} onChange={(e) => setQuestion(e.target.value)} placeholder="Name your question or declare your intent..."
-              className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors mb-4" rows={3} />
 
             <button onClick={performReading} disabled={loading}
               className="w-full bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 py-4 rounded-xl transition-all duration-300 font-light tracking-wider">
@@ -2083,14 +2112,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {/* Error */}
         {error && <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4 my-4 text-red-400 text-sm">{error}</div>}
 
-        {/* Cards Display */}
+        {/* Signatures Display */}
         {draws && !loading && (
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <span className="text-xs text-zinc-500 uppercase tracking-wider">
-                {spreadType === 'durable' ? DURABLE_SPREADS[spreadKey]?.name : `${RANDOM_SPREADS[spreadKey]?.name} Random`} • {getCurrentStanceLabel()}
+                {spreadType === 'durable' ? `Fixed Layout • ${DURABLE_SPREADS[spreadKey]?.name}` : `Dynamic Lens • ${RANDOM_SPREADS[spreadKey]?.name}`} • {getCurrentStanceLabel()}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center relative">
                 <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
                 {parsedReading && !loading && (
                   <button onClick={exportToMarkdown} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
@@ -2098,6 +2127,26 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Trad.' : 'Trad.'}</button>
                 <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Arch.' : 'Arch.'}</button>
                 <button onClick={resetReading} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">New</button>
+                <button
+                  onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
+                  className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
+                >
+                  ?
+                </button>
+                {helpPopover === 'actions' && (
+                  <div className="absolute top-full right-0 mt-2 z-50 w-64">
+                    <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl text-xs">
+                      <div className="space-y-1.5 text-zinc-400">
+                        <p><span className="text-zinc-200">Share</span> — Copy link to this reading</p>
+                        <p><span className="text-zinc-200">Export</span> — Download as file</p>
+                        <p><span className="text-zinc-200">Trad.</span> — Toggle traditional tarot names</p>
+                        <p><span className="text-zinc-200">Arch.</span> — Show architectural details</p>
+                        <p><span className="text-zinc-200">New</span> — Start a fresh reading</p>
+                      </div>
+                      <button onClick={() => setHelpPopover(null)} className="mt-2 text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             
@@ -2232,7 +2281,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                           const trans = getComponent(draw.transient);
                           if (trans.channel) {
                             if (!channelGroups[trans.channel]) channelGroups[trans.channel] = [];
-                            const label = isDurable ? spreadConfig?.frames[i].name : (draw.position !== null ? ARCHETYPES[draw.position]?.name : `Card ${i+1}`);
+                            const label = isDurable ? spreadConfig?.frames[i].name : (draw.position !== null ? ARCHETYPES[draw.position]?.name : `Signature ${i+1}`);
                             channelGroups[trans.channel].push({ label, trans: trans.name });
                           }
                         });
@@ -2317,7 +2366,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             </div>
             
             {/* Your Question */}
-            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 ml-8">
+            <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 mx-8">
               <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question or Intention</div>
               <div className="text-zinc-300 text-sm">{question}</div>
             </div>
@@ -2338,7 +2387,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               />
             )}
             
-            {/* Card Sections with their Corrections */}
+            {/* Signature Sections with their Corrections */}
             {parsedReading.cards.map((card) => {
               const correction = parsedReading.corrections.find(c => c.cardIndex === card.index);
               return (
@@ -2412,13 +2461,34 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
         {/* Follow-up Input */}
         {parsedReading && !loading && (
-          <div className="flex gap-2 mt-4">
-            <input type="text" value={followUp} onChange={(e) => setFollowUp(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !loading && sendFollowUp()}
-              placeholder="Ask a follow-up question..."
-              className="flex-1 bg-zinc-900/50 border border-zinc-800 rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors text-sm" />
-            <button onClick={sendFollowUp} disabled={loading || !followUp.trim()}
-              className="bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 px-6 rounded-xl transition-all">→</button>
+          <div className="mt-6 pt-4 border-t border-zinc-800/50 relative">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Continue the conversation</span>
+              <button
+                onClick={() => setHelpPopover(helpPopover === 'followup' ? null : 'followup')}
+                className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
+              >
+                ?
+              </button>
+              {helpPopover === 'followup' && (
+                <div className="absolute top-8 left-0 z-50 w-72">
+                  <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl">
+                    <p className="text-zinc-400 text-xs leading-relaxed">
+                      Ask anything — dig deeper, challenge it, ask about a specific part, or take the conversation wherever you need.
+                    </p>
+                    <button onClick={() => setHelpPopover(null)} className="mt-2 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <input type="text" value={followUp} onChange={(e) => setFollowUp(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !loading && sendFollowUp()}
+                placeholder="Ask a follow-up question..."
+                className="flex-1 bg-zinc-900/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors text-sm" />
+              <button onClick={sendFollowUp} disabled={loading || !followUp.trim()}
+                className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 px-6 rounded-xl transition-all">→</button>
+            </div>
           </div>
         )}
 
