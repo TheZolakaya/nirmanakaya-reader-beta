@@ -2006,7 +2006,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         const corrText = getCorrectionText(fullCorr, trans);
         correctionHtml = `
           <div class="correction">
-            <div class="correction-header">Correction: ${corrText || ''}</div>
+            <span class="correction-badge">Action</span>
+            <div class="correction-header">Path Forward: ${corrText || ''}</div>
             <div class="correction-content">${escapeHtml(correction.content)}</div>
           </div>`;
       }
@@ -2014,7 +2015,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       signaturesHtml += `
         <div class="signature">
           <div class="signature-header">
-            <span class="signature-title">Signature ${card.index + 1} — ${context}</span>
+            <div>
+              <span class="signature-badge">Reading</span>
+              <span class="signature-title">Signature ${card.index + 1} — ${context}</span>
+            </div>
             <span class="signature-status status-${stat.name.toLowerCase().replace(' ', '-')}">${stat.name}</span>
           </div>
           <div class="signature-name">${statusPhrase} <span class="traditional">(${trans.traditional})</span></div>
@@ -2041,9 +2045,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .question-text { color: #d4d4d8; }
     .section { margin-bottom: 2rem; }
     .section-title { color: #71717a; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; border-bottom: 1px solid #3f3f46; padding-bottom: 0.5rem; }
-    .summary { color: #a1a1aa; }
-    .signature { background: #27272a; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 1px solid #3f3f46; }
+    .summary-box { background: linear-gradient(to bottom right, rgba(120, 53, 15, 0.4), rgba(120, 53, 15, 0.2)); border: 2px solid rgba(245, 158, 11, 0.5); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; }
+    .summary-badge { display: inline-block; background: rgba(245, 158, 11, 0.3); color: #fcd34d; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
+    .summary { color: #fef3c7; }
+    .signature { background: #27272a; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 2px solid rgba(34, 211, 238, 0.5); }
     .signature-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .signature-badge { display: inline-block; background: rgba(34, 211, 238, 0.2); color: #22d3ee; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-right: 0.5rem; vertical-align: middle; }
     .signature-title { color: #fafafa; font-weight: 500; }
     .signature-status { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; }
     .status-balanced { background: rgba(16, 185, 129, 0.2); color: #34d399; }
@@ -2054,10 +2061,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .traditional { color: #71717a; }
     .arch-details { color: #52525b; font-size: 0.75rem; margin-bottom: 0.75rem; padding: 0.5rem; background: #1f1f23; border-radius: 0.5rem; }
     .signature-content { color: #a1a1aa; font-size: 0.875rem; }
-    .correction { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #3f3f46; margin-left: 1rem; padding-left: 1rem; border-left: 2px solid #52525b; }
-    .correction-header { color: #71717a; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .correction { margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.4); border-radius: 0.5rem; margin-left: 1rem; }
+    .correction-badge { display: inline-block; background: rgba(16, 185, 129, 0.3); color: #34d399; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-bottom: 0.5rem; }
+    .correction-header { color: #34d399; font-size: 0.75rem; font-weight: 500; margin-bottom: 0.5rem; }
     .correction-content { color: #a1a1aa; font-size: 0.875rem; }
-    .letter { background: #1f1f23; border-radius: 0.75rem; padding: 1.5rem; color: #a1a1aa; font-style: italic; }
+    .letter-box { background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 0.75rem; padding: 1.5rem; }
+    .letter-badge { display: inline-block; background: rgba(139, 92, 246, 0.3); color: #a78bfa; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
+    .letter { color: #c4b5fd; font-style: italic; }
     .footer { text-align: center; color: #3f3f46; font-size: 0.625rem; margin-top: 3rem; letter-spacing: 0.1em; }
   </style>
 </head>
@@ -2073,8 +2083,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
   ${parsedReading.summary ? `
   <div class="section">
-    <div class="section-title">Summary</div>
-    <div class="summary">${escapeHtml(parsedReading.summary)}</div>
+    <div class="summary-box">
+      <span class="summary-badge">Overview</span>
+      <div class="summary">${escapeHtml(parsedReading.summary)}</div>
+    </div>
   </div>` : ''}
 
   <div class="section">
@@ -2084,8 +2096,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
   ${parsedReading.letter ? `
   <div class="section">
-    <div class="section-title">Letter</div>
-    <div class="letter">${escapeHtml(parsedReading.letter)}</div>
+    <div class="letter-box">
+      <span class="letter-badge">Letter</span>
+      <div class="letter">${escapeHtml(parsedReading.letter)}</div>
+    </div>
   </div>` : ''}
 
   <p class="footer">Generated by Nirmanakaya Consciousness Architecture Reader</p>
