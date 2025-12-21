@@ -1084,11 +1084,11 @@ const InfoModal = ({ info, onClose, setSelectedInfo }) => {
 };
 
 // === READING SECTION COMPONENT ===
-const ReadingSection = ({ 
-  type, // 'summary' | 'card' | 'correction' | 'letter'
-  index, // card index (for card/correction)
-  content, 
-  draw, // the draw object (for card/correction context)
+const ReadingSection = ({
+  type, // 'summary' | 'card' | 'letter'
+  index, // card index (for card)
+  content,
+  draw, // the draw object (for card context)
   question, // the querent's question
   expansions,
   expanding,
@@ -1097,7 +1097,8 @@ const ReadingSection = ({
   spreadType,
   spreadKey,
   setSelectedInfo,
-  onHeaderClick // callback when header is clicked (for scroll navigation)
+  onHeaderClick, // callback when header is clicked (for scroll navigation)
+  correction, // nested correction object { content, cardIndex }
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
   const stat = draw ? STATUSES[draw.status] : null;
@@ -1153,22 +1154,6 @@ const ReadingSection = ({
           </ClickableTerm>
         </span>
       );
-    } else if (type === 'correction') {
-      return (
-        <span className="text-emerald-400">
-          Path Forward: <ClickableTerm type="card" id={draw.transient}>{trans?.name}</ClickableTerm>
-          {' → '}
-          {(() => {
-            const correction = getFullCorrection(draw.transient, draw.status);
-            const correctionText = getCorrectionText(correction, trans);
-            const correctionTargetId = getCorrectionTargetId(correction, trans);
-            if (correctionTargetId !== null) {
-              return <ClickableTerm type="card" id={correctionTargetId}>{correctionText}</ClickableTerm>;
-            }
-            return correctionText;
-          })()}
-        </span>
-      );
     } else if (type === 'letter') {
       return <span className="text-zinc-400 italic">A Note for You</span>;
     }
@@ -1184,7 +1169,7 @@ const ReadingSection = ({
     if (type === 'summary') {
       return 'bg-gradient-to-br from-amber-950/40 to-amber-900/20 border-amber-500/50';
     } else if (type === 'letter') {
-      return 'bg-zinc-900/80 border-zinc-700/50';
+      return 'bg-violet-950/30 border-violet-500/50';
     } else if (houseColors) {
       return `${houseColors.bg} ${houseColors.border}`;
     }
@@ -1193,14 +1178,13 @@ const ReadingSection = ({
   
   const getBadgeStyle = () => {
     if (type === 'summary') return 'bg-amber-500/30 text-amber-300';
-    if (type === 'letter') return 'bg-zinc-700 text-zinc-300';
-    if (type === 'correction') return 'bg-emerald-900/50 text-emerald-400';
+    if (type === 'letter') return 'bg-violet-500/30 text-violet-300';
     if (houseColors) return `${houseColors.bg} ${houseColors.text}`;
     return 'bg-zinc-800 text-zinc-400';
   };
   
   const getContentStyle = () => {
-    if (type === 'letter') return 'text-zinc-300/90 italic';
+    if (type === 'letter') return 'text-violet-200/90 italic';
     if (type === 'summary') return 'text-amber-100/90';
     return 'text-zinc-300';
   };
@@ -1222,7 +1206,7 @@ const ReadingSection = ({
       >
         <div className="flex items-center gap-2">
           <span className={`text-xs px-2 py-0.5 rounded-full ${getBadgeStyle()}`}>
-            {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : type === 'correction' ? 'Action' : 'Letter'}
+            {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : 'Letter'}
           </span>
           <span className="text-sm font-medium">{renderLabel()}</span>
           {type === 'card' && onHeaderClick && (
@@ -1269,7 +1253,7 @@ const ReadingSection = ({
             <span className="text-xs uppercase tracking-wider text-zinc-500">
               {EXPANSION_PROMPTS[expType]?.label}
             </span>
-            <button 
+            <button
               onClick={() => onExpand(sectionKey, expType, true)}
               className="text-xs text-zinc-600 hover:text-zinc-400"
             >
@@ -1281,6 +1265,100 @@ const ReadingSection = ({
           </div>
         </div>
       ))}
+
+      {/* Nested Rebalancer (Correction) - only for card sections with corrections */}
+      {type === 'card' && correction && (() => {
+        const fullCorr = getFullCorrection(draw.transient, draw.status);
+        const corrText = getCorrectionText(fullCorr, trans);
+        const corrTargetId = getCorrectionTargetId(fullCorr, trans);
+        const corrSectionKey = `correction:${index}`;
+        const corrExpansions = expansions[corrSectionKey] || {};
+        const isCorrExpanding = expanding?.section === corrSectionKey;
+
+        return (
+          <div className="mt-4 ml-4 rounded-lg border-2 border-emerald-500/50 bg-emerald-950/30 p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300">
+                Rebalancer
+              </span>
+              <span className="text-sm font-medium text-emerald-400">
+                <span
+                  className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedInfo({ type: 'card', id: draw.transient, data: trans });
+                  }}
+                >
+                  {trans?.name}
+                </span>
+                {' → '}
+                {corrTargetId !== null ? (
+                  <span
+                    className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const corrComponent = getComponent(corrTargetId);
+                      setSelectedInfo({ type: 'card', id: corrTargetId, data: corrComponent });
+                    }}
+                  >
+                    {corrText}
+                  </span>
+                ) : corrText}
+              </span>
+            </div>
+            <div className="leading-relaxed text-sm mb-4 whitespace-pre-wrap text-emerald-100/90">
+              {correction.content}
+            </div>
+
+            {/* Rebalancer Expansion Buttons */}
+            <div className="flex gap-2 flex-wrap">
+              {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
+                const isThisExpanding = isCorrExpanding && expanding?.type === key;
+                const hasExpansion = !!corrExpansions[key];
+                const isExpandingOther = expanding && !isThisExpanding;
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => onExpand(corrSectionKey, key)}
+                    disabled={expanding}
+                    className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                      hasExpansion
+                        ? 'bg-zinc-700 text-zinc-200 border border-zinc-600'
+                        : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                    } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {isThisExpanding && (
+                      <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                    )}
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Rebalancer Expansion Content */}
+            {Object.entries(corrExpansions).map(([expType, expContent]) => (
+              <div key={expType} className="mt-4 pt-4 border-t border-emerald-700/50">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs uppercase tracking-wider text-zinc-500">
+                    {EXPANSION_PROMPTS[expType]?.label}
+                  </span>
+                  <button
+                    onClick={() => onExpand(corrSectionKey, expType, true)}
+                    className="text-xs text-zinc-600 hover:text-zinc-400"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-400">
+                  {expContent}
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
     </div>
   );
 };
@@ -2062,10 +2140,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         const fullCorr = getFullCorrection(draw.transient, draw.status);
         const corrText = getCorrectionText(fullCorr, trans);
         correctionHtml = `
-          <div class="correction">
-            <span class="correction-badge">Action</span>
-            <div class="correction-header">Path Forward: ${corrText || ''}</div>
-            <div class="correction-content">${escapeHtml(correction.content)}</div>
+          <div class="rebalancer">
+            <span class="rebalancer-badge">Rebalancer</span>
+            <div class="rebalancer-header">${trans.name} → ${corrText || ''}</div>
+            <div class="rebalancer-content">${escapeHtml(correction.content)}</div>
           </div>`;
       }
 
@@ -2105,9 +2183,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .summary-box { background: linear-gradient(to bottom right, rgba(120, 53, 15, 0.4), rgba(120, 53, 15, 0.2)); border: 2px solid rgba(245, 158, 11, 0.5); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; }
     .summary-badge { display: inline-block; background: rgba(245, 158, 11, 0.3); color: #fcd34d; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
     .summary { color: #fef3c7; }
-    .signature { background: #27272a; border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 2px solid rgba(34, 211, 238, 0.5); }
+    .signature { background: rgba(8, 51, 68, 0.3); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 2px solid rgba(6, 182, 212, 0.5); }
     .signature-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .signature-badge { display: inline-block; background: rgba(34, 211, 238, 0.2); color: #22d3ee; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-right: 0.5rem; vertical-align: middle; }
+    .signature-badge { display: inline-block; background: rgba(6, 182, 212, 0.2); color: #06b6d4; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-right: 0.5rem; vertical-align: middle; }
     .signature-title { color: #fafafa; font-weight: 500; }
     .signature-status { font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; }
     .status-balanced { background: rgba(16, 185, 129, 0.2); color: #34d399; }
@@ -2117,14 +2195,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .signature-name { color: #d4d4d8; margin-bottom: 0.5rem; }
     .traditional { color: #71717a; }
     .arch-details { color: #52525b; font-size: 0.75rem; margin-bottom: 0.75rem; padding: 0.5rem; background: #1f1f23; border-radius: 0.5rem; }
-    .signature-content { color: #a1a1aa; font-size: 0.875rem; }
-    .correction { margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border: 2px solid rgba(16, 185, 129, 0.4); border-radius: 0.5rem; margin-left: 1rem; }
-    .correction-badge { display: inline-block; background: rgba(16, 185, 129, 0.3); color: #34d399; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-bottom: 0.5rem; }
-    .correction-header { color: #34d399; font-size: 0.75rem; font-weight: 500; margin-bottom: 0.5rem; }
-    .correction-content { color: #a1a1aa; font-size: 0.875rem; }
-    .letter-box { background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 0.75rem; padding: 1.5rem; }
-    .letter-badge { display: inline-block; background: rgba(139, 92, 246, 0.3); color: #a78bfa; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
-    .letter { color: #c4b5fd; font-style: italic; }
+    .signature-content { color: #d4d4d8; font-size: 0.875rem; }
+    .rebalancer { margin-top: 1rem; padding: 1rem; background: rgba(2, 44, 34, 0.3); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 0.5rem; margin-left: 1rem; }
+    .rebalancer-badge { display: inline-block; background: rgba(16, 185, 129, 0.3); color: #6ee7b7; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-bottom: 0.5rem; }
+    .rebalancer-header { color: #6ee7b7; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+    .rebalancer-content { color: #d1fae5; font-size: 0.875rem; }
+    .letter-box { background: rgba(46, 16, 101, 0.3); border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 0.75rem; padding: 1.5rem; }
+    .letter-badge { display: inline-block; background: rgba(139, 92, 246, 0.3); color: #c4b5fd; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
+    .letter { color: #ddd6fe; font-style: italic; }
     .footer { text-align: center; color: #3f3f46; font-size: 0.625rem; margin-top: 3rem; letter-spacing: 0.1em; }
   </style>
 </head>
@@ -2598,7 +2676,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               />
             )}
             
-            {/* Signature Sections with their Corrections */}
+            {/* Signature Sections with nested Rebalancers */}
             {parsedReading.cards.map((card) => {
               const correction = parsedReading.corrections.find(c => c.cardIndex === card.index);
               return (
@@ -2617,23 +2695,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     spreadKey={spreadKey}
                     setSelectedInfo={setSelectedInfo}
                     onHeaderClick={() => document.getElementById(`card-${card.index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                    correction={correction}
                   />
-                  {correction && (
-                    <ReadingSection
-                      type="correction"
-                      index={correction.cardIndex}
-                      content={correction.content}
-                      draw={draws[correction.cardIndex]}
-                      question={question}
-                      expansions={expansions}
-                      expanding={expanding}
-                      onExpand={handleExpand}
-                      showTraditional={showTraditional}
-                      spreadType={spreadType}
-                      spreadKey={spreadKey}
-                      setSelectedInfo={setSelectedInfo}
-                    />
-                  )}
                 </div>
               );
             })}
