@@ -2877,40 +2877,42 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 </div>
               )}
 
-              {/* Spark + Prompts + Reflect row, dots below */}
+              {/* Spark + Prompts + Discover row, dots below */}
               <div className={`mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-                <div className="flex items-center justify-center gap-2 flex-wrap">
-                  {/* Spark button */}
+                <div className="flex items-center justify-between gap-2">
+                  {/* Spark button - left aligned */}
                   <button
                     onClick={handleSpark}
-                    className="px-3 py-1.5 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-xs flex items-center gap-1 border border-amber-800/50"
+                    className="px-4 py-2 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-sm flex items-center gap-1.5 border border-amber-800/50 shrink-0"
                     title="Show a random suggestion"
                   >
                     <span>✨</span>
                     <span>Spark</span>
                   </button>
 
-                  {/* Suggestion pills */}
-                  {[0, 1, 2].map((offset) => {
-                    const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
-                    return (
-                      <button
-                        key={offset}
-                        onClick={() => setQuestion(suggestion)}
-                        className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all whitespace-nowrap"
-                      >
-                        {suggestion}
-                      </button>
-                    );
-                  })}
+                  {/* Suggestion pills - centered with fixed width */}
+                  <div className="flex items-center justify-center gap-2 flex-1 min-w-0">
+                    {[0, 1, 2].map((offset) => {
+                      const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
+                      return (
+                        <button
+                          key={offset}
+                          onClick={() => setQuestion(suggestion)}
+                          className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all max-w-[140px] truncate"
+                        >
+                          {suggestion}
+                        </button>
+                      );
+                    })}
+                  </div>
 
-                  {/* Main action button */}
+                  {/* Main action button - right aligned with emphasis */}
                   <button
                     onClick={performReading}
                     disabled={loading}
-                    className="px-4 py-1.5 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-xs text-zinc-200"
+                    className="px-5 py-2 bg-purple-900/80 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)] shrink-0"
                   >
-                    {spreadType === 'durable' ? 'Reflect' : 'Discover'}
+                    {spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
                   </button>
                 </div>
 
@@ -2933,8 +2935,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             {/* Main action button visible when typing */}
             {question.trim() && (
               <button onClick={performReading} disabled={loading}
-                className="px-6 py-2 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm mx-auto block">
-                {spreadType === 'durable' ? 'Reflect' : 'Discover'}
+                className="px-6 py-2.5 bg-purple-900/80 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium mx-auto block border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)]">
+                {spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
               </button>
             )}
           </>
