@@ -1364,6 +1364,14 @@ const ReadingSection = ({
   onToggleCollapse, // callback to toggle collapse
   isCorrectionCollapsed, // whether nested correction is collapsed
   onToggleCorrectionCollapse, // callback to toggle correction collapse
+  // Thread props (Phase 2)
+  threadData, // array of thread items for this card
+  selectedOperation, // 'reflect' | 'forge' | null
+  onOperationSelect, // callback to select operation
+  operationContext, // context text for operation
+  onContextChange, // callback for context change
+  onContinue, // callback for Continue button
+  threadLoading, // loading state for thread
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
   const stat = draw ? STATUSES[draw.status] : null;
@@ -1660,6 +1668,115 @@ const ReadingSection = ({
           </div>
         );
       })()}
+
+      {/* Reflect/Forge Operations - Phase 2 (only for card sections, not collapsed) */}
+      {!isCollapsed && type === 'card' && onOperationSelect && (
+        <>
+          {/* Separator */}
+          <div className="border-t border-zinc-700/50 mt-4 pt-4">
+            {/* Reflect/Forge Buttons */}
+            <div className="flex justify-center gap-3 mb-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  selectedOperation === 'reflect'
+                    ? 'bg-sky-900/60 text-sky-300 border-2 border-sky-500/60'
+                    : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                }`}
+              >
+                Reflect
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  selectedOperation === 'forge'
+                    ? 'bg-orange-900/60 text-orange-300 border-2 border-orange-500/60'
+                    : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                }`}
+              >
+                Forge
+              </button>
+            </div>
+
+            {/* Context Input */}
+            <div className="mb-3">
+              <input
+                type="text"
+                value={operationContext || ''}
+                onChange={(e) => onContextChange(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Add context (optional)..."
+                className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+              />
+            </div>
+
+            {/* Continue Button */}
+            <div className="flex justify-center">
+              <button
+                onClick={(e) => { e.stopPropagation(); onContinue(); }}
+                disabled={!selectedOperation || threadLoading}
+                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                  selectedOperation && !threadLoading
+                    ? 'bg-zinc-700 text-zinc-100 hover:bg-zinc-600'
+                    : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+                }`}
+              >
+                {threadLoading ? (
+                  <>
+                    <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                    Drawing...
+                  </>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Threaded Cards */}
+          {threadData && threadData.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {threadData.map((threadItem, threadIndex) => {
+                const threadTrans = getComponent(threadItem.draw.transient);
+                const threadStat = STATUSES[threadItem.draw.status];
+                const threadStatusPrefix = threadStat.prefix || 'Balanced';
+                const operationLabel = threadItem.operation === 'reflect' ? 'Reflecting' : 'Forging';
+                const isReflect = threadItem.operation === 'reflect';
+
+                return (
+                  <div key={threadIndex} className="ml-4 border-l-2 border-zinc-700/50 pl-4">
+                    {/* Thread connector label */}
+                    <div className={`text-xs mb-2 flex items-center gap-2 ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}>
+                      <span className="text-zinc-600">↳</span>
+                      <span>{operationLabel}{threadItem.context ? `: "${threadItem.context}"` : ''}</span>
+                    </div>
+
+                    {/* Nested card */}
+                    <div className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
+                      {/* Card header */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                          {threadStat.name}
+                        </span>
+                        <span className="text-sm font-medium text-zinc-200">
+                          {threadStatusPrefix} {threadTrans.name}
+                        </span>
+                      </div>
+                      {showTraditional && (
+                        <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
+                      )}
+                      {/* Interpretation */}
+                      <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
+                        {threadItem.interpretation}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
@@ -1918,6 +2035,13 @@ export default function NirmanakaReader() {
   const [suggestionIndex, setSuggestionIndex] = useState(0);
   const [sparkPlaceholder, setSparkPlaceholder] = useState('');
   const [showLandingFineTune, setShowLandingFineTune] = useState(false);
+
+  // Thread state for Reflect/Forge operations (Phase 2)
+  const [threadData, setThreadData] = useState({}); // {cardIndex: [{draw, interpretation, operation, context}, ...]}
+  const [threadOperations, setThreadOperations] = useState({}); // {cardIndex: 'reflect' | 'forge' | null}
+  const [threadContexts, setThreadContexts] = useState({}); // {cardIndex: 'context text'}
+  const [threadLoading, setThreadLoading] = useState({}); // {cardIndex: true/false}
+
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
 
@@ -2044,6 +2168,115 @@ export default function NirmanakaReader() {
     const newDraws = generateSpread(count, isDurable);
     setDraws(newDraws);
     await performReadingWithDraws(newDraws, actualQuestion);
+  };
+
+  // Generate a single random draw for thread continuation
+  const generateSingleDraw = () => {
+    const transientPool = shuffleArray([...Array(78).keys()]);
+    const statusArr = new Uint32Array(1);
+    crypto.getRandomValues(statusArr);
+    return {
+      position: Math.floor(Math.random() * 22), // Random position
+      transient: transientPool[0],
+      status: (statusArr[0] % 4) + 1
+    };
+  };
+
+  // Continue a thread with Reflect or Forge operation
+  const continueThread = async (cardIndex) => {
+    const operation = threadOperations[cardIndex];
+    if (!operation) return;
+
+    const context = threadContexts[cardIndex] || '';
+    const parentDraw = draws[cardIndex];
+    const parentCard = parsedReading.cards.find(c => c.index === cardIndex);
+    if (!parentDraw || !parentCard) return;
+
+    // Get existing thread for this card or start new
+    const existingThread = threadData[cardIndex] || [];
+    const threadDepth = existingThread.length + 1;
+
+    // Generate new draw
+    const newDraw = generateSingleDraw();
+
+    setThreadLoading(prev => ({ ...prev, [cardIndex]: true }));
+
+    // Build the thread context for the prompt
+    const parentTrans = getComponent(parentDraw.transient);
+    const parentStat = STATUSES[parentDraw.status];
+    const parentStatusPrefix = parentStat.prefix || 'Balanced';
+    const parentCardName = `${parentStatusPrefix} ${parentTrans.name}`;
+
+    const newTrans = getComponent(newDraw.transient);
+    const newStat = STATUSES[newDraw.status];
+    const newStatusPrefix = newStat.prefix || 'Balanced';
+    const newCardName = `${newStatusPrefix} ${newTrans.name}`;
+
+    // Build operation-specific prompt
+    const operationPrompt = operation === 'reflect'
+      ? `OPERATION: REFLECT
+The user is integrating this card — sitting with it, receiving it, folding it in.
+Context they shared: "${context || 'none provided'}"
+
+Interpret this new card as what deepens or clarifies through integration.
+Frame your response as: "As you sit with this, here's what emerges..."
+Connect it to the parent card's message and any context provided.`
+      : `OPERATION: FORGE
+The user is acting on this card — creating from it, moving forward, differentiating.
+Context they shared: "${context || 'none provided'}"
+
+Interpret this new card as what emerges from their action or intention.
+Frame your response as: "As you move forward, here's what emerges..."
+Connect it to the parent card's message and any context provided.`;
+
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
+
+    const userMessage = `PARENT CARD: ${parentCardName}
+Parent interpretation: ${parentCard.content}
+
+NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
+${newTrans.description}
+
+Thread depth: ${threadDepth}
+Original question: "${question}"
+
+Provide the interpretation for this new card in the context of the ${operation} operation.`;
+
+    try {
+      const res = await fetch('/api/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: userMessage }],
+          system: systemPrompt
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Add to thread
+      const newThreadItem = {
+        draw: newDraw,
+        interpretation: data.reading,
+        operation: operation,
+        context: context
+      };
+
+      setThreadData(prev => ({
+        ...prev,
+        [cardIndex]: [...(prev[cardIndex] || []), newThreadItem]
+      }));
+
+      // Clear the operation selection for next continuation
+      setThreadOperations(prev => ({ ...prev, [cardIndex]: null }));
+      setThreadContexts(prev => ({ ...prev, [cardIndex]: '' }));
+
+    } catch (e) {
+      setError(`Thread error: ${e.message}`);
+    }
+
+    setThreadLoading(prev => ({ ...prev, [cardIndex]: false }));
   };
 
   const handleExpand = async (sectionKey, expansionType, remove = false) => {
@@ -2202,6 +2435,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     setQuestion(''); setFollowUp(''); setError(''); setFollowUpLoading(false);
     setShareUrl(''); setIsSharedReading(false); setShowArchitecture(false);
     setShowMidReadingStance(false);
+    // Clear thread state
+    setThreadData({}); setThreadOperations({}); setThreadContexts({}); setThreadLoading({});
     hasAutoInterpreted.current = false;
     window.history.replaceState({}, '', window.location.pathname);
   };
@@ -3308,6 +3543,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     onToggleCollapse={() => toggleCollapse(cardSectionKey, true)}
                     isCorrectionCollapsed={isCorrCollapsed}
                     onToggleCorrectionCollapse={() => toggleCollapse(corrSectionKey, true)}
+                    // Thread props (Phase 2)
+                    threadData={threadData[card.index] || []}
+                    selectedOperation={threadOperations[card.index] || null}
+                    onOperationSelect={(op) => setThreadOperations(prev => ({ ...prev, [card.index]: op }))}
+                    operationContext={threadContexts[card.index] || ''}
+                    onContextChange={(ctx) => setThreadContexts(prev => ({ ...prev, [card.index]: ctx }))}
+                    onContinue={() => continueThread(card.index)}
+                    threadLoading={threadLoading[card.index] || false}
                   />
                 </div>
               );
