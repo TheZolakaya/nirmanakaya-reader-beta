@@ -1344,6 +1344,216 @@ const InfoModal = ({ info, onClose, setSelectedInfo }) => {
   );
 };
 
+// === SIMPLE MARKDOWN PARSER ===
+// Parses **bold** and *italic* text
+const parseSimpleMarkdown = (text) => {
+  if (!text) return text;
+
+  const parts = [];
+  let remaining = text;
+  let key = 0;
+
+  // Pattern to match **bold** or *italic*
+  const pattern = /(\*\*([^*]+)\*\*|\*([^*]+)\*)/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    // Add text before match
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+
+    // Add formatted text
+    if (match[2]) {
+      // Bold: **text**
+      parts.push(<strong key={key++} className="font-semibold text-zinc-100">{match[2]}</strong>);
+    } else if (match[3]) {
+      // Italic: *text*
+      parts.push(<em key={key++} className="italic">{match[3]}</em>);
+    }
+
+    lastIndex = pattern.lastIndex;
+  }
+
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length > 0 ? parts : text;
+};
+
+// === THREADED CARD COMPONENT ===
+// Recursive component for nested thread cards with Reflect/Forge
+const ThreadedCard = ({
+  threadItem,
+  threadIndex,
+  cardIndex,
+  parentThreadPath = '', // e.g., "0.1.2" for nested threads
+  showTraditional,
+  threadOperations,
+  setThreadOperations,
+  threadContexts,
+  setThreadContexts,
+  threadLoading,
+  onContinueThread,
+  collapsedThreads,
+  setCollapsedThreads,
+}) => {
+  const threadTrans = getComponent(threadItem.draw.transient);
+  const threadStat = STATUSES[threadItem.draw.status];
+  const threadStatusPrefix = threadStat.prefix || 'Balanced';
+  const operationLabel = threadItem.operation === 'reflect' ? 'Reflecting' : 'Forging';
+  const isReflect = threadItem.operation === 'reflect';
+
+  // Unique key for this thread node
+  const threadKey = parentThreadPath ? `${parentThreadPath}.${threadIndex}` : `${cardIndex}:${threadIndex}`;
+  const isCollapsed = collapsedThreads?.[threadKey] === true;
+  const selectedOp = threadOperations?.[threadKey] || null;
+  const contextText = threadContexts?.[threadKey] || '';
+  const isLoading = threadLoading?.[threadKey] || false;
+
+  const toggleCollapse = (e) => {
+    e.stopPropagation();
+    setCollapsedThreads?.(prev => ({ ...prev, [threadKey]: !isCollapsed }));
+  };
+
+  const selectOperation = (op) => {
+    setThreadOperations?.(prev => ({ ...prev, [threadKey]: op }));
+  };
+
+  const updateContext = (ctx) => {
+    setThreadContexts?.(prev => ({ ...prev, [threadKey]: ctx }));
+  };
+
+  const handleContinue = () => {
+    onContinueThread?.(cardIndex, threadKey, threadItem);
+  };
+
+  return (
+    <div className="ml-4 border-l-2 border-zinc-700/50 pl-4">
+      {/* Thread connector label with collapse toggle */}
+      <div
+        className={`text-xs mb-2 flex items-center gap-2 cursor-pointer ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}
+        onClick={toggleCollapse}
+      >
+        <span
+          className="text-zinc-500 transition-transform duration-200"
+          style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', display: 'inline-block' }}
+        >
+          ▼
+        </span>
+        <span className="text-zinc-600">↳</span>
+        <span>{operationLabel}{threadItem.context ? `: "${threadItem.context}"` : ''}</span>
+      </div>
+
+      {/* Nested card - collapsible */}
+      {!isCollapsed && (
+        <div className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
+          {/* Card header */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+              {threadStat.name}
+            </span>
+            <span className="text-sm font-medium text-zinc-200">
+              {threadStatusPrefix} {threadTrans.name}
+            </span>
+          </div>
+          {showTraditional && (
+            <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
+          )}
+
+          {/* Interpretation with markdown parsing */}
+          <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap mb-4">
+            {parseSimpleMarkdown(threadItem.interpretation)}
+          </div>
+
+          {/* Nested Reflect/Forge buttons */}
+          <div className="border-t border-zinc-700/30 pt-4">
+            <div className="max-w-xs mx-auto">
+              <div className="flex justify-center gap-3 mb-3">
+                <button
+                  onClick={(e) => { e.stopPropagation(); selectOperation('reflect'); }}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    selectedOp === 'reflect'
+                      ? 'bg-sky-900/60 text-sky-300 border-2 border-sky-500/60'
+                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                  }`}
+                >
+                  Reflect
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); selectOperation('forge'); }}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    selectedOp === 'forge'
+                      ? 'bg-orange-900/60 text-orange-300 border-2 border-orange-500/60'
+                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                  }`}
+                >
+                  Forge
+                </button>
+              </div>
+
+              <input
+                type="text"
+                value={contextText}
+                onChange={(e) => updateContext(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Add context (optional)..."
+                className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors mb-3"
+              />
+
+              <button
+                onClick={(e) => { e.stopPropagation(); handleContinue(); }}
+                disabled={!selectedOp || isLoading}
+                className={`w-full px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
+                  selectedOp && !isLoading
+                    ? 'bg-zinc-700 text-zinc-100 hover:bg-zinc-600'
+                    : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+                }`}
+              >
+                {isLoading ? (
+                  <>
+                    <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                    Drawing...
+                  </>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Recursive nested threads */}
+          {threadItem.children && threadItem.children.length > 0 && (
+            <div className="mt-4 space-y-3">
+              {threadItem.children.map((childItem, childIndex) => (
+                <ThreadedCard
+                  key={childIndex}
+                  threadItem={childItem}
+                  threadIndex={childIndex}
+                  cardIndex={cardIndex}
+                  parentThreadPath={threadKey}
+                  showTraditional={showTraditional}
+                  threadOperations={threadOperations}
+                  setThreadOperations={setThreadOperations}
+                  threadContexts={threadContexts}
+                  setThreadContexts={setThreadContexts}
+                  threadLoading={threadLoading}
+                  onContinueThread={onContinueThread}
+                  collapsedThreads={collapsedThreads}
+                  setCollapsedThreads={setCollapsedThreads}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 // === READING SECTION COMPONENT ===
 const ReadingSection = ({
   type, // 'summary' | 'card' | 'letter'
@@ -1372,6 +1582,15 @@ const ReadingSection = ({
   onContextChange, // callback for context change
   onContinue, // callback for Continue button
   threadLoading, // loading state for thread
+  // Nested thread props (Phase 2 polish)
+  threadOperations, // full map of thread operations
+  setThreadOperations, // setter for thread operations
+  threadContexts, // full map of thread contexts
+  setThreadContexts, // setter for thread contexts
+  threadLoadingMap, // full map of thread loading states
+  onContinueThread, // callback for continuing any thread
+  collapsedThreads, // map of collapsed thread states
+  setCollapsedThreads, // setter for collapsed threads
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
   const stat = draw ? STATUSES[draw.status] : null;
@@ -1673,106 +1892,88 @@ const ReadingSection = ({
       {!isCollapsed && type === 'card' && onOperationSelect && (
         <>
           {/* Separator */}
-          <div className="border-t border-zinc-700/50 mt-4 pt-4">
-            {/* Reflect/Forge Buttons */}
-            <div className="flex justify-center gap-3 mb-3">
-              <button
-                onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  selectedOperation === 'reflect'
-                    ? 'bg-sky-900/60 text-sky-300 border-2 border-sky-500/60'
-                    : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
-                }`}
-              >
-                Reflect
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  selectedOperation === 'forge'
-                    ? 'bg-orange-900/60 text-orange-300 border-2 border-orange-500/60'
-                    : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
-                }`}
-              >
-                Forge
-              </button>
-            </div>
+          <div className="border-t border-zinc-700/50 mt-5 pt-5">
+            {/* Reflect/Forge Buttons - centered with max width */}
+            <div className="max-w-xs mx-auto">
+              <div className="flex justify-center gap-4 mb-4">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
+                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    selectedOperation === 'reflect'
+                      ? 'bg-sky-900/60 text-sky-300 border-2 border-sky-500/60'
+                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                  }`}
+                >
+                  Reflect
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
+                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    selectedOperation === 'forge'
+                      ? 'bg-orange-900/60 text-orange-300 border-2 border-orange-500/60'
+                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                  }`}
+                >
+                  Forge
+                </button>
+              </div>
 
-            {/* Context Input */}
-            <div className="mb-3">
-              <input
-                type="text"
-                value={operationContext || ''}
-                onChange={(e) => onContextChange(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                placeholder="Add context (optional)..."
-                className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
-              />
-            </div>
+              {/* Context Input */}
+              <div className="mb-4">
+                <input
+                  type="text"
+                  value={operationContext || ''}
+                  onChange={(e) => onContextChange(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder="Add context (optional)..."
+                  className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+                />
+              </div>
 
-            {/* Continue Button */}
-            <div className="flex justify-center">
-              <button
-                onClick={(e) => { e.stopPropagation(); onContinue(); }}
-                disabled={!selectedOperation || threadLoading}
-                className={`px-6 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                  selectedOperation && !threadLoading
-                    ? 'bg-zinc-700 text-zinc-100 hover:bg-zinc-600'
-                    : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
-                }`}
-              >
-                {threadLoading ? (
-                  <>
-                    <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
-                    Drawing...
-                  </>
-                ) : (
-                  'Continue'
-                )}
-              </button>
+              {/* Continue Button */}
+              <div className="flex justify-center">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onContinue(); }}
+                  disabled={!selectedOperation || threadLoading}
+                  className={`w-full px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    selectedOperation && !threadLoading
+                      ? 'bg-zinc-700 text-zinc-100 hover:bg-zinc-600'
+                      : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+                  }`}
+                >
+                  {threadLoading ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                      Drawing...
+                    </>
+                  ) : (
+                    'Continue'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Threaded Cards */}
+          {/* Threaded Cards with recursive Reflect/Forge */}
           {threadData && threadData.length > 0 && (
-            <div className="mt-4 space-y-3">
-              {threadData.map((threadItem, threadIndex) => {
-                const threadTrans = getComponent(threadItem.draw.transient);
-                const threadStat = STATUSES[threadItem.draw.status];
-                const threadStatusPrefix = threadStat.prefix || 'Balanced';
-                const operationLabel = threadItem.operation === 'reflect' ? 'Reflecting' : 'Forging';
-                const isReflect = threadItem.operation === 'reflect';
-
-                return (
-                  <div key={threadIndex} className="ml-4 border-l-2 border-zinc-700/50 pl-4">
-                    {/* Thread connector label */}
-                    <div className={`text-xs mb-2 flex items-center gap-2 ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}>
-                      <span className="text-zinc-600">↳</span>
-                      <span>{operationLabel}{threadItem.context ? `: "${threadItem.context}"` : ''}</span>
-                    </div>
-
-                    {/* Nested card */}
-                    <div className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
-                      {/* Card header */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-                          {threadStat.name}
-                        </span>
-                        <span className="text-sm font-medium text-zinc-200">
-                          {threadStatusPrefix} {threadTrans.name}
-                        </span>
-                      </div>
-                      {showTraditional && (
-                        <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
-                      )}
-                      {/* Interpretation */}
-                      <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
-                        {threadItem.interpretation}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="mt-5 space-y-4">
+              {threadData.map((threadItem, threadIndex) => (
+                <ThreadedCard
+                  key={threadIndex}
+                  threadItem={threadItem}
+                  threadIndex={threadIndex}
+                  cardIndex={index}
+                  showTraditional={showTraditional}
+                  threadOperations={threadOperations}
+                  setThreadOperations={setThreadOperations}
+                  threadContexts={threadContexts}
+                  setThreadContexts={setThreadContexts}
+                  threadLoading={threadLoadingMap}
+                  onContinueThread={onContinueThread}
+                  collapsedThreads={collapsedThreads}
+                  setCollapsedThreads={setCollapsedThreads}
+                />
+              ))}
             </div>
           )}
         </>
@@ -2037,10 +2238,11 @@ export default function NirmanakaReader() {
   const [showLandingFineTune, setShowLandingFineTune] = useState(false);
 
   // Thread state for Reflect/Forge operations (Phase 2)
-  const [threadData, setThreadData] = useState({}); // {cardIndex: [{draw, interpretation, operation, context}, ...]}
-  const [threadOperations, setThreadOperations] = useState({}); // {cardIndex: 'reflect' | 'forge' | null}
-  const [threadContexts, setThreadContexts] = useState({}); // {cardIndex: 'context text'}
-  const [threadLoading, setThreadLoading] = useState({}); // {cardIndex: true/false}
+  const [threadData, setThreadData] = useState({}); // {cardIndex: [{draw, interpretation, operation, context, children}, ...]}
+  const [threadOperations, setThreadOperations] = useState({}); // {key: 'reflect' | 'forge' | null} - key can be cardIndex or threadPath
+  const [threadContexts, setThreadContexts] = useState({}); // {key: 'context text'}
+  const [threadLoading, setThreadLoading] = useState({}); // {key: true/false}
+  const [collapsedThreads, setCollapsedThreads] = useState({}); // {threadKey: true/false}
 
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
@@ -2161,10 +2363,12 @@ export default function NirmanakaReader() {
   };
 
   const performReading = async () => {
-    const actualQuestion = question.trim() || 'General reading';
+    const actualQuestion = question.trim() || (spreadType === 'forge' ? 'Forging intention' : 'General reading');
     setQuestion(actualQuestion);
     const isDurable = spreadType === 'durable';
-    const count = isDurable ? DURABLE_SPREADS[spreadKey].count : RANDOM_SPREADS[spreadKey].count;
+    const isForge = spreadType === 'forge';
+    // Forge mode always draws 1 card
+    const count = isForge ? 1 : (isDurable ? DURABLE_SPREADS[spreadKey].count : RANDOM_SPREADS[spreadKey].count);
     const newDraws = generateSpread(count, isDurable);
     setDraws(newDraws);
     await performReadingWithDraws(newDraws, actualQuestion);
@@ -2277,6 +2481,116 @@ Provide the interpretation for this new card in the context of the ${operation} 
     }
 
     setThreadLoading(prev => ({ ...prev, [cardIndex]: false }));
+  };
+
+  // Continue a nested thread (from within a threaded card)
+  const continueNestedThread = async (cardIndex, threadKey, parentThreadItem) => {
+    const operation = threadOperations[threadKey];
+    if (!operation) return;
+
+    const context = threadContexts[threadKey] || '';
+
+    // Generate new draw
+    const newDraw = generateSingleDraw();
+
+    setThreadLoading(prev => ({ ...prev, [threadKey]: true }));
+
+    // Build the thread context for the prompt
+    const parentTrans = getComponent(parentThreadItem.draw.transient);
+    const parentStat = STATUSES[parentThreadItem.draw.status];
+    const parentStatusPrefix = parentStat.prefix || 'Balanced';
+    const parentCardName = `${parentStatusPrefix} ${parentTrans.name}`;
+
+    const newTrans = getComponent(newDraw.transient);
+    const newStat = STATUSES[newDraw.status];
+    const newStatusPrefix = newStat.prefix || 'Balanced';
+    const newCardName = `${newStatusPrefix} ${newTrans.name}`;
+
+    // Build operation-specific prompt
+    const operationPrompt = operation === 'reflect'
+      ? `OPERATION: REFLECT
+The user is integrating this card — sitting with it, receiving it, folding it in.
+Context they shared: "${context || 'none provided'}"
+
+Interpret this new card as what deepens or clarifies through integration.
+Frame your response as: "As you sit with this, here's what emerges..."
+Connect it to the parent card's message and any context provided.`
+      : `OPERATION: FORGE
+The user is acting on this card — creating from it, moving forward, differentiating.
+Context they shared: "${context || 'none provided'}"
+
+Interpret this new card as what emerges from their action or intention.
+Frame your response as: "As you move forward, here's what emerges..."
+Connect it to the parent card's message and any context provided.`;
+
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
+
+    const userMessage = `PARENT CARD: ${parentCardName}
+Parent interpretation: ${parentThreadItem.interpretation}
+
+NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
+${newTrans.description}
+
+Original question: "${question}"
+
+Provide the interpretation for this new card in the context of the ${operation} operation.`;
+
+    try {
+      const res = await fetch('/api/reading', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: userMessage }],
+          system: systemPrompt
+        })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Create new thread item
+      const newThreadItem = {
+        draw: newDraw,
+        interpretation: data.reading,
+        operation: operation,
+        context: context,
+        children: []
+      };
+
+      // Helper to add child to the right parent in the tree
+      const addChildToThread = (threads, targetKey, newChild, currentPath = '') => {
+        return threads.map((item, idx) => {
+          const itemKey = currentPath ? `${currentPath}.${idx}` : `${cardIndex}:${idx}`;
+          if (itemKey === threadKey) {
+            return {
+              ...item,
+              children: [...(item.children || []), newChild]
+            };
+          }
+          if (item.children && item.children.length > 0) {
+            return {
+              ...item,
+              children: addChildToThread(item.children, targetKey, newChild, itemKey)
+            };
+          }
+          return item;
+        });
+      };
+
+      setThreadData(prev => ({
+        ...prev,
+        [cardIndex]: addChildToThread(prev[cardIndex] || [], threadKey, newThreadItem)
+      }));
+
+      // Clear the operation selection
+      setThreadOperations(prev => ({ ...prev, [threadKey]: null }));
+      setThreadContexts(prev => ({ ...prev, [threadKey]: '' }));
+
+    } catch (e) {
+      setError(`Thread error: ${e.message}`);
+    }
+
+    setThreadLoading(prev => ({ ...prev, [threadKey]: false }));
   };
 
   const handleExpand = async (sectionKey, expansionType, remove = false) => {
@@ -2436,7 +2750,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     setShareUrl(''); setIsSharedReading(false); setShowArchitecture(false);
     setShowMidReadingStance(false);
     // Clear thread state
-    setThreadData({}); setThreadOperations({}); setThreadContexts({}); setThreadLoading({});
+    setThreadData({}); setThreadOperations({}); setThreadContexts({}); setThreadLoading({}); setCollapsedThreads({});
     hasAutoInterpreted.current = false;
     window.history.replaceState({}, '', window.location.pathname);
   };
@@ -2903,7 +3217,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.29.6 alpha • Modes Phase 2</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.29.7 alpha • Phase 2 Polish</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2924,17 +3238,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-purple-900/80 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
                     Discover
                   </button>
-                  <div className="relative group">
-                    <button
-                      disabled
-                      className="px-4 py-2 rounded-md text-sm transition-all text-zinc-600 cursor-not-allowed"
-                    >
-                      Forge
-                    </button>
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      Coming soon
-                    </div>
-                  </div>
+                  <button onClick={() => { setSpreadType('forge'); setSpreadKey('one'); }}
+                    className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'forge' ? 'bg-purple-900/80 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    Forge
+                  </button>
                 </div>
                 {/* Help icon positioned absolutely so it doesn't affect centering */}
                 <button
@@ -2957,7 +3264,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         </div>
                         <div>
                           <span className="text-zinc-200 font-medium">Forge:</span>
-                          <p className="text-zinc-400 text-xs mt-1">Active creation — declare an intention, iterate through action. Coming soon.</p>
+                          <p className="text-zinc-400 text-xs mt-1">Active creation — declare an intention, draw one card, iterate through action.</p>
                         </div>
                       </div>
                       <button
@@ -2973,38 +3280,46 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
               {/* Card Count Selector - same width as stance for alignment */}
               <div className="flex flex-col items-center mb-4 w-full max-w-lg mx-auto">
-                <div className="flex gap-1.5 justify-center">
-                  {spreadType === 'random' ? (
-                    Object.entries(RANDOM_SPREADS).map(([key, value]) => (
-                      <button key={key} onClick={() => setSpreadKey(key)}
-                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-purple-900/80 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                        {value.name}
-                      </button>
-                    ))
-                  ) : (
-                    Object.entries(DURABLE_SPREADS).map(([key, value]) => (
-                      <button key={key} onClick={() => setSpreadKey(key)}
-                        className={`px-3 py-1.5 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-purple-900/80 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                        {value.name}
-                      </button>
-                    ))
-                  )}
-                </div>
-                {spreadType === 'random' && (
-                  <div className="flex justify-between w-full text-[10px] text-zinc-500 mt-1.5">
-                    <button
-                      onClick={() => navigateSpread('left')}
-                      className="hover:text-zinc-300 transition-colors cursor-pointer"
-                    >
-                      ← Focused
-                    </button>
-                    <button
-                      onClick={() => navigateSpread('right')}
-                      className="hover:text-zinc-300 transition-colors cursor-pointer"
-                    >
-                      Expansive →
-                    </button>
+                {spreadType === 'forge' ? (
+                  <div className="text-center text-zinc-500 text-sm py-1.5">
+                    One card • Intention-first
                   </div>
+                ) : (
+                  <>
+                    <div className="flex gap-1.5 justify-center">
+                      {spreadType === 'random' ? (
+                        Object.entries(RANDOM_SPREADS).map(([key, value]) => (
+                          <button key={key} onClick={() => setSpreadKey(key)}
+                            className={`px-3 py-1.5 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-purple-900/80 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
+                            {value.name}
+                          </button>
+                        ))
+                      ) : (
+                        Object.entries(DURABLE_SPREADS).map(([key, value]) => (
+                          <button key={key} onClick={() => setSpreadKey(key)}
+                            className={`px-3 py-1.5 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-purple-900/80 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
+                            {value.name}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    {spreadType === 'random' && (
+                      <div className="flex justify-between w-full text-[10px] text-zinc-500 mt-1.5">
+                        <button
+                          onClick={() => navigateSpread('left')}
+                          className="hover:text-zinc-300 transition-colors cursor-pointer"
+                        >
+                          ← Focused
+                        </button>
+                        <button
+                          onClick={() => navigateSpread('right')}
+                          className="hover:text-zinc-300 transition-colors cursor-pointer"
+                        >
+                          Expansive →
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -3126,7 +3441,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   value={question}
                   onChange={(e) => { setQuestion(e.target.value); setSparkPlaceholder(''); }}
                   onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
-                  placeholder={sparkPlaceholder || "Name your question or declare your intent... or leave blank for a general reading"}
+                  placeholder={sparkPlaceholder || (spreadType === 'forge' ? "What are you forging? Declare your intention..." : "Name your question or declare your intent... or leave blank for a general reading")}
                   className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
                   rows={3}
                 />
@@ -3188,7 +3503,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     disabled={loading}
                     className="px-5 py-2 bg-purple-900/80 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)] shrink-0"
                   >
-                    {spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
+                    {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
                   </button>
                 </div>
 
@@ -3212,7 +3527,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             {question.trim() && (
               <button onClick={performReading} disabled={loading}
                 className="px-6 py-2.5 bg-purple-900/80 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium mx-auto block border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)]">
-                {spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
+                {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
               </button>
             )}
           </>
@@ -3551,6 +3866,15 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     onContextChange={(ctx) => setThreadContexts(prev => ({ ...prev, [card.index]: ctx }))}
                     onContinue={() => continueThread(card.index)}
                     threadLoading={threadLoading[card.index] || false}
+                    // Nested thread props (Phase 2 polish)
+                    threadOperations={threadOperations}
+                    setThreadOperations={setThreadOperations}
+                    threadContexts={threadContexts}
+                    setThreadContexts={setThreadContexts}
+                    threadLoadingMap={threadLoading}
+                    onContinueThread={continueNestedThread}
+                    collapsedThreads={collapsedThreads}
+                    setCollapsedThreads={setCollapsedThreads}
                   />
                 </div>
               );
