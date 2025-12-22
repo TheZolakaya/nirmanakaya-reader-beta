@@ -801,6 +801,18 @@ function decodeDraws(encoded) {
   } catch { return null; }
 }
 
+// Sanitize text for API calls - handles special characters that can cause issues
+function sanitizeForAPI(text) {
+  if (!text) return text;
+  return text
+    .replace(/[\u2018\u2019]/g, "'")  // Smart single quotes to straight
+    .replace(/[\u201C\u201D]/g, '"')  // Smart double quotes to straight
+    .replace(/\u2014/g, '--')         // Em dash to double hyphen
+    .replace(/\u2013/g, '-')          // En dash to single hyphen
+    .replace(/\u2026/g, '...')        // Ellipsis to three dots
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, ''); // Remove control characters
+}
+
 function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
   const isDurable = spreadType === 'durable';
   const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : RANDOM_SPREADS[spreadKey];
@@ -1495,13 +1507,13 @@ const ThreadedCard = ({
                 </button>
               </div>
 
-              <input
-                type="text"
+              <textarea
                 value={contextText}
                 onChange={(e) => updateContext(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
                 placeholder="Add context (optional)..."
-                className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors mb-3"
+                rows={2}
+                className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors mb-3 resize-none"
               />
 
               <button
@@ -1920,13 +1932,13 @@ const ReadingSection = ({
 
               {/* Context Input */}
               <div className="mb-4">
-                <input
-                  type="text"
+                <textarea
                   value={operationContext || ''}
                   onChange={(e) => onContextChange(e.target.value)}
                   onClick={(e) => e.stopPropagation()}
                   placeholder="Add context (optional)..."
-                  className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors"
+                  rows={2}
+                  className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors resize-none"
                 />
               </div>
 
@@ -2340,11 +2352,12 @@ export default function NirmanakaReader() {
     setLoading(true); setError(''); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
     const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, showTraditional);
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Emergent`;
+    const safeQuestion = sanitizeForAPI(questionToUse);
 
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
     const letterTone = VOICE_LETTER_TONE[stance.voice];
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${FORMAT_INSTRUCTIONS}\n\nLetter tone for this stance: ${letterTone}`;
-    const userMessage = `QUESTION: "${questionToUse}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:N] for each imbalanced card (where N matches the card number — use [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc.), [LETTER]. Each marker on its own line.`;
+    const userMessage = `QUESTION: "${safeQuestion}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:N] for each imbalanced card (where N matches the card number — use [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc.), [LETTER]. Each marker on its own line.`;
 
     try {
       const res = await fetch('/api/reading', {
@@ -2391,7 +2404,7 @@ export default function NirmanakaReader() {
     const operation = threadOperations[cardIndex];
     if (!operation) return;
 
-    const context = threadContexts[cardIndex] || '';
+    const context = sanitizeForAPI(threadContexts[cardIndex] || '');
     const parentDraw = draws[cardIndex];
     const parentCard = parsedReading.cards.find(c => c.index === cardIndex);
     if (!parentDraw || !parentCard) return;
@@ -2436,6 +2449,7 @@ Connect it to the parent card's message and any context provided.`;
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
 
+    const safeQuestion = sanitizeForAPI(question);
     const userMessage = `PARENT CARD: ${parentCardName}
 Parent interpretation: ${parentCard.content}
 
@@ -2443,7 +2457,7 @@ NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
 ${newTrans.description}
 
 Thread depth: ${threadDepth}
-Original question: "${question}"
+Original question: "${safeQuestion}"
 
 Provide the interpretation for this new card in the context of the ${operation} operation.`;
 
@@ -2488,7 +2502,7 @@ Provide the interpretation for this new card in the context of the ${operation} 
     const operation = threadOperations[threadKey];
     if (!operation) return;
 
-    const context = threadContexts[threadKey] || '';
+    const context = sanitizeForAPI(threadContexts[threadKey] || '');
 
     // Generate new draw
     const newDraw = generateSingleDraw();
@@ -2526,13 +2540,14 @@ Connect it to the parent card's message and any context provided.`;
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
 
+    const safeQuestion = sanitizeForAPI(question);
     const userMessage = `PARENT CARD: ${parentCardName}
 Parent interpretation: ${parentThreadItem.interpretation}
 
 NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
 ${newTrans.description}
 
-Original question: "${question}"
+Original question: "${safeQuestion}"
 
 Provide the interpretation for this new card in the context of the ${operation} operation.`;
 
@@ -3093,6 +3108,39 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           </div>`;
       }
 
+      // Render thread items recursively
+      const renderThreadItem = (item, depth = 0) => {
+        const itemTrans = getComponent(item.draw.transient);
+        const itemStat = STATUSES[item.draw.status];
+        const itemStatusPrefix = itemStat.prefix || 'Balanced';
+        const opLabel = item.operation === 'reflect' ? 'Reflecting' : 'Forging';
+        const opClass = item.operation === 'reflect' ? 'thread-reflect' : 'thread-forge';
+
+        let childrenHtml = '';
+        if (item.children && item.children.length > 0) {
+          childrenHtml = item.children.map(child => renderThreadItem(child, depth + 1)).join('');
+        }
+
+        return `
+          <div class="thread-item ${opClass}">
+            <div class="thread-label">↳ ${opLabel}${item.context ? `: "${escapeHtml(item.context)}"` : ''}</div>
+            <div class="thread-card">
+              <div class="thread-header">
+                <span class="signature-status status-${itemStat.name.toLowerCase().replace(' ', '-')}">${itemStat.name}</span>
+                <span class="thread-name">${itemStatusPrefix} ${itemTrans.name}</span>
+              </div>
+              <div class="thread-content">${escapeHtml(item.interpretation)}</div>
+            </div>
+            ${childrenHtml}
+          </div>`;
+      };
+
+      let threadsHtml = '';
+      const cardThreads = threadData[card.index] || [];
+      if (cardThreads.length > 0) {
+        threadsHtml = `<div class="threads">${cardThreads.map(t => renderThreadItem(t)).join('')}</div>`;
+      }
+
       signaturesHtml += `
         <div class="signature">
           <div class="signature-header">
@@ -3106,6 +3154,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           ${archDetails}
           <div class="signature-content">${escapeHtml(card.content)}</div>
           ${correctionHtml}
+          ${threadsHtml}
         </div>`;
     });
 
@@ -3153,6 +3202,17 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .letter-badge { display: inline-block; background: rgba(139, 92, 246, 0.3); color: #c4b5fd; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
     .letter { color: #ddd6fe; font-style: italic; line-height: 1.6; }
     .footer { text-align: center; color: #3f3f46; font-size: 0.625rem; margin-top: 3rem; letter-spacing: 0.1em; }
+    .threads { margin-top: 1rem; }
+    .thread-item { margin-left: 1rem; border-left: 2px solid #3f3f46; padding-left: 1rem; margin-top: 0.75rem; }
+    .thread-label { font-size: 0.75rem; margin-bottom: 0.5rem; }
+    .thread-reflect .thread-label { color: #38bdf8; }
+    .thread-forge .thread-label { color: #fb923c; }
+    .thread-card { padding: 1rem; border-radius: 0.5rem; }
+    .thread-reflect .thread-card { background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); }
+    .thread-forge .thread-card { background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3); }
+    .thread-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .thread-name { color: #e4e4e7; font-weight: 500; }
+    .thread-content { color: #d4d4d8; font-size: 0.875rem; line-height: 1.6; white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -3217,7 +3277,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.29.7 alpha • Phase 2 Polish</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.29.8 alpha • Critical Fixes</p>
         </div>
 
         {!draws && <IntroSection />}
