@@ -391,7 +391,22 @@ const COMPLEXITY_OPTIONS = {
 };
 
 const COMPLEXITY_MODIFIERS = {
-  friend: `Use the simplest words possible. Sentences of 5-7 words max. One-syllable words when possible. No jargon EVER. No metaphors. No qualifiers like "perhaps" or "somewhat." Direct "you" language. Almost blunt. Like texting a busy friend.`,
+  friend: `CRITICAL: Write at a 4th grade reading level. Maximum 5-7 words per sentence. Use ONLY simple one-syllable words when possible.
+
+BANNED WORDS/PHRASES - never use these or anything like them:
+- "nurturing" → use "caring" or "help"
+- "capacity" → use "ability" or just skip it
+- "imaginative" → use "creative"
+- "quality" → just skip it
+- "perhaps/somewhat/potentially" → be direct
+- "resonance/alignment/integration" → skip or use "fit"
+- "authentic/genuine" → use "real" or "true"
+- "cultivate/nurture" → use "grow" or "build"
+- Any word over 2 syllables — find a shorter one
+
+Write like you're texting a busy friend. Blunt. Direct. No fluff. No poetry. Just the point.
+Example good: "This card says slow down. You're pushing too hard."
+Example bad: "This card reflects a nurturing quality that invites you to cultivate patience."`,
   guide: `Use everyday language with occasional richer vocabulary. Sentences under 15 words. Connect to feelings and lived experience. Light on terminology — if you use a term, explain it simply. Write like a supportive friend who understands this deeply.`,
   teacher: `Use structured, educational language. Sentences can be complex but parseable on first read. Introduce terminology with context. Organize logically. Write like a skilled teacher: precise but accessible. Balance concept with example.`,
   mentor: `Philosophical depth welcome. Complex sentences permitted. Draw on broader meaning and purpose. Use full terminology confidently. Allow contemplative space. Write like a mentor speaking to someone ready for depth. Connect to larger patterns.`,
@@ -2753,10 +2768,31 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <p className="text-center text-zinc-600 text-xs mb-4">{DURABLE_SPREADS[spreadKey].description}</p>
             )}
 
+            {/* Complexity Selector - always visible */}
+            <div className="mb-4 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 max-w-xl mx-auto">
+              <div className="text-xs text-zinc-500 mb-3 text-center">Speak to me like...</div>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
+                  <button
+                    key={key}
+                    onClick={() => setStance({ ...stance, complexity: key })}
+                    className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all min-w-[80px] ${
+                      stance.complexity === key
+                        ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                        : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                    }`}
+                  >
+                    <span className="font-medium">{opt.label}</span>
+                    <span className="text-[10px] text-zinc-500 mt-1 leading-tight text-center max-w-[70px]">{opt.hint}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Stance Selector */}
-            <StanceSelector 
-              stance={stance} 
-              setStance={setStance} 
+            <StanceSelector
+              stance={stance}
+              setStance={setStance}
               showCustomize={showCustomize}
               setShowCustomize={setShowCustomize}
             />
