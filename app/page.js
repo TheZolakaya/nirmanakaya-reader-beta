@@ -2386,6 +2386,29 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     }
   };
 
+  // Navigation helpers for spectrum labels
+  const spreadKeys = Object.keys(RANDOM_SPREADS);
+  const stanceKeys = Object.keys(DELIVERY_PRESETS);
+
+  const navigateSpread = (direction) => {
+    if (spreadType !== 'random') return;
+    const currentIndex = spreadKeys.indexOf(spreadKey);
+    const newIndex = direction === 'left'
+      ? Math.max(0, currentIndex - 1)
+      : Math.min(spreadKeys.length - 1, currentIndex + 1);
+    setSpreadKey(spreadKeys[newIndex]);
+  };
+
+  const navigateStance = (direction) => {
+    const currentPreset = getCurrentDeliveryPreset();
+    if (!currentPreset) return;
+    const currentIndex = stanceKeys.indexOf(currentPreset[0]);
+    const newIndex = direction === 'left'
+      ? Math.max(0, currentIndex - 1)
+      : Math.min(stanceKeys.length - 1, currentIndex + 1);
+    applyDeliveryPreset(stanceKeys[newIndex]);
+  };
+
   // Export reading to markdown
   const exportToMarkdown = () => {
     if (!parsedReading || !draws) return;
@@ -2715,7 +2738,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </div>
 
               {/* Card Count Selector */}
-              <div className="flex flex-col items-center mb-4">
+              <div className="flex flex-col items-center mb-4 max-w-md mx-auto">
                 <div className="flex gap-2 justify-center flex-wrap">
                   {spreadType === 'random' ? (
                     Object.entries(RANDOM_SPREADS).map(([key, value]) => (
@@ -2734,9 +2757,19 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   )}
                 </div>
                 {spreadType === 'random' && (
-                  <div className="flex justify-between w-full max-w-xs text-[10px] text-zinc-500 mt-1 px-2">
-                    <span>← Focused</span>
-                    <span>Expansive →</span>
+                  <div className="flex justify-between w-full text-[10px] text-zinc-500 mt-1.5 px-1">
+                    <button
+                      onClick={() => navigateSpread('left')}
+                      className="hover:text-zinc-300 transition-colors cursor-pointer"
+                    >
+                      ← Focused
+                    </button>
+                    <button
+                      onClick={() => navigateSpread('right')}
+                      className="hover:text-zinc-300 transition-colors cursor-pointer"
+                    >
+                      Expansive →
+                    </button>
                   </div>
                 )}
               </div>
@@ -2746,7 +2779,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               )}
 
               {/* Stance Selector */}
-              <div className="max-w-xl mx-auto relative">
+              <div className="max-w-md mx-auto relative">
                 <div className="flex items-center justify-center gap-2 mb-3">
                   <span className="text-xs text-zinc-500">Choose your stance</span>
                   <button
@@ -2772,7 +2805,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   </div>
                 )}
 
-                <div className="flex flex-col items-center mb-2">
+                <div className="flex flex-col items-center">
                   <div className="flex flex-wrap gap-2 justify-center">
                     {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
                       const isActive = getCurrentDeliveryPreset()?.[0] === key;
@@ -2791,20 +2824,28 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       );
                     })}
                   </div>
-                  <div className="flex justify-between w-full max-w-sm text-[10px] text-zinc-500 mt-1 px-1">
-                    <span>← Lighter</span>
-                    <span>Deeper →</span>
+                  {/* Spectrum labels row: Lighter - Fine-tune - Deeper */}
+                  <div className="flex justify-between items-center w-full text-[10px] text-zinc-500 mt-1.5 px-1">
+                    <button
+                      onClick={() => navigateStance('left')}
+                      className="hover:text-zinc-300 transition-colors cursor-pointer"
+                    >
+                      ← Lighter
+                    </button>
+                    <button
+                      onClick={() => setShowLandingFineTune(!showLandingFineTune)}
+                      className="hover:text-zinc-300 transition-colors flex items-center gap-1"
+                    >
+                      <span>{showLandingFineTune ? '▾' : '▸'}</span>
+                      <span>Fine-tune</span>
+                    </button>
+                    <button
+                      onClick={() => navigateStance('right')}
+                      className="hover:text-zinc-300 transition-colors cursor-pointer"
+                    >
+                      Deeper →
+                    </button>
                   </div>
-                </div>
-                {/* Fine-tune toggle */}
-                <div className="flex justify-center mb-2">
-                  <button
-                    onClick={() => setShowLandingFineTune(!showLandingFineTune)}
-                    className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
-                  >
-                    <span>{showLandingFineTune ? '▾' : '▸'}</span>
-                    <span>Fine-tune</span>
-                  </button>
                 </div>
 
                 {/* Fine-tune panel */}
@@ -3480,7 +3521,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             {showMidReadingStance && (
               <div className="mt-3 bg-zinc-900/30 rounded-xl border border-zinc-800/30 p-4">
                 {/* Delivery Presets Row */}
-                <div className="mb-4">
+                <div className="mb-4 max-w-md mx-auto">
                   <div className="flex flex-col items-center">
                     <div className="flex flex-wrap gap-2 justify-center">
                       {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
@@ -3500,19 +3541,28 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         );
                       })}
                     </div>
-                    <div className="flex justify-between w-full max-w-sm text-[10px] text-zinc-500 mt-1 px-1">
-                      <span>← Lighter</span>
-                      <span>Deeper →</span>
+                    {/* Spectrum labels row: Lighter - Fine-tune - Deeper */}
+                    <div className="flex justify-between items-center w-full text-[10px] text-zinc-500 mt-1.5 px-1">
+                      <button
+                        onClick={() => navigateStance('left')}
+                        className="hover:text-zinc-300 transition-colors cursor-pointer"
+                      >
+                        ← Lighter
+                      </button>
+                      <button
+                        onClick={() => setShowFineTune(!showFineTune)}
+                        className="hover:text-zinc-300 transition-colors flex items-center gap-1"
+                      >
+                        <span>{showFineTune ? '▾' : '▸'}</span>
+                        <span>Fine-tune</span>
+                      </button>
+                      <button
+                        onClick={() => navigateStance('right')}
+                        className="hover:text-zinc-300 transition-colors cursor-pointer"
+                      >
+                        Deeper →
+                      </button>
                     </div>
-                  </div>
-                  <div className="flex justify-center mt-2">
-                    <button
-                      onClick={() => setShowFineTune(!showFineTune)}
-                      className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
-                    >
-                      <span>{showFineTune ? '▾' : '▸'}</span>
-                      <span>Fine-tune</span>
-                    </button>
                   </div>
                 </div>
 
