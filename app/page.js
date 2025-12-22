@@ -2659,13 +2659,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="flex justify-center mb-4 relative">
                 <div className="inline-flex items-center gap-2">
                   <div className="inline-flex rounded-lg bg-zinc-900 p-1">
-                    <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
-                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                      Discover
-                    </button>
                     <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
                       className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
                       Reflect
+                    </button>
+                    <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
+                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                      Discover
                     </button>
                     <div className="relative group">
                       <button
@@ -2691,12 +2691,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
                       <div className="space-y-3 text-sm">
                         <div>
-                          <span className="text-zinc-200 font-medium">Discover:</span>
-                          <p className="text-zinc-400 text-xs mt-1">Open mirror — receive what shows up. Both the energy and where it's showing up emerge together.</p>
-                        </div>
-                        <div>
                           <span className="text-zinc-200 font-medium">Reflect:</span>
                           <p className="text-zinc-400 text-xs mt-1">Structured mirror — examine specific areas. The energy is emergent, but it lands in life areas you choose.</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-200 font-medium">Discover:</span>
+                          <p className="text-zinc-400 text-xs mt-1">Open mirror — receive what shows up. Both the energy and where it's showing up emerge together.</p>
                         </div>
                         <div>
                           <span className="text-zinc-200 font-medium">Forge:</span>
