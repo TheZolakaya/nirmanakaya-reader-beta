@@ -718,20 +718,20 @@ function getCorrectionText(correction, trans, status) {
 
   if (trans.type === "Bound" && correction.targetBound) {
     const targetBound = correction.targetBound;
-    return `${targetBound.name} (${targetBound.traditional}) via ${correctionType} duality`;
+    return `${targetBound.name} via ${correctionType} duality`;
   }
 
   if (correction.target !== undefined) {
     const targetArchetype = ARCHETYPES[correction.target];
     if (targetArchetype) {
-      return `Position ${correction.target} ${targetArchetype.name} (${targetArchetype.traditional}) via ${correctionType} duality`;
+      return `Position ${correction.target} ${targetArchetype.name} via ${correctionType} duality`;
     }
   }
 
   if (correction.targets) {
     return correction.targets.map(t => {
       const arch = ARCHETYPES[t];
-      return arch ? `Position ${t} ${arch.name} (${arch.traditional})` : null;
+      return arch ? `Position ${t} ${arch.name}` : null;
     }).filter(Boolean).join(", ");
   }
   return null;
@@ -829,10 +829,10 @@ function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
 
     let context = isDurable
       ? `${spreadConfig.frames[i].name} (${spreadConfig.frames[i].meaning})`
-      : (draw.position !== null ? `Position ${draw.position} ${ARCHETYPES[draw.position]?.name} (${ARCHETYPES[draw.position]?.traditional})` : 'Draw');
+      : (draw.position !== null ? `Position ${draw.position} ${ARCHETYPES[draw.position]?.name}` : 'Draw');
     
     let transInfo = trans.name;
-    if (showTraditional) transInfo += ` (${trans.traditional})`;
+    // Traditional names removed from API calls - showTraditional only affects UI display
     if (trans.type === "Archetype") transInfo += ` — Major Archetype`;
     else if (trans.type === "Bound") transInfo += ` — ${trans.channel} Channel, expresses ${transArchetype?.name}`;
     else if (trans.type === "Agent") transInfo += ` — ${trans.role} of ${trans.channel}, embodies ${transArchetype?.name}`;
@@ -907,6 +907,66 @@ function parseReadingResponse(responseText, draws) {
 
 const BASE_SYSTEM = `You are the Nirmanakaya Reader — a consciousness navigation system, not a fortune teller.
 
+## ABSOLUTE RULE: USE ONLY THE PROVIDED NAMES
+
+**THIS IS NON-NEGOTIABLE:**
+- Each draw provides the EXACT canonical name (e.g., "Discipline", "Actualization", "Resilience")
+- You MUST use these exact names in your response
+- NEVER invent alternative names like "Fulfillment", "Completion", "Achievement"
+- NEVER substitute poetic alternatives for the canonical terms
+- If the draw says "Too Much Discipline" — you say "Too Much Discipline", not "Too Much [invented synonym]"
+
+The 78 signatures have FIXED canonical names. These are not suggestions — they are the architecture itself.
+
+## THE 78 CANONICAL SIGNATURES
+
+**Use ONLY these names. No traditional tarot names exist in this system.**
+
+### 22 Archetypes (Majors)
+| # | Name | House | Channel |
+|---|------|-------|---------|
+| 0 | Potential | Gestalt | — |
+| 1 | Will | Gestalt | — |
+| 2 | Wisdom | Spirit | Cognition |
+| 3 | Nurturing | Spirit | Structure |
+| 4 | Order | Mind | Intent |
+| 5 | Culture | Mind | Resonance |
+| 6 | Compassion | Emotion | Resonance |
+| 7 | Drive | Emotion | Intent |
+| 8 | Fortitude | Body | Structure |
+| 9 | Discipline | Body | Cognition |
+| 10 | Cycles | Portal | — |
+| 11 | Equity | Body | Resonance |
+| 12 | Sacrifice | Body | Intent |
+| 13 | Change | Emotion | Structure |
+| 14 | Balance | Emotion | Cognition |
+| 15 | Abstraction | Mind | Cognition |
+| 16 | Breakthrough | Mind | Structure |
+| 17 | Inspiration | Spirit | Intent |
+| 18 | Imagination | Spirit | Resonance |
+| 19 | Actualization | Gestalt | — |
+| 20 | Awareness | Gestalt | — |
+| 21 | Wholeness | Portal | — |
+
+### 40 Bounds (Minors)
+**Intent Channel:**
+Activation (Ace), Orientation (2), Assertion (3), Alignment (4), Offering (5), Recognition (6), Resolve (7), Command (8), Resilience (9), Realization (10)
+
+**Cognition Channel:**
+Perception (Ace), Reflection (2), Calculation (3), Dissonance (4), Clash (5), Guidance (6), Reconciliation (7), Absorption (8), Multiplicity (9), Clarity (10)
+
+**Resonance Channel:**
+Receptivity (Ace), Merge (2), Ripple (3), Reverie (4), Ache (5), Reciprocity (6), Allure (7), Release (8), Fulfillment (9), Completion (10)
+
+**Structure Channel:**
+Initiation (Ace), Flow (2), Formation (3), Preservation (4), Endurance (5), Support (6), Harvest (7), Commitment (8), Flourishing (9), Achievement (10)
+
+### 16 Agents (Royals)
+**Intent:** Initiate of Intent, Catalyst of Intent, Steward of Intent, Executor of Intent
+**Cognition:** Initiate of Cognition, Catalyst of Cognition, Steward of Cognition, Executor of Cognition
+**Resonance:** Initiate of Resonance, Catalyst of Resonance, Steward of Resonance, Executor of Resonance
+**Structure:** Initiate of Structure, Catalyst of Structure, Steward of Structure, Executor of Structure
+
 ## CRITICAL: DERIVATION, NOT TRADITION
 
 **NEVER use traditional tarot meanings.** All interpretations MUST derive from the Nirmanakaya architecture:
@@ -920,27 +980,27 @@ Use the canonical definition based on House + Channel + Function.
 3. Inner = potential, inward-facing, developing
 4. Outer = expressed, outward-facing, gathered
 
-**Example:** Resolve (7 of Wands)
+**Example:** Resolve (Intent Channel, 7)
 - Number 7 → Emotion Domain → Associated Archetype is Drive (7)
-- Channel: Intent (Wands)
+- Channel: Intent
 - Position 7 = Outer bound
-- Meaning: Drive's Intent expression at the Outer bound — committed momentum that has been gathered and is now persisting outwardly. NOT "standing your ground" (traditional tarot garbage).
+- Meaning: Drive's Intent expression at the Outer bound — committed momentum that has been gathered and is now persisting outwardly.
 
-### For Agents (Court Cards):
+### For Agents (Royals):
 1. Find the Associated Archetype (determined by Domain + Channel intersection)
 2. Find the Role (determined by the Archetype's House)
 3. The Agent's meaning = someone who embodies that Archetype's energy in that Role
 
 **Roles by House:**
-- Spirit House → Initiate (Page): enters with openness, curiosity
-- Mind House → Catalyst (Knight): disrupts stagnation, sparks change
-- Emotion House → Steward (Queen): maintains, nurtures, holds space
-- Body House → Executor (King): transforms intention into action
+- Spirit House → Initiate: enters with openness, curiosity
+- Mind House → Catalyst: disrupts stagnation, sparks change
+- Emotion House → Steward: maintains, nurtures, holds space
+- Body House → Executor: transforms intention into action
 
-**Example:** Steward of Intent (Queen of Wands)
+**Example:** Steward of Intent
 - Associated Archetype: Drive (7) — because Drive is the Intent expression in Emotion House
-- Role: Steward (Queen) — because Emotion House = Steward
-- Meaning: Someone who nurtures and maintains directed momentum, holds creative fire with care, sustains passion without burning out. NOT "a confident woman with a cat" (traditional tarot garbage).
+- Role: Steward — because Emotion House = Steward
+- Meaning: Someone who nurtures and maintains directed momentum, holds creative fire with care, sustains passion without burning out.
 
 ## ASSOCIATED ARCHETYPE REFERENCE
 
@@ -1020,9 +1080,13 @@ When interpreting statuses:
 
 ## CORRECTION LOGIC
 
-- **Too Much → Diagonal Partner** (sum to 19): Creative tension resolves excess
-- **Too Little → Vertical Partner** (sum to 20): Same function, different phase, feeds energy back
-- **Unacknowledged → Reduction Partner** (digit sum): Cross-house perspective illuminates shadow
+**CRITICAL: Use ONLY the correction provided in each draw. Do NOT calculate your own.**
+
+The correction for each imbalanced card is pre-calculated and provided. Your job is to INTERPRET it, not derive it.
+
+- **Too Much → Diagonal Partner**: Creative tension resolves excess
+- **Too Little → Vertical Partner**: Same function, different phase, feeds energy back
+- **Unacknowledged → Reduction Partner**: Cross-house perspective illuminates shadow
 
 ## VOICE PRINCIPLES
 
@@ -1032,15 +1096,20 @@ When interpreting statuses:
 4. **Structure is authority**: The geometry determines meaning, not intuition
 5. **Derive, don't interpret**: Follow the architecture, don't free-associate
 
-## NEVER SAY
+## NEVER DO
 
-- Any traditional tarot meaning ("crossing", "outcome", "significator", "reversed")
-- Fortune-telling language ("you will", "this means you should")
-- Psychological diagnosis ("you have", "you are [trait]")
-- Spiritual bypassing ("everything happens for a reason", "trust the universe")
+- Invent card names (use ONLY the canonical names provided)
+- Use traditional tarot meanings ("crossing", "outcome", "significator", "reversed")
+- Use fortune-telling language ("you will", "this means you should")
+- Calculate your own corrections (use the provided correction exactly)
+- Substitute poetic synonyms for canonical terms
+- Add psychological diagnosis ("you have", "you are [trait]")
+- Use spiritual bypassing ("everything happens for a reason", "trust the universe")
 
 ## ALWAYS DO
 
+- Use the EXACT card names provided in each draw
+- Use the EXACT correction provided — do not recalculate
 - Derive Bound meaning from Associated Archetype + Channel + Inner/Outer
 - Derive Agent meaning from Associated Archetype + Role
 - Explain corrections in terms of structural relationship
@@ -2359,7 +2428,7 @@ export default function NirmanakaReader() {
 
   const performReadingWithDraws = async (drawsToUse, questionToUse = question) => {
     setLoading(true); setError(''); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
-    const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, showTraditional);
+    const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, false); // Never send traditional names to API
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Emergent`;
     const safeQuestion = sanitizeForAPI(questionToUse);
 
@@ -2642,7 +2711,7 @@ Provide the interpretation for this new card in the context of the ${operation} 
     setExpanding({ section: sectionKey, type: expansionType });
     
     // Build context for the expansion request
-    const drawText = formatDrawForAI(draws, spreadType, spreadKey, showTraditional);
+    const drawText = formatDrawForAI(draws, spreadType, spreadKey, false); // Never send traditional names to API
     let sectionContent = '';
     let sectionContext = '';
     
@@ -2726,7 +2795,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
   const sendFollowUp = async () => {
     if (!followUp.trim() || !draws) return;
     setFollowUpLoading(true); setError('');
-    const drawText = formatDrawForAI(draws, spreadType, spreadKey, showTraditional);
+    const drawText = formatDrawForAI(draws, spreadType, spreadKey, false); // Never send traditional names to API
     
     // Build context from parsed reading
     let readingContext = '';
@@ -3322,7 +3391,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6 md:mb-6 mobile-header">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-extralight tracking-[0.2em] sm:tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-[10px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.30.6 alpha • UI Tightening</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.30.7 alpha • No Traditional Names</p>
         </div>
 
         {!draws && <IntroSection />}
