@@ -2976,6 +2976,42 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     applyDeliveryPreset(stanceKeys[newIndex]);
   };
 
+  // Slugify text for filenames
+  const slugify = (text) => {
+    if (!text) return '';
+    return text
+      .toLowerCase()
+      .replace(/[\u2018\u2019\u201C\u201D]/g, '')  // Remove smart quotes
+      .replace(/[\u2014\u2013]/g, '-')             // Em/en dash to hyphen
+      .replace(/[^\w\s-]/g, '')                    // Remove special chars
+      .replace(/\s+/g, '-')                        // Spaces to hyphens
+      .replace(/-+/g, '-')                         // Collapse multiple hyphens
+      .replace(/^-+|-+$/g, '')                     // Trim leading/trailing hyphens
+      .substring(0, 40)                            // Limit to 40 chars
+      .replace(/-+$/g, '');                        // Trim trailing hyphens again after truncation
+  };
+
+  // Generate smart export filename
+  const generateExportFilename = (extension) => {
+    const date = new Date().toISOString().split('T')[0];
+    let slug = '';
+
+    // Priority 1: Question if >10 chars
+    if (question && question.trim().length > 10) {
+      slug = slugify(question.trim());
+    }
+    // Priority 2: Summary/overview
+    else if (parsedReading?.summary && parsedReading.summary.trim().length > 10) {
+      slug = slugify(parsedReading.summary.trim());
+    }
+    // Priority 3: Fallback
+    else {
+      slug = 'reading';
+    }
+
+    return `nirmanakaya-${slug}-${date}.${extension}`;
+  };
+
   // Export reading to markdown
   const exportToMarkdown = () => {
     if (!parsedReading || !draws) return;
@@ -3055,7 +3091,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `nirmanakaya-reading-${new Date().toISOString().split('T')[0]}.md`;
+    a.download = generateExportFilename('md');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -3265,7 +3301,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `nirmanakaya-reading-${new Date().toISOString().split('T')[0]}.html`;
+    a.download = generateExportFilename('html');
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -3280,7 +3316,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.29.9 alpha • Unicode Fix</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.29.10 alpha • Smart Exports</p>
         </div>
 
         {!draws && <IntroSection />}
