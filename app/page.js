@@ -413,7 +413,16 @@ Example bad: "This card reflects a nurturing quality that invites you to cultiva
   master: `Full technical density. Nothing simplified. Nothing withheld. Use precise terminology throughout. Include structural details, mathematical relationships, position numbers, duality paths. Write as one master to another. Assume framework familiarity.`
 };
 
-// Stance presets (Complexity is independent - not part of presets)
+// Delivery presets - combines Complexity + Stance in one selection
+const DELIVERY_PRESETS = {
+  quickTake: { name: "Quick Take", complexity: "friend", voice: "direct", focus: "do", density: "essential", scope: "here" },
+  gentleGuide: { name: "Gentle Guide", complexity: "guide", voice: "warm", focus: "feel", density: "clear", scope: "connected" },
+  clearView: { name: "Clear View", complexity: "teacher", voice: "direct", focus: "see", density: "clear", scope: "patterned" },
+  deepDive: { name: "Deep Dive", complexity: "mentor", voice: "warm", focus: "feel", density: "rich", scope: "resonant" },
+  fullTransmission: { name: "Full Transmission", complexity: "master", voice: "grounded", focus: "build", density: "rich", scope: "resonant" }
+};
+
+// Legacy STANCE_PRESETS for backwards compatibility
 const STANCE_PRESETS = {
   curious: { name: "Curious", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
   quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
@@ -1438,7 +1447,13 @@ const ReadingSection = ({
           </span>
           <span className="text-sm font-medium">{renderLabel()}</span>
           {type === 'card' && onHeaderClick && (
-            <span className="text-zinc-600 text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-auto">↑ view card</span>
+            <span
+              className="text-zinc-600 text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-auto cursor-pointer hover:text-zinc-400"
+              onClick={(e) => {
+                e.stopPropagation();
+                onHeaderClick();
+              }}
+            >↑ view card</span>
           )}
         </div>
         {type === 'card' && showTraditional && trans?.traditional && !isCollapsed && (
@@ -1846,6 +1861,7 @@ export default function NirmanakaReader() {
   const [isSharedReading, setIsSharedReading] = useState(false);
   const [selectedInfo, setSelectedInfo] = useState(null); // {type: 'card'|'channel'|'status'|'house', id: ..., data: ...}
   const [showMidReadingStance, setShowMidReadingStance] = useState(false);
+  const [showFineTune, setShowFineTune] = useState(false);
   const [helpPopover, setHelpPopover] = useState(null); // 'dynamicLens' | 'fixedLayout' | 'stance' | null
   const [loadingPhrases, setLoadingPhrases] = useState([]);
   const [loadingPhraseIndex, setLoadingPhraseIndex] = useState(0);
@@ -2202,7 +2218,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           </div>
           {isMajor && (
             <div className="mt-1">
-              <span className="text-xs bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full">MAJOR ARCHETYPE</span>
+              <span className="text-xs bg-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full">Major</span>
             </div>
           )}
           {showTraditional && <div className="text-sm text-zinc-500 mt-1">{trans.traditional}</div>}
@@ -2278,6 +2294,29 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     const complexityLabel = COMPLEXITY_OPTIONS[stance.complexity]?.label || stance.complexity;
     if (preset) return `${complexityLabel} • ${preset[1].name}`;
     return `${complexityLabel} • Custom`;
+  };
+
+  // Get current delivery preset (if any)
+  const getCurrentDeliveryPreset = () => {
+    return Object.entries(DELIVERY_PRESETS).find(([_, p]) =>
+      p.complexity === stance.complexity &&
+      p.voice === stance.voice && p.focus === stance.focus &&
+      p.density === stance.density && p.scope === stance.scope
+    );
+  };
+
+  // Apply a delivery preset
+  const applyDeliveryPreset = (presetKey) => {
+    const preset = DELIVERY_PRESETS[presetKey];
+    if (preset) {
+      setStance({
+        complexity: preset.complexity,
+        voice: preset.voice,
+        focus: preset.focus,
+        density: preset.density,
+        scope: preset.scope
+      });
+    }
   };
 
   // Export reading to markdown
@@ -2539,7 +2578,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.26.2 alpha • Accordion</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.27.0 alpha • Delivery Presets</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2963,86 +3002,33 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {/* Parsed Reading Sections */}
         {parsedReading && !loading && (
           <div className="space-y-2">
-            {/* Mid-reading stance controls - more prominent */}
-            <div className="mb-4">
-              <button
-                onClick={() => setShowMidReadingStance(!showMidReadingStance)}
-                className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                  showMidReadingStance 
-                    ? 'bg-zinc-800/50 border border-zinc-700/50' 
-                    : 'bg-zinc-900/30 border border-zinc-800/30 hover:bg-zinc-900/50 hover:border-zinc-700/50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-sm text-zinc-300">
-                      {showMidReadingStance ? '▾' : '▸'} Adjust Delivery
-                    </span>
-                    <span className="text-xs text-zinc-600 ml-2">
-                      {getCurrentStanceLabel()}
-                    </span>
-                  </div>
-                  <span className="text-xs text-zinc-500">
-                    {showMidReadingStance ? 'collapse' : 'change voice, simplify, re-interpret'}
-                  </span>
-                </div>
-              </button>
-              
-              {showMidReadingStance && (
-                <div className="mt-3 space-y-3">
-                  {/* Complexity Selector */}
-                  <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
-                    <div className="text-xs text-zinc-500 mb-3 text-center">Speak to me like...</div>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
-                        <button
-                          key={key}
-                          onClick={() => setStance({ ...stance, complexity: key })}
-                          className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all min-w-[70px] ${
-                            stance.complexity === key
-                              ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                              : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                          }`}
-                        >
-                          <span className="font-medium">{opt.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <StanceSelector
-                    stance={stance}
-                    setStance={setStance}
-                    showCustomize={true}
-                    setShowCustomize={() => {}}
-                    compact={true}
-                    onReinterpret={reinterpret}
-                  />
-                </div>
-              )}
-            </div>
-            
+                        
             {/* Your Question */}
             <div className="bg-zinc-800/50 rounded-xl p-4 mb-4 mx-8">
-              <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Your Question or Intention</div>
+              <div className="text-[10px] text-zinc-500 tracking-wider mb-2">Your question or intention</div>
               <div className="text-zinc-300 text-sm">{question}</div>
             </div>
             
-            {/* Summary Section - always expanded */}
-            {parsedReading.summary && (
-              <ReadingSection
-                type="summary"
-                content={parsedReading.summary}
-                question={question}
-                expansions={expansions}
-                expanding={expanding}
-                onExpand={handleExpand}
-                showTraditional={showTraditional}
-                spreadType={spreadType}
-                spreadKey={spreadKey}
-                setSelectedInfo={setSelectedInfo}
-              />
-            )}
+            {/* Summary Section - expanded by default, collapsible */}
+            {parsedReading.summary && (() => {
+              const isSummaryCollapsed = collapsedSections['summary'] === true; // expanded by default
+              return (
+                <ReadingSection
+                  type="summary"
+                  content={parsedReading.summary}
+                  question={question}
+                  expansions={expansions}
+                  expanding={expanding}
+                  onExpand={handleExpand}
+                  showTraditional={showTraditional}
+                  spreadType={spreadType}
+                  spreadKey={spreadKey}
+                  setSelectedInfo={setSelectedInfo}
+                  isCollapsed={isSummaryCollapsed}
+                  onToggleCollapse={() => toggleCollapse('summary', false)}
+                />
+              );
+            })()}
             
             {/* Signature Sections with nested Rebalancers - collapsed by default */}
             {parsedReading.cards.map((card) => {
@@ -3067,7 +3053,16 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     spreadType={spreadType}
                     spreadKey={spreadKey}
                     setSelectedInfo={setSelectedInfo}
-                    onHeaderClick={() => document.getElementById(`card-${card.index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                    onHeaderClick={() => {
+                      // Expand signatures section if collapsed
+                      if (collapsedSections['signatures'] === true) {
+                        setCollapsedSections(prev => ({ ...prev, signatures: false }));
+                      }
+                      // Scroll to the card
+                      setTimeout(() => {
+                        document.getElementById(`card-${card.index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 50);
+                    }}
                     correction={correction}
                     isCollapsed={isCardCollapsed}
                     onToggleCollapse={() => toggleCollapse(cardSectionKey, true)}
@@ -3159,21 +3154,26 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               );
             })()}
 
-            {/* Letter Section - always expanded */}
-            {parsedReading.letter && (
-              <ReadingSection
-                type="letter"
-                content={parsedReading.letter}
-                question={question}
-                expansions={expansions}
-                expanding={expanding}
-                onExpand={handleExpand}
-                showTraditional={showTraditional}
-                spreadType={spreadType}
-                spreadKey={spreadKey}
-                setSelectedInfo={setSelectedInfo}
-              />
-            )}
+            {/* Letter Section - expanded by default, collapsible */}
+            {parsedReading.letter && (() => {
+              const isLetterCollapsed = collapsedSections['letter'] === true; // expanded by default
+              return (
+                <ReadingSection
+                  type="letter"
+                  content={parsedReading.letter}
+                  question={question}
+                  expansions={expansions}
+                  expanding={expanding}
+                  onExpand={handleExpand}
+                  showTraditional={showTraditional}
+                  spreadType={spreadType}
+                  spreadKey={spreadKey}
+                  setSelectedInfo={setSelectedInfo}
+                  isCollapsed={isLetterCollapsed}
+                  onToggleCollapse={() => toggleCollapse('letter', false)}
+                />
+              );
+            })()}
             
             <div ref={messagesEndRef} />
           </div>
@@ -3195,7 +3195,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {parsedReading && !loading && (
           <div className="mt-6 pt-4 border-t border-zinc-800/50 relative">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Continue the conversation</span>
+              <span className="text-[10px] text-zinc-500 tracking-wider">Continue the conversation</span>
               <button
                 onClick={() => setHelpPopover(helpPopover === 'followup' ? null : 'followup')}
                 className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
@@ -3229,10 +3229,122 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           </div>
         )}
 
+        {/* Adjust Delivery - at the bottom */}
+        {parsedReading && !loading && (
+          <div className="mt-6">
+            <button
+              onClick={() => setShowMidReadingStance(!showMidReadingStance)}
+              className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
+                showMidReadingStance
+                  ? 'bg-zinc-800/50 border border-zinc-700/50'
+                  : 'bg-zinc-900/30 border border-zinc-800/30 hover:bg-zinc-900/50 hover:border-zinc-700/50'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm text-zinc-300">
+                    {showMidReadingStance ? '▾' : '▸'} Adjust Delivery
+                  </span>
+                  <span className="text-xs text-zinc-600 ml-2">
+                    {getCurrentDeliveryPreset()?.[1]?.name || 'Custom'}
+                  </span>
+                </div>
+                <span className="text-xs text-zinc-500">
+                  {showMidReadingStance ? 'collapse' : 'change depth & style'}
+                </span>
+              </div>
+            </button>
+
+            {showMidReadingStance && (
+              <div className="mt-3 bg-zinc-900/30 rounded-xl border border-zinc-800/30 p-4">
+                {/* Delivery Presets Row */}
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-2 justify-center mb-2">
+                    {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
+                      const isActive = getCurrentDeliveryPreset()?.[0] === key;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => applyDeliveryPreset(key)}
+                          className={`px-3 py-2 rounded-lg text-xs transition-all ${
+                            isActive
+                              ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                              : 'bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                          }`}
+                        >
+                          {preset.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between text-[10px] text-zinc-600 px-2">
+                    <span>← Lighter</span>
+                    <span>Deeper →</span>
+                  </div>
+                </div>
+
+                {/* Fine-tune Subsection */}
+                <div className="border-t border-zinc-800/50 pt-3">
+                  <button
+                    onClick={() => setShowFineTune(!showFineTune)}
+                    className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
+                  >
+                    <span>{showFineTune ? '▾' : '▸'}</span>
+                    <span>Fine-tune</span>
+                  </button>
+
+                  {showFineTune && (
+                    <div className="mt-3 space-y-3">
+                      {/* Complexity Selector */}
+                      <div>
+                        <div className="text-[10px] text-zinc-500 mb-2">Speak to me like...</div>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
+                            <button
+                              key={key}
+                              onClick={() => setStance({ ...stance, complexity: key })}
+                              className={`px-2 py-1 rounded text-xs transition-all ${
+                                stance.complexity === key
+                                  ? 'bg-zinc-700 text-zinc-100'
+                                  : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Stance Grid */}
+                      <StanceSelector
+                        stance={stance}
+                        setStance={setStance}
+                        showCustomize={true}
+                        setShowCustomize={() => {}}
+                        compact={true}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Re-interpret Button */}
+                <div className="mt-4 pt-3 border-t border-zinc-800/50">
+                  <button
+                    onClick={reinterpret}
+                    className="w-full bg-zinc-700 hover:bg-zinc-600 text-zinc-200 py-2 rounded-lg text-sm transition-colors"
+                  >
+                    Re-interpret with new settings
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Footer */}
         <p className="text-center text-zinc-800 text-[10px] mt-8 tracking-wider">The structure is the authority. Encounter precedes understanding.</p>
       </div>
-      
+
       {/* Info Modal */}
       <InfoModal info={selectedInfo} onClose={() => setSelectedInfo(null)} setSelectedInfo={setSelectedInfo} />
     </div>
