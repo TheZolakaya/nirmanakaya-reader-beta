@@ -2645,7 +2645,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.28.2 alpha • Quick Fixes</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.28.3 alpha • Compact Layout</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2767,20 +2767,17 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     );
                   })}
                 </div>
-                <div className="flex justify-between text-sm text-zinc-500 px-2 mb-3">
+                {/* Lighter / Fine-tune / Deeper row */}
+                <div className="flex justify-between items-center text-base text-zinc-400 px-2 mb-2">
                   <span>← Lighter</span>
-                  <span>Deeper →</span>
-                </div>
-
-                {/* Fine-tune toggle */}
-                <div className="flex justify-center">
                   <button
                     onClick={() => setShowLandingFineTune(!showLandingFineTune)}
-                    className="text-sm text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+                    className="text-base text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
                   >
                     <span>{showLandingFineTune ? '▾' : '▸'}</span>
                     <span>Fine-tune</span>
                   </button>
+                  <span>Deeper →</span>
                 </div>
 
                 {/* Fine-tune panel */}
@@ -2821,18 +2818,6 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
             {/* Question Input Section */}
             <div className="relative mb-4 mt-6">
-              {/* Spark button above input */}
-              <div className="flex justify-center mb-4">
-                <button
-                  onClick={handleSpark}
-                  className="px-3 py-1.5 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-xs flex items-center gap-1.5 border border-amber-800/50"
-                  title="Show a random suggestion"
-                >
-                  <span>✨</span>
-                  <span>Spark</span>
-                </button>
-              </div>
-
               <div className="relative">
                 <textarea
                   value={question}
@@ -2865,9 +2850,20 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 </div>
               )}
 
-              {/* Rotating suggestion pills - fade when user is typing */}
-              <div className={`text-center mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-                <div className="flex justify-center gap-2 mb-2">
+              {/* Spark + Prompts + Dots + Reflect - all on one row */}
+              <div className={`mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  {/* Spark button */}
+                  <button
+                    onClick={handleSpark}
+                    className="px-3 py-1.5 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-xs flex items-center gap-1 border border-amber-800/50"
+                    title="Show a random suggestion"
+                  >
+                    <span>✨</span>
+                    <span>Spark</span>
+                  </button>
+
+                  {/* Suggestion pills */}
                   {[0, 1, 2].map((offset) => {
                     const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
                     return (
@@ -2880,27 +2876,40 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       </button>
                     );
                   })}
-                </div>
-                {/* Dots indicator - clickable */}
-                <div className="flex justify-center gap-1.5">
-                  {Array.from({ length: Math.ceil(SUGGESTIONS.length / 3) }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSuggestionIndex(i * 3)}
-                      className={`w-2 h-2 rounded-full transition-all hover:bg-zinc-400 ${
-                        Math.floor(suggestionIndex / 3) === i ? 'bg-zinc-500' : 'bg-zinc-700'
-                      }`}
-                      aria-label={`Show suggestions ${i * 3 + 1}-${Math.min((i + 1) * 3, SUGGESTIONS.length)}`}
-                    />
-                  ))}
+
+                  {/* Dots indicator - clickable */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.ceil(SUGGESTIONS.length / 3) }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSuggestionIndex(i * 3)}
+                        className={`w-2 h-2 rounded-full transition-all hover:bg-zinc-400 ${
+                          Math.floor(suggestionIndex / 3) === i ? 'bg-zinc-500' : 'bg-zinc-700'
+                        }`}
+                        aria-label={`Show suggestions ${i * 3 + 1}-${Math.min((i + 1) * 3, SUGGESTIONS.length)}`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Reflect button */}
+                  <button
+                    onClick={performReading}
+                    disabled={loading}
+                    className="px-4 py-1.5 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-xs text-zinc-200"
+                  >
+                    Reflect
+                  </button>
                 </div>
               </div>
             </div>
 
-            <button onClick={performReading} disabled={loading}
-              className="w-full bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 py-3 rounded-xl transition-all text-sm">
-              Reflect
-            </button>
+            {/* Reflect button visible when typing */}
+            {question.trim() && (
+              <button onClick={performReading} disabled={loading}
+                className="px-6 py-2 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm mx-auto block">
+                Reflect
+              </button>
+            )}
           </>
         )}
 
@@ -3461,23 +3470,21 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       );
                     })}
                   </div>
-                  <div className="flex justify-between text-sm text-zinc-500 px-2">
+                  {/* Lighter / Fine-tune / Deeper row */}
+                  <div className="flex justify-between items-center text-base text-zinc-400 px-2">
                     <span>← Lighter</span>
+                    <button
+                      onClick={() => setShowFineTune(!showFineTune)}
+                      className="text-base text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
+                    >
+                      <span>{showFineTune ? '▾' : '▸'}</span>
+                      <span>Fine-tune</span>
+                    </button>
                     <span>Deeper →</span>
                   </div>
                 </div>
 
-                {/* Fine-tune Subsection */}
-                <div className="border-t border-zinc-800/50 pt-3">
-                  <button
-                    onClick={() => setShowFineTune(!showFineTune)}
-                    className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
-                  >
-                    <span>{showFineTune ? '▾' : '▸'}</span>
-                    <span>Fine-tune</span>
-                  </button>
-
-                  {showFineTune && (
+                {showFineTune && (
                     <div className="mt-3 space-y-3">
                       {/* Complexity Selector */}
                       <div>
@@ -3508,8 +3515,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         compact={true}
                       />
                     </div>
-                  )}
-                </div>
+                )}
 
                 {/* Re-interpret Button */}
                 <div className="mt-4 pt-3 border-t border-zinc-800/50">
