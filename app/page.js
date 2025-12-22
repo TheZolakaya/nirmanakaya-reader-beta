@@ -1879,8 +1879,8 @@ export default function NirmanakaReader() {
   const [question, setQuestion] = useState('');
   const [followUp, setFollowUp] = useState('');
   const [spreadType, setSpreadType] = useState('random');
-  const [spreadKey, setSpreadKey] = useState('one');
-  const [stance, setStance] = useState({ complexity: 'teacher', voice: 'wonder', focus: 'see', density: 'clear', scope: 'here' }); // Default: Curious
+  const [spreadKey, setSpreadKey] = useState('three');
+  const [stance, setStance] = useState({ complexity: 'guide', voice: 'warm', focus: 'feel', density: 'clear', scope: 'connected' }); // Default: Gentle Guide
   const [showCustomize, setShowCustomize] = useState(false);
   const [draws, setDraws] = useState(null);
   const [parsedReading, setParsedReading] = useState(null);
@@ -2660,11 +2660,11 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <div className="inline-flex items-center gap-2">
                   <div className="inline-flex rounded-lg bg-zinc-900 p-1">
                     <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
-                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-purple-900/80 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
                       Reflect
                     </button>
-                    <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
-                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    <button onClick={() => { setSpreadType('random'); setSpreadKey('three'); }}
+                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-purple-900/80 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
                       Discover
                     </button>
                     <div className="relative group">
@@ -2715,21 +2715,29 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </div>
 
               {/* Card Count Selector */}
-              <div className="flex gap-2 mb-4 justify-center flex-wrap">
-                {spreadType === 'random' ? (
-                  Object.entries(RANDOM_SPREADS).map(([key, value]) => (
-                    <button key={key} onClick={() => setSpreadKey(key)}
-                      className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                      {value.name} ({value.count})
-                    </button>
-                  ))
-                ) : (
-                  Object.entries(DURABLE_SPREADS).map(([key, value]) => (
-                    <button key={key} onClick={() => setSpreadKey(key)}
-                      className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                      {value.name}
-                    </button>
-                  ))
+              <div className="flex flex-col items-center mb-4">
+                <div className="flex gap-2 justify-center flex-wrap">
+                  {spreadType === 'random' ? (
+                    Object.entries(RANDOM_SPREADS).map(([key, value]) => (
+                      <button key={key} onClick={() => setSpreadKey(key)}
+                        className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-purple-900/80 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
+                        {value.name} ({value.count})
+                      </button>
+                    ))
+                  ) : (
+                    Object.entries(DURABLE_SPREADS).map(([key, value]) => (
+                      <button key={key} onClick={() => setSpreadKey(key)}
+                        className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-purple-900/80 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
+                        {value.name}
+                      </button>
+                    ))
+                  )}
+                </div>
+                {spreadType === 'random' && (
+                  <div className="flex justify-between w-full max-w-xs text-[10px] text-zinc-500 mt-1 px-2">
+                    <span>← Focused</span>
+                    <span>Expansive →</span>
+                  </div>
                 )}
               </div>
 
@@ -2764,35 +2772,39 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2 justify-center mb-2">
-                  {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
-                    const isActive = getCurrentDeliveryPreset()?.[0] === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => applyDeliveryPreset(key)}
-                        className={`px-3 py-2 rounded-lg text-xs transition-all ${
-                          isActive
-                            ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                            : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                        }`}
-                      >
-                        {preset.name}
-                      </button>
-                    );
-                  })}
+                <div className="flex flex-col items-center mb-2">
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
+                      const isActive = getCurrentDeliveryPreset()?.[0] === key;
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => applyDeliveryPreset(key)}
+                          className={`px-3 py-2 rounded-lg text-xs transition-all ${
+                            isActive
+                              ? 'bg-purple-900/80 text-amber-400'
+                              : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          {preset.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between w-full max-w-sm text-[10px] text-zinc-500 mt-1 px-1">
+                    <span>← Lighter</span>
+                    <span>Deeper →</span>
+                  </div>
                 </div>
-                {/* Lighter / Fine-tune / Deeper row */}
-                <div className="flex justify-between items-center text-base text-zinc-400 px-2 mb-2">
-                  <span>← Lighter</span>
+                {/* Fine-tune toggle */}
+                <div className="flex justify-center mb-2">
                   <button
                     onClick={() => setShowLandingFineTune(!showLandingFineTune)}
-                    className="text-base text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
+                    className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
                   >
                     <span>{showLandingFineTune ? '▾' : '▸'}</span>
                     <span>Fine-tune</span>
                   </button>
-                  <span>Deeper →</span>
                 </div>
 
                 {/* Fine-tune panel */}
@@ -3467,35 +3479,38 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="mt-3 bg-zinc-900/30 rounded-xl border border-zinc-800/30 p-4">
                 {/* Delivery Presets Row */}
                 <div className="mb-4">
-                  <div className="flex flex-wrap gap-2 justify-center mb-2">
-                    {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
-                      const isActive = getCurrentDeliveryPreset()?.[0] === key;
-                      return (
-                        <button
-                          key={key}
-                          onClick={() => applyDeliveryPreset(key)}
-                          className={`px-3 py-2 rounded-lg text-xs transition-all ${
-                            isActive
-                              ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                              : 'bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-                          }`}
-                        >
-                          {preset.name}
-                        </button>
-                      );
-                    })}
+                  <div className="flex flex-col items-center">
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
+                        const isActive = getCurrentDeliveryPreset()?.[0] === key;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => applyDeliveryPreset(key)}
+                            className={`px-3 py-2 rounded-lg text-xs transition-all ${
+                              isActive
+                                ? 'bg-purple-900/80 text-amber-400'
+                                : 'bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
+                            }`}
+                          >
+                            {preset.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="flex justify-between w-full max-w-sm text-[10px] text-zinc-500 mt-1 px-1">
+                      <span>← Lighter</span>
+                      <span>Deeper →</span>
+                    </div>
                   </div>
-                  {/* Lighter / Fine-tune / Deeper row */}
-                  <div className="flex justify-between items-center text-base text-zinc-400 px-2">
-                    <span>← Lighter</span>
+                  <div className="flex justify-center mt-2">
                     <button
                       onClick={() => setShowFineTune(!showFineTune)}
-                      className="text-base text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
+                      className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
                     >
                       <span>{showFineTune ? '▾' : '▸'}</span>
                       <span>Fine-tune</span>
                     </button>
-                    <span>Deeper →</span>
                   </div>
                 </div>
 
