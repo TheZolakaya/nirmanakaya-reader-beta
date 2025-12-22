@@ -1964,9 +1964,24 @@ export default function NirmanakaReader() {
       const trans = getComponent(draw.transient);
       sectionContent = corrSection?.content || '';
       sectionContext = `the correction path for ${trans.name} (Signature ${cardIndex + 1})`;
+    } else if (sectionKey === 'path') {
+      sectionContent = parsedReading.rebalancerSummary;
+      sectionContext = 'the Path to Balance section (synthesis of all corrections)';
     }
-    
-    const expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
+
+    // Custom prompts for Path section
+    let expansionPrompt;
+    if (sectionKey === 'path') {
+      const pathPrompts = {
+        unpack: "Expand on the Path to Balance with more detail. Go deeper on the synthesis of these corrections and what they're pointing to together.",
+        clarify: "Restate the Path to Balance in simpler, everyday language. Plain words, short sentences — make it completely accessible.",
+        architecture: "Explain the geometric relationships between the corrections. Why do these specific corrections work together? Show the structural logic.",
+        example: "Give concrete real-world examples of how to apply this guidance. Specific scenarios someone might encounter — make it tangible."
+      };
+      expansionPrompt = pathPrompts[expansionType];
+    } else {
+      expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
+    }
     
     // Pass the original stance to expansion
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
@@ -2476,7 +2491,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.25.7 alpha • Derivation</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.25.8 alpha • Derivation</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2981,19 +2996,71 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             })}
 
             {/* Rebalancer Summary - Only when 2+ imbalanced */}
-            {parsedReading.rebalancerSummary && (
-              <div className="mb-6 rounded-xl border-2 border-emerald-500/60 overflow-hidden" style={{background: 'linear-gradient(to bottom right, rgba(6, 78, 59, 0.3), rgba(16, 185, 129, 0.15))'}}>
-                <div className="p-5">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-lg">◈</span>
-                    <span className="text-sm font-medium text-emerald-400 uppercase tracking-wider">Path to Balance</span>
-                  </div>
-                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm">
-                    {parsedReading.rebalancerSummary}
+            {parsedReading.rebalancerSummary && (() => {
+              const pathExpansions = expansions['path'] || {};
+              const isPathExpanding = expanding?.section === 'path';
+
+              return (
+                <div className="mb-6 rounded-xl border-2 border-emerald-500/60 overflow-hidden" style={{background: 'linear-gradient(to bottom right, rgba(6, 78, 59, 0.3), rgba(16, 185, 129, 0.15))'}}>
+                  <div className="p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-lg">◈</span>
+                      <span className="text-sm font-medium text-emerald-400 uppercase tracking-wider">Path to Balance</span>
+                    </div>
+                    <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm mb-4">
+                      {parsedReading.rebalancerSummary}
+                    </div>
+
+                    {/* Path Expansion Buttons */}
+                    <div className="flex gap-2 flex-wrap">
+                      {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
+                        const isThisExpanding = isPathExpanding && expanding?.type === key;
+                        const hasExpansion = !!pathExpansions[key];
+                        const isExpandingOther = expanding && !isThisExpanding;
+
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => handleExpand('path', key)}
+                            disabled={expanding}
+                            className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                              hasExpansion
+                                ? 'bg-emerald-800/50 text-emerald-200 border border-emerald-600/50'
+                                : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                            } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          >
+                            {isThisExpanding && (
+                              <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                            )}
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Path Expansion Content */}
+                    {Object.entries(pathExpansions).map(([expType, expContent]) => (
+                      <div key={expType} className="mt-4 pt-4 border-t border-emerald-700/50">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-xs uppercase tracking-wider text-emerald-500/70">
+                            {EXPANSION_PROMPTS[expType]?.label}
+                          </span>
+                          <button
+                            onClick={() => handleExpand('path', expType, true)}
+                            className="text-xs text-zinc-600 hover:text-zinc-400"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-400">
+                          {expContent}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Letter Section */}
             {parsedReading.letter && (
