@@ -413,14 +413,14 @@ Example bad: "This card reflects a nurturing quality that invites you to cultiva
   master: `Full technical density. Nothing simplified. Nothing withheld. Use precise terminology throughout. Include structural details, mathematical relationships, position numbers, duality paths. Write as one master to another. Assume framework familiarity.`
 };
 
-// Stance presets (now include complexity)
+// Stance presets (Complexity is independent - not part of presets)
 const STANCE_PRESETS = {
-  curious: { name: "Curious", complexity: "teacher", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
-  quickAnswer: { name: "Quick Answer", complexity: "friend", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
-  deepDive: { name: "Deep Dive", complexity: "mentor", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
-  justTheFacts: { name: "Just the Facts", complexity: "teacher", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
-  grounded: { name: "Grounded", complexity: "guide", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
-  oldSoul: { name: "Old Soul", complexity: "mentor", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
+  curious: { name: "Curious", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
+  quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
+  deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
+  justTheFacts: { name: "Just the Facts", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
+  grounded: { name: "Grounded", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
+  oldSoul: { name: "Old Soul", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
 };
 
 // Loading phrases for cycling display
@@ -1783,7 +1783,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   const applyPreset = (presetKey) => {
     const preset = STANCE_PRESETS[presetKey];
     setStance({
-      complexity: preset.complexity,
+      ...stance, // Preserve complexity
       voice: preset.voice,
       focus: preset.focus,
       density: preset.density,
@@ -1792,7 +1792,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   };
   
   const currentPreset = Object.entries(STANCE_PRESETS).find(([_, p]) =>
-    p.complexity === stance.complexity && p.voice === stance.voice && p.focus === stance.focus &&
+    p.voice === stance.voice && p.focus === stance.focus &&
     p.density === stance.density && p.scope === stance.scope
   );
   
@@ -1948,27 +1948,6 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
       {/* Custom sliders */}
       {showCustomize && (
         <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 max-w-xl mx-auto">
-          {/* Complexity selector - meta-layer */}
-          <div className="mb-4 pb-4 border-b border-zinc-800/50">
-            <div className="text-xs text-zinc-500 mb-2">Speak to me like...</div>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
-                <button
-                  key={key}
-                  onClick={() => setStance({ ...stance, complexity: key })}
-                  className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all min-w-[80px] ${
-                    stance.complexity === key
-                      ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                      : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                  }`}
-                >
-                  <span className="font-medium">{opt.label}</span>
-                  <span className="text-[10px] text-zinc-500 mt-1 leading-tight text-center">{opt.hint}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
           <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
@@ -2428,12 +2407,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
   // Get current stance label for display
   const getCurrentStanceLabel = () => {
     const preset = Object.entries(STANCE_PRESETS).find(([_, p]) =>
-      p.complexity === stance.complexity && p.voice === stance.voice && p.focus === stance.focus &&
+      p.voice === stance.voice && p.focus === stance.focus &&
       p.density === stance.density && p.scope === stance.scope
     );
-    if (preset) return preset[1].name;
     const complexityLabel = COMPLEXITY_OPTIONS[stance.complexity]?.label || stance.complexity;
-    return `${complexityLabel} • ${stance.voice}/${stance.focus}`;
+    if (preset) return `${complexityLabel} • ${preset[1].name}`;
+    return `${complexityLabel} • Custom`;
   };
 
   // Export reading to markdown
@@ -2695,7 +2674,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.25.2 alpha • Complexity</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.25.3 alpha • Complexity</p>
         </div>
 
         {!draws && <IntroSection />}
