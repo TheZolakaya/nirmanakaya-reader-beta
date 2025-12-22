@@ -984,7 +984,8 @@ When interpreting statuses:
 - Derive Agent meaning from Associated Archetype + Role
 - Explain corrections in terms of structural relationship
 - Use temporal framing (Now-aligned, future-projected, past-anchored)
-- Provide concrete, actionable steps based on the correction archetype`;
+- Provide concrete, actionable steps based on the correction archetype
+- **Always end with a [LETTER]**: A warm, personal closing that synthesizes the reading into an encouraging reflection addressed directly to the querent`;
 
 const FORMAT_INSTRUCTIONS = `RESPONSE FORMAT:
 Use these exact markers. Each marker must be on its own line.
@@ -2475,7 +2476,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.25.5 alpha • Derivation</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.25.6 alpha • Derivation</p>
         </div>
 
         {!draws && <IntroSection />}
