@@ -458,7 +458,15 @@ const SUGGESTIONS = [
   "I'm waiting for something",
   "There's something I need to say",
   "I feel pulled in two directions",
-  "What am I ready for?"
+  "What am I ready for?",
+  "I want to discuss my childhood",
+  "I need to talk about something important",
+  "I'm excited about something",
+  "Something is ending",
+  "I'm grieving",
+  "I feel disconnected",
+  "There's joy I haven't let in",
+  "I want to celebrate something"
 ];
 
 // Loading phrases for cycling display
@@ -1657,7 +1665,7 @@ const ReadingSection = ({
 };
 
 // === STANCE SELECTOR COMPONENT ===
-const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, compact = false, onReinterpret = null }) => {
+const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, compact = false, onReinterpret = null, gridOnly = false }) => {
   const [showStanceHelp, setShowStanceHelp] = useState(false);
 
   const applyPreset = (presetKey) => {
@@ -1710,6 +1718,18 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
     return `${DIMENSION_DESCRIPTIONS.voice[stance.voice]} • ${DIMENSION_DESCRIPTIONS.focus[stance.focus]} • ${DIMENSION_DESCRIPTIONS.density[stance.density]} • ${DIMENSION_DESCRIPTIONS.scope[stance.scope]}`;
   };
   
+  // Grid-only mode for landing page fine-tune (just the 4x4 grid)
+  if (gridOnly) {
+    return (
+      <div className="space-y-2 max-w-xl mx-auto">
+        <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
+        <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
+        <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
+        <DimensionRow label="Scope" dimension="scope" options={['resonant', 'patterned', 'connected', 'here']} />
+      </div>
+    );
+  }
+
   // Compact mode for mid-reading stance changes
   if (compact) {
     return (
@@ -1733,7 +1753,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
           </div>
           <p className="text-xs text-zinc-500">{getCurrentDescription()}</p>
         </div>
-        
+
         {/* Preset quick-select */}
         <div className="mb-4 max-w-xl mx-auto">
           <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Presets</span>
@@ -1754,7 +1774,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
             ))}
           </div>
         </div>
-        
+
         {/* Inline dimension controls */}
         <div className="space-y-2 max-w-xl mx-auto">
           <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Fine-tune</span>
@@ -2625,7 +2645,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.28.0 alpha • Landing Page</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.28.1 alpha • Bug Fixes</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2633,169 +2653,200 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {/* Controls */}
         {!draws && (
           <>
-            <div className="flex justify-center mb-4 relative">
-              <div className="inline-flex items-center gap-2">
-                <div className="inline-flex rounded-lg bg-zinc-900 p-1">
-                  <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
-                    className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                    Dynamic Lens
-                  </button>
-                  <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
-                    className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                    Fixed Layout
-                  </button>
-                </div>
-                <button
-                  onClick={() => setHelpPopover(helpPopover === 'spreadType' ? null : 'spreadType')}
-                  className="w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
-                >
-                  ?
-                </button>
-              </div>
-              {helpPopover === 'spreadType' && (
-                <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80">
-                  <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <span className="text-zinc-200 font-medium">Dynamic Lens:</span>
-                        <p className="text-zinc-400 text-xs mt-1">Both the energy and where it's showing up emerge together — a complete snapshot of what's active right now.</p>
-                      </div>
-                      <div>
-                        <span className="text-zinc-200 font-medium">Fixed Layout:</span>
-                        <p className="text-zinc-400 text-xs mt-1">The energy is emergent, but it lands in specific life areas you choose — like your five houses or a relationship spread.</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setHelpPopover(null)}
-                      className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
-                    >
-                      Got it
+            {/* Reading Configuration Box */}
+            <div className="bg-zinc-900/30 border border-zinc-800/50 rounded-2xl p-4 sm:p-6 mb-6">
+              {/* Spread Type Toggle */}
+              <div className="flex justify-center mb-4 relative">
+                <div className="inline-flex items-center gap-2">
+                  <div className="inline-flex rounded-lg bg-zinc-900 p-1">
+                    <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
+                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                      Dynamic Lens
+                    </button>
+                    <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
+                      className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                      Fixed Layout
                     </button>
                   </div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2 mb-4 justify-center flex-wrap">
-              {spreadType === 'random' ? (
-                Object.entries(RANDOM_SPREADS).map(([key, value]) => (
-                  <button key={key} onClick={() => setSpreadKey(key)}
-                    className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                    {value.name} ({value.count})
-                  </button>
-                ))
-              ) : (
-                Object.entries(DURABLE_SPREADS).map(([key, value]) => (
-                  <button key={key} onClick={() => setSpreadKey(key)}
-                    className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
-                    {value.name}
-                  </button>
-                ))
-              )}
-            </div>
-
-            {spreadType === 'durable' && DURABLE_SPREADS[spreadKey] && (
-              <p className="text-center text-zinc-600 text-xs mb-4">{DURABLE_SPREADS[spreadKey].description}</p>
-            )}
-
-            {/* Unified Stance Selector */}
-            <div className="mb-6 max-w-xl mx-auto">
-              <div className="text-xs text-zinc-500 mb-3 text-center">Choose your stance</div>
-              <div className="flex flex-wrap gap-2 justify-center mb-2">
-                {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
-                  const isActive = getCurrentDeliveryPreset()?.[0] === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => applyDeliveryPreset(key)}
-                      className={`px-3 py-2 rounded-lg text-xs transition-all ${
-                        isActive
-                          ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                          : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                      }`}
-                    >
-                      {preset.name}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="flex justify-between text-[10px] text-zinc-600 px-2 mb-3">
-                <span>← Lighter</span>
-                <span>Deeper →</span>
-              </div>
-
-              {/* Fine-tune toggle */}
-              <div className="flex justify-center">
-                <button
-                  onClick={() => setShowLandingFineTune(!showLandingFineTune)}
-                  className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
-                >
-                  <span>{showLandingFineTune ? '▾' : '▸'}</span>
-                  <span>Fine-tune</span>
-                </button>
-              </div>
-
-              {/* Fine-tune panel */}
-              {showLandingFineTune && (
-                <div className="mt-3 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
-                  {/* Complexity Selector */}
-                  <div className="mb-4">
-                    <div className="text-[10px] text-zinc-500 mb-2">Speak to me like...</div>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
-                        <button
-                          key={key}
-                          onClick={() => setStance({ ...stance, complexity: key })}
-                          className={`px-2 py-1.5 rounded text-xs transition-all ${
-                            stance.complexity === key
-                              ? 'bg-zinc-700 text-zinc-100'
-                              : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300'
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Stance Grid */}
-                  <StanceSelector
-                    stance={stance}
-                    setStance={setStance}
-                    showCustomize={true}
-                    setShowCustomize={() => {}}
-                    compact={true}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Question Input with Spark */}
-            <div className="relative mb-4">
-              <div className="relative flex gap-2">
-                <div className="flex-1 relative">
-                  <textarea
-                    value={question}
-                    onChange={(e) => { setQuestion(e.target.value); setSparkPlaceholder(''); }}
-                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
-                    placeholder={sparkPlaceholder || "Name your question or declare your intent... or leave blank for a general reading"}
-                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
-                    rows={3}
-                  />
                   <button
-                    onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
-                    className="absolute top-3 right-3 w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
+                    onClick={() => setHelpPopover(helpPopover === 'spreadType' ? null : 'spreadType')}
+                    className="w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
                   >
                     ?
                   </button>
                 </div>
+                {helpPopover === 'spreadType' && (
+                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-72 sm:w-80">
+                    <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <span className="text-zinc-200 font-medium">Dynamic Lens:</span>
+                          <p className="text-zinc-400 text-xs mt-1">Both the energy and where it's showing up emerge together — a complete snapshot of what's active right now.</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-200 font-medium">Fixed Layout:</span>
+                          <p className="text-zinc-400 text-xs mt-1">The energy is emergent, but it lands in specific life areas you choose — like your five houses or a relationship spread.</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setHelpPopover(null)}
+                        className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+                      >
+                        Got it
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Count Selector */}
+              <div className="flex gap-2 mb-4 justify-center flex-wrap">
+                {spreadType === 'random' ? (
+                  Object.entries(RANDOM_SPREADS).map(([key, value]) => (
+                    <button key={key} onClick={() => setSpreadKey(key)}
+                      className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
+                      {value.name} ({value.count})
+                    </button>
+                  ))
+                ) : (
+                  Object.entries(DURABLE_SPREADS).map(([key, value]) => (
+                    <button key={key} onClick={() => setSpreadKey(key)}
+                      className={`px-4 py-2 rounded-lg text-sm transition-all ${spreadKey === key ? 'bg-zinc-700 text-zinc-100' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800'}`}>
+                      {value.name}
+                    </button>
+                  ))
+                )}
+              </div>
+
+              {spreadType === 'durable' && DURABLE_SPREADS[spreadKey] && (
+                <p className="text-center text-zinc-600 text-xs mb-4">{DURABLE_SPREADS[spreadKey].description}</p>
+              )}
+
+              {/* Stance Selector */}
+              <div className="max-w-xl mx-auto relative">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <span className="text-xs text-zinc-500">Choose your stance</span>
+                  <button
+                    onClick={() => setHelpPopover(helpPopover === 'stanceLabel' ? null : 'stanceLabel')}
+                    className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
+                  >
+                    ?
+                  </button>
+                </div>
+                {helpPopover === 'stanceLabel' && (
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 w-72">
+                    <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+                      <p className="text-zinc-400 text-xs leading-relaxed">
+                        Stances shape how the reading speaks to you — from quick and direct to deep and expansive.
+                      </p>
+                      <button
+                        onClick={() => setHelpPopover(null)}
+                        className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+                      >
+                        Got it
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 justify-center mb-2">
+                  {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
+                    const isActive = getCurrentDeliveryPreset()?.[0] === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => applyDeliveryPreset(key)}
+                        className={`px-3 py-2 rounded-lg text-xs transition-all ${
+                          isActive
+                            ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                            : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                        }`}
+                      >
+                        {preset.name}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between text-xs text-zinc-500 px-2 mb-3">
+                  <span>← Lighter</span>
+                  <span>Deeper →</span>
+                </div>
+
+                {/* Fine-tune toggle */}
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => setShowLandingFineTune(!showLandingFineTune)}
+                    className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+                  >
+                    <span>{showLandingFineTune ? '▾' : '▸'}</span>
+                    <span>Fine-tune</span>
+                  </button>
+                </div>
+
+                {/* Fine-tune panel */}
+                {showLandingFineTune && (
+                  <div className="mt-3 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+                    {/* Complexity Selector */}
+                    <div className="mb-4">
+                      <div className="text-[10px] text-zinc-500 mb-2">Speak to me like...</div>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
+                          <button
+                            key={key}
+                            onClick={() => setStance({ ...stance, complexity: key })}
+                            className={`px-2 py-1.5 rounded text-xs transition-all ${
+                              stance.complexity === key
+                                ? 'bg-zinc-700 text-zinc-100'
+                                : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300'
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Stance Grid - only the 4x4 grid */}
+                    <StanceSelector
+                      stance={stance}
+                      setStance={setStance}
+                      showCustomize={true}
+                      setShowCustomize={() => {}}
+                      gridOnly={true}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Question Input Section */}
+            <div className="relative mb-4">
+              {/* Spark button above input */}
+              <div className="flex justify-center mb-2">
                 <button
                   onClick={handleSpark}
-                  className="px-3 py-2 h-fit rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-sm flex items-center gap-1.5 border border-amber-800/50"
+                  className="px-3 py-1.5 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-xs flex items-center gap-1.5 border border-amber-800/50"
                   title="Show a random suggestion"
                 >
                   <span>✨</span>
-                  <span className="hidden sm:inline">Spark</span>
+                  <span>Spark</span>
+                </button>
+              </div>
+
+              <div className="relative">
+                <textarea
+                  value={question}
+                  onChange={(e) => { setQuestion(e.target.value); setSparkPlaceholder(''); }}
+                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
+                  placeholder={sparkPlaceholder || "Name your question or declare your intent... or leave blank for a general reading"}
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
+                  rows={3}
+                />
+                <button
+                  onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
+                  className="absolute top-3 right-3 w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
+                >
+                  ?
                 </button>
               </div>
               {helpPopover === 'input' && (
@@ -2816,16 +2867,19 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
               {/* Rotating suggestion pills - fade when user is typing */}
               <div className={`text-center mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-                <div className="inline-flex flex-wrap justify-center gap-2 max-w-lg mx-auto mb-2">
-                  {SUGGESTIONS.slice(suggestionIndex, suggestionIndex + 3).map((suggestion) => (
-                    <button
-                      key={suggestion}
-                      onClick={() => setQuestion(suggestion)}
-                      className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
+                <div className="flex justify-center gap-2 mb-2">
+                  {[0, 1, 2].map((offset) => {
+                    const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
+                    return (
+                      <button
+                        key={offset}
+                        onClick={() => setQuestion(suggestion)}
+                        className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all whitespace-nowrap"
+                      >
+                        {suggestion}
+                      </button>
+                    );
+                  })}
                 </div>
                 {/* Dots indicator */}
                 <div className="flex justify-center gap-1.5">
@@ -2842,7 +2896,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             </div>
 
             <button onClick={performReading} disabled={loading}
-              className="w-full bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 py-4 rounded-xl transition-all duration-300 font-light tracking-wider">
+              className="w-full bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 py-3 rounded-xl transition-all text-sm">
               Reflect
             </button>
           </>
