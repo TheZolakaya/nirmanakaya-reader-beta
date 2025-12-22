@@ -1825,8 +1825,16 @@ export default function NirmanakaReader() {
   const [collapsedSections, setCollapsedSections] = useState({}); // {sectionKey: true/false} - tracks collapsed state
 
   // Toggle collapse state for a section
-  const toggleCollapse = (sectionKey) => {
-    setCollapsedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
+  // defaultCollapsed: true for sections that start collapsed, false for sections that start expanded
+  const toggleCollapse = (sectionKey, defaultCollapsed = true) => {
+    setCollapsedSections(prev => {
+      // Determine current visual state based on the section's default
+      const isCurrentlyCollapsed = defaultCollapsed
+        ? prev[sectionKey] !== false  // default collapsed: undefined or true = collapsed
+        : prev[sectionKey] === true;  // default expanded: only true = collapsed
+      // Toggle to the opposite visual state
+      return { ...prev, [sectionKey]: !isCurrentlyCollapsed };
+    });
   };
   const [followUpMessages, setFollowUpMessages] = useState([]); // For general follow-ups after the reading
   const [followUpLoading, setFollowUpLoading] = useState(false); // Separate loading state for follow-ups
@@ -2531,7 +2539,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.26.1 alpha • Accordion</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.26.2 alpha • Accordion</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2717,7 +2725,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
         {/* Signatures Display */}
         {draws && !loading && (() => {
-          const isSignaturesCollapsed = collapsedSections['signatures'] !== false; // true by default
+          // Signatures default to EXPANDED (only true = collapsed)
+          const isSignaturesCollapsed = collapsedSections['signatures'] === true;
 
           return (
             <div className="mb-6">
@@ -2761,7 +2770,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 {/* Signatures Header - clickable */}
                 <div
                   className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-zinc-800/30 transition-colors"
-                  onClick={() => toggleCollapse('signatures')}
+                  onClick={() => toggleCollapse('signatures', false)}
                 >
                   <span className="text-zinc-500 text-xs transition-transform duration-200" style={{ transform: isSignaturesCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                     ▼
@@ -3061,9 +3070,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     onHeaderClick={() => document.getElementById(`card-${card.index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                     correction={correction}
                     isCollapsed={isCardCollapsed}
-                    onToggleCollapse={() => toggleCollapse(cardSectionKey)}
+                    onToggleCollapse={() => toggleCollapse(cardSectionKey, true)}
                     isCorrectionCollapsed={isCorrCollapsed}
-                    onToggleCorrectionCollapse={() => toggleCollapse(corrSectionKey)}
+                    onToggleCorrectionCollapse={() => toggleCollapse(corrSectionKey, true)}
                   />
                 </div>
               );
@@ -3081,7 +3090,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     {/* Path Header - clickable for collapse */}
                     <div
                       className={`flex items-center gap-3 cursor-pointer ${!isPathCollapsed ? 'mb-4' : ''}`}
-                      onClick={() => toggleCollapse('path')}
+                      onClick={() => toggleCollapse('path', true)}
                     >
                       <span className="text-emerald-500/70 text-xs transition-transform duration-200" style={{ transform: isPathCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                         ▼
