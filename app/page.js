@@ -432,6 +432,35 @@ const STANCE_PRESETS = {
   oldSoul: { name: "Old Soul", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
 };
 
+// Suggestion prompts for Spark feature and rotating pills
+const SUGGESTIONS = [
+  "I'm worried about a friend",
+  "I have a decision to make",
+  "Something feels off at work",
+  "I'm considering a big change",
+  "Someone's been on my mind",
+  "There's tension I can't name",
+  "I'm about to have a hard conversation",
+  "I'm starting something new",
+  "I need to let something go",
+  "I had a strange dream",
+  "Something keeps coming up",
+  "I don't know what I'm feeling",
+  "Should I take this opportunity?",
+  "I'm stuck on a project",
+  "I keep avoiding something",
+  "I want to understand someone better",
+  "What's the real issue here?",
+  "I'm at a crossroads",
+  "A relationship feels complicated",
+  "I'm not sure what I want",
+  "Something ended recently",
+  "I'm waiting for something",
+  "There's something I need to say",
+  "I feel pulled in two directions",
+  "What am I ready for?"
+];
+
 // Loading phrases for cycling display
 const LOADING_PHRASES = [
   "You are a creator and consumer.",
@@ -1866,6 +1895,9 @@ export default function NirmanakaReader() {
   const [loadingPhrases, setLoadingPhrases] = useState([]);
   const [loadingPhraseIndex, setLoadingPhraseIndex] = useState(0);
   const [loadingPhraseVisible, setLoadingPhraseVisible] = useState(true);
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const [sparkPlaceholder, setSparkPlaceholder] = useState('');
+  const [showLandingFineTune, setShowLandingFineTune] = useState(false);
   const messagesEndRef = useRef(null);
   const hasAutoInterpreted = useRef(false);
 
@@ -1937,6 +1969,21 @@ export default function NirmanakaReader() {
     }, 5000);
     return () => clearInterval(fadeInterval);
   }, [loading]);
+
+  // Rotate suggestion pills every 4.5 seconds
+  useEffect(() => {
+    if (draws) return; // Only on landing page
+    const interval = setInterval(() => {
+      setSuggestionIndex(prev => (prev + 3) % SUGGESTIONS.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [draws]);
+
+  // Spark: show random suggestion as placeholder
+  const handleSpark = () => {
+    const randomSuggestion = SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)];
+    setSparkPlaceholder(randomSuggestion);
+  };
 
   const copyShareUrl = async () => {
     try { await navigator.clipboard.writeText(shareUrl); alert('Link copied!'); }
@@ -2578,7 +2625,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.27.0 alpha • Delivery Presets</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.28.0 alpha • Landing Page</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2651,50 +2698,104 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <p className="text-center text-zinc-600 text-xs mb-4">{DURABLE_SPREADS[spreadKey].description}</p>
             )}
 
-            {/* Complexity Selector - always visible */}
-            <div className="mb-4 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 max-w-xl mx-auto">
-              <div className="text-xs text-zinc-500 mb-3 text-center">Speak to me like...</div>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
-                  <button
-                    key={key}
-                    onClick={() => setStance({ ...stance, complexity: key })}
-                    className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all min-w-[80px] ${
-                      stance.complexity === key
-                        ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                        : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                    }`}
-                  >
-                    <span className="font-medium">{opt.label}</span>
-                    <span className="text-[10px] text-zinc-500 mt-1 leading-tight text-center max-w-[70px]">{opt.hint}</span>
-                  </button>
-                ))}
+            {/* Unified Stance Selector */}
+            <div className="mb-6 max-w-xl mx-auto">
+              <div className="text-xs text-zinc-500 mb-3 text-center">Choose your stance</div>
+              <div className="flex flex-wrap gap-2 justify-center mb-2">
+                {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
+                  const isActive = getCurrentDeliveryPreset()?.[0] === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => applyDeliveryPreset(key)}
+                      className={`px-3 py-2 rounded-lg text-xs transition-all ${
+                        isActive
+                          ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                          : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                      }`}
+                    >
+                      {preset.name}
+                    </button>
+                  );
+                })}
               </div>
+              <div className="flex justify-between text-[10px] text-zinc-600 px-2 mb-3">
+                <span>← Lighter</span>
+                <span>Deeper →</span>
+              </div>
+
+              {/* Fine-tune toggle */}
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setShowLandingFineTune(!showLandingFineTune)}
+                  className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+                >
+                  <span>{showLandingFineTune ? '▾' : '▸'}</span>
+                  <span>Fine-tune</span>
+                </button>
+              </div>
+
+              {/* Fine-tune panel */}
+              {showLandingFineTune && (
+                <div className="mt-3 bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+                  {/* Complexity Selector */}
+                  <div className="mb-4">
+                    <div className="text-[10px] text-zinc-500 mb-2">Speak to me like...</div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
+                        <button
+                          key={key}
+                          onClick={() => setStance({ ...stance, complexity: key })}
+                          className={`px-2 py-1.5 rounded text-xs transition-all ${
+                            stance.complexity === key
+                              ? 'bg-zinc-700 text-zinc-100'
+                              : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Stance Grid */}
+                  <StanceSelector
+                    stance={stance}
+                    setStance={setStance}
+                    showCustomize={true}
+                    setShowCustomize={() => {}}
+                    compact={true}
+                  />
+                </div>
+              )}
             </div>
 
-            {/* Stance Selector */}
-            <StanceSelector
-              stance={stance}
-              setStance={setStance}
-              showCustomize={showCustomize}
-              setShowCustomize={setShowCustomize}
-            />
-
+            {/* Question Input with Spark */}
             <div className="relative mb-4">
-              <div className="relative">
-                <textarea
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
-                  placeholder="Enter a question, intention, or situation..."
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
-                  rows={3}
-                />
+              <div className="relative flex gap-2">
+                <div className="flex-1 relative">
+                  <textarea
+                    value={question}
+                    onChange={(e) => { setQuestion(e.target.value); setSparkPlaceholder(''); }}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && !loading && (e.preventDefault(), performReading())}
+                    placeholder={sparkPlaceholder || "Name your question or declare your intent... or leave blank for a general reading"}
+                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors"
+                    rows={3}
+                  />
+                  <button
+                    onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
+                    className="absolute top-3 right-3 w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
+                  >
+                    ?
+                  </button>
+                </div>
                 <button
-                  onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
-                  className="absolute top-3 right-3 w-5 h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
+                  onClick={handleSpark}
+                  className="px-3 py-2 h-fit rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-sm flex items-center gap-1.5 border border-amber-800/50"
+                  title="Show a random suggestion"
                 >
-                  ?
+                  <span>✨</span>
+                  <span className="hidden sm:inline">Spark</span>
                 </button>
               </div>
               {helpPopover === 'input' && (
@@ -2713,24 +2814,28 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 </div>
               )}
 
-              {/* Preset chips - fade when user is typing */}
+              {/* Rotating suggestion pills - fade when user is typing */}
               <div className={`text-center mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-                <div className="inline-flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
-                  {[
-                    "What needs my attention today?",
-                    "Where am I stuck right now?",
-                    "What am I not seeing?",
-                    "I'm starting something new.",
-                    "Am I on the right path?",
-                    "What wants to change?"
-                  ].map((preset) => (
+                <div className="inline-flex flex-wrap justify-center gap-2 max-w-lg mx-auto mb-2">
+                  {SUGGESTIONS.slice(suggestionIndex, suggestionIndex + 3).map((suggestion) => (
                     <button
-                      key={preset}
-                      onClick={() => setQuestion(preset)}
+                      key={suggestion}
+                      onClick={() => setQuestion(suggestion)}
                       className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all"
                     >
-                      {preset}
+                      {suggestion}
                     </button>
+                  ))}
+                </div>
+                {/* Dots indicator */}
+                <div className="flex justify-center gap-1.5">
+                  {Array.from({ length: Math.ceil(SUGGESTIONS.length / 3) }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${
+                        Math.floor(suggestionIndex / 3) === i ? 'bg-zinc-500' : 'bg-zinc-700'
+                      }`}
+                    />
                   ))}
                 </div>
               </div>
@@ -2738,7 +2843,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
             <button onClick={performReading} disabled={loading}
               className="w-full bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 py-4 rounded-xl transition-all duration-300 font-light tracking-wider">
-              DRAW
+              Reflect
             </button>
           </>
         )}
@@ -3229,31 +3334,54 @@ Respond directly with the expanded content. No section markers needed. Keep it f
           </div>
         )}
 
-        {/* Adjust Delivery - at the bottom */}
+        {/* Adjust Stance - at the bottom */}
         {parsedReading && !loading && (
-          <div className="mt-6">
-            <button
-              onClick={() => setShowMidReadingStance(!showMidReadingStance)}
-              className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                showMidReadingStance
-                  ? 'bg-zinc-800/50 border border-zinc-700/50'
-                  : 'bg-zinc-900/30 border border-zinc-800/30 hover:bg-zinc-900/50 hover:border-zinc-700/50'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-sm text-zinc-300">
-                    {showMidReadingStance ? '▾' : '▸'} Adjust Delivery
-                  </span>
-                  <span className="text-xs text-zinc-600 ml-2">
-                    {getCurrentDeliveryPreset()?.[1]?.name || 'Custom'}
+          <div className="mt-6 relative">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowMidReadingStance(!showMidReadingStance)}
+                className={`flex-1 text-left px-4 py-3 rounded-xl transition-all ${
+                  showMidReadingStance
+                    ? 'bg-zinc-800/50 border border-zinc-700/50'
+                    : 'bg-zinc-900/30 border border-zinc-800/30 hover:bg-zinc-900/50 hover:border-zinc-700/50'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm text-zinc-300">
+                      {showMidReadingStance ? '▾' : '▸'} Adjust Stance
+                    </span>
+                    <span className="text-xs text-zinc-600 ml-2">
+                      {getCurrentDeliveryPreset()?.[1]?.name || 'Custom'}
+                    </span>
+                  </div>
+                  <span className="text-xs text-zinc-500">
+                    {showMidReadingStance ? 'collapse' : 'change depth & style'}
                   </span>
                 </div>
-                <span className="text-xs text-zinc-500">
-                  {showMidReadingStance ? 'collapse' : 'change depth & style'}
-                </span>
+              </button>
+              <button
+                onClick={() => setHelpPopover(helpPopover === 'stance' ? null : 'stance')}
+                className="w-6 h-6 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all flex-shrink-0"
+              >
+                ?
+              </button>
+            </div>
+            {helpPopover === 'stance' && (
+              <div className="absolute top-full right-0 mt-2 z-50 w-72">
+                <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+                  <p className="text-zinc-400 text-xs leading-relaxed">
+                    Stances shape how the reading speaks to you — from quick and direct to deep and expansive. Fine-tune to customize voice, focus, density, and scope.
+                  </p>
+                  <button
+                    onClick={() => setHelpPopover(null)}
+                    className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+                  >
+                    Got it
+                  </button>
+                </div>
               </div>
-            </button>
+            )}
 
             {showMidReadingStance && (
               <div className="mt-3 bg-zinc-900/30 rounded-xl border border-zinc-800/30 p-4">
