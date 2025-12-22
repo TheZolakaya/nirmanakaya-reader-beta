@@ -1728,7 +1728,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
     <div className="mb-6 relative">
       {/* Header with help */}
       <div className="flex items-center justify-center gap-2 mb-3">
-        <span className="text-zinc-500 text-xs uppercase tracking-wider">How should this land?</span>
+        <span className="text-zinc-500 text-xs tracking-wide">How should this land?</span>
         <button
           onClick={() => setShowStanceHelp(!showStanceHelp)}
           className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
@@ -2531,7 +2531,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.26.0 alpha • Accordion</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.26.1 alpha • Accordion</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2716,51 +2716,75 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         {error && <div className="bg-red-950/30 border border-red-900/50 rounded-xl p-4 my-4 text-red-400 text-sm">{error}</div>}
 
         {/* Signatures Display */}
-        {draws && !loading && (
-          <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-xs text-zinc-500 uppercase tracking-wider">
-                {spreadType === 'durable' ? `Fixed Layout • ${DURABLE_SPREADS[spreadKey]?.name}` : `Dynamic Lens • ${RANDOM_SPREADS[spreadKey]?.name}`} • {getCurrentStanceLabel()}
-              </span>
-              <div className="flex gap-2 items-center relative">
-                <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
-                {parsedReading && !loading && (
-                  <button onClick={exportToHTML} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
-                )}
-                <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Trad.' : 'Trad.'}</button>
-                <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Arch.' : 'Arch.'}</button>
-                <button onClick={resetReading} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">New</button>
-                <button
-                  onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
-                  className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
-                >
-                  ?
-                </button>
-                {helpPopover === 'actions' && (
-                  <div className="absolute top-full right-0 mt-2 z-50 w-64">
-                    <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl text-xs">
-                      <div className="space-y-1.5 text-zinc-400">
-                        <p><span className="text-zinc-200">Share</span> — Copy link to this reading</p>
-                        <p><span className="text-zinc-200">Export</span> — Download as HTML file</p>
-                        <p><span className="text-zinc-200">Trad.</span> — Toggle traditional tarot names</p>
-                        <p><span className="text-zinc-200">Arch.</span> — Show architectural details</p>
-                        <p><span className="text-zinc-200">New</span> — Start a fresh reading</p>
+        {draws && !loading && (() => {
+          const isSignaturesCollapsed = collapsedSections['signatures'] !== false; // true by default
+
+          return (
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider">
+                  {spreadType === 'durable' ? `Fixed Layout • ${DURABLE_SPREADS[spreadKey]?.name}` : `Dynamic Lens • ${RANDOM_SPREADS[spreadKey]?.name}`} • {getCurrentStanceLabel()}
+                </span>
+                <div className="flex gap-2 items-center relative">
+                  <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
+                  {parsedReading && !loading && (
+                    <button onClick={exportToHTML} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
+                  )}
+                  <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Trad.' : 'Trad.'}</button>
+                  <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Arch.' : 'Arch.'}</button>
+                  <button onClick={resetReading} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">New</button>
+                  <button
+                    onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
+                    className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
+                  >
+                    ?
+                  </button>
+                  {helpPopover === 'actions' && (
+                    <div className="absolute top-full right-0 mt-2 z-50 w-64">
+                      <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl text-xs">
+                        <div className="space-y-1.5 text-zinc-400">
+                          <p><span className="text-zinc-200">Share</span> — Copy link to this reading</p>
+                          <p><span className="text-zinc-200">Export</span> — Download as HTML file</p>
+                          <p><span className="text-zinc-200">Trad.</span> — Toggle traditional tarot names</p>
+                          <p><span className="text-zinc-200">Arch.</span> — Show architectural details</p>
+                          <p><span className="text-zinc-200">New</span> — Start a fresh reading</p>
+                        </div>
+                        <button onClick={() => setHelpPopover(null)} className="mt-2 text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
                       </div>
-                      <button onClick={() => setHelpPopover(null)} className="mt-2 text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Collapsible Signatures Section */}
+              <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/30 overflow-hidden">
+                {/* Signatures Header - clickable */}
+                <div
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-zinc-800/30 transition-colors"
+                  onClick={() => toggleCollapse('signatures')}
+                >
+                  <span className="text-zinc-500 text-xs transition-transform duration-200" style={{ transform: isSignaturesCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                    ▼
+                  </span>
+                  <span className="text-sm font-medium text-zinc-400">
+                    Signatures ({draws.length} {draws.length === 1 ? 'card' : 'cards'})
+                  </span>
+                </div>
+
+                {/* Signatures Grid - collapsible */}
+                {!isSignaturesCollapsed && (
+                  <div className="p-4 pt-0">
+                    <div className={`grid gap-4 ${
+                      draws.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
+                      draws.length === 3 ? 'grid-cols-1 sm:grid-cols-3' :
+                      draws.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
+                      'grid-cols-1 sm:grid-cols-3 lg:grid-cols-5'
+                    }`}>
+                      {draws.map((draw, i) => <CardDisplay key={i} draw={draw} index={i} />)}
                     </div>
                   </div>
                 )}
               </div>
-            </div>
-            
-            <div className={`grid gap-4 ${
-              draws.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : 
-              draws.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 
-              draws.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
-              'grid-cols-1 sm:grid-cols-3 lg:grid-cols-5'
-            }`}>
-              {draws.map((draw, i) => <CardDisplay key={i} draw={draw} index={i} />)}
-            </div>
 
             {/* Architecture Panel */}
             {showArchitecture && (
@@ -2924,7 +2948,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
 
         {/* Parsed Reading Sections */}
         {parsedReading && !loading && (
