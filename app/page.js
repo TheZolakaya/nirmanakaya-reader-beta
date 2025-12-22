@@ -1314,6 +1314,10 @@ const ReadingSection = ({
   setSelectedInfo,
   onHeaderClick, // callback when header is clicked (for scroll navigation)
   correction, // nested correction object { content, cardIndex }
+  isCollapsed, // whether section content is collapsed
+  onToggleCollapse, // callback to toggle collapse
+  isCorrectionCollapsed, // whether nested correction is collapsed
+  onToggleCorrectionCollapse, // callback to toggle correction collapse
 }) => {
   const trans = draw ? getComponent(draw.transient) : null;
   const stat = draw ? STATUSES[draw.status] : null;
@@ -1412,64 +1416,77 @@ const ReadingSection = ({
     } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`;
   };
   
+  // Determine if this section is collapsible
+  const isCollapsible = onToggleCollapse !== undefined;
+
   return (
     <div className={`rounded-xl border-2 p-4 mb-4 ${getSectionStyle()}`}>
       {/* Section Header */}
-      <div 
-        className={`flex flex-col gap-1 mb-3 ${type === 'card' && onHeaderClick ? 'cursor-pointer group' : ''}`}
-        onClick={type === 'card' && onHeaderClick ? onHeaderClick : undefined}
+      <div
+        className={`flex flex-col gap-1 ${!isCollapsed ? 'mb-3' : ''} ${isCollapsible ? 'cursor-pointer group' : ''}`}
+        onClick={isCollapsible ? onToggleCollapse : undefined}
       >
         <div className="flex items-center gap-2">
+          {/* Collapse chevron */}
+          {isCollapsible && (
+            <span className="text-zinc-500 text-xs transition-transform duration-200" style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+              ▼
+            </span>
+          )}
           <span className={`text-xs px-2 py-0.5 rounded-full ${getBadgeStyle()}`}>
             {type === 'summary' ? 'Overview' : type === 'card' ? 'Reading' : 'Letter'}
           </span>
           <span className="text-sm font-medium">{renderLabel()}</span>
           {type === 'card' && onHeaderClick && (
-            <span className="text-zinc-600 text-xs opacity-0 group-hover:opacity-100 transition-opacity">↑ view card</span>
+            <span className="text-zinc-600 text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-auto">↑ view card</span>
           )}
         </div>
-        {type === 'card' && showTraditional && trans?.traditional && (
-          <span className="text-xs text-zinc-500 ml-1">{trans.traditional}</span>
+        {type === 'card' && showTraditional && trans?.traditional && !isCollapsed && (
+          <span className="text-xs text-zinc-500 ml-6">{trans.traditional}</span>
         )}
       </div>
+
+      {/* Main Content - collapsible */}
+      {!isCollapsed && (
+        <div className={`leading-relaxed text-sm mb-4 whitespace-pre-wrap ${getContentStyle()}`}>
+          {content}
+        </div>
+      )}
       
-      {/* Main Content */}
-      <div className={`leading-relaxed text-sm mb-4 whitespace-pre-wrap ${getContentStyle()}`}>
-        {content}
-      </div>
-      
-      {/* Expansion Buttons */}
-      <div className="flex gap-2 flex-wrap">
-        {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
-          const isThisExpanding = isExpanding && expanding?.type === key;
-          const hasExpansion = !!sectionExpansions[key];
-          const isExpandingOther = isExpanding && !isThisExpanding;
-          
-          return (
-            <button
-              key={key}
-              onClick={() => onExpand(sectionKey, key)}
-              disabled={isExpanding}
-              className={getButtonStyle(hasExpansion, isThisExpanding, isExpandingOther)}
-            >
-              {isThisExpanding && (
-                <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
-              )}
-              {label}
-            </button>
-          );
-        })}
-      </div>
-      
-      {/* Expansion Content */}
-      {Object.entries(sectionExpansions).map(([expType, expContent]) => (
+      {/* Expansion Buttons - only when not collapsed */}
+      {!isCollapsed && (
+        <div className="flex gap-2 flex-wrap">
+          {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
+            const isThisExpanding = isExpanding && expanding?.type === key;
+            const hasExpansion = !!sectionExpansions[key];
+            const isExpandingOther = isExpanding && !isThisExpanding;
+
+            return (
+              <button
+                key={key}
+                onClick={(e) => { e.stopPropagation(); onExpand(sectionKey, key); }}
+                disabled={isExpanding}
+                className={getButtonStyle(hasExpansion, isThisExpanding, isExpandingOther)}
+              >
+                {isThisExpanding && (
+                  <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                )}
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Expansion Content - only when not collapsed */}
+      {!isCollapsed && Object.entries(sectionExpansions).map(([expType, expContent]) => (
         <div key={expType} className="mt-4 pt-4 border-t border-zinc-700/50">
           <div className="flex justify-between items-center mb-2">
             <span className="text-xs uppercase tracking-wider text-zinc-500">
               {EXPANSION_PROMPTS[expType]?.label}
             </span>
             <button
-              onClick={() => onExpand(sectionKey, expType, true)}
+              onClick={(e) => { e.stopPropagation(); onExpand(sectionKey, expType, true); }}
               className="text-xs text-zinc-600 hover:text-zinc-400"
             >
               ×
@@ -1481,18 +1498,29 @@ const ReadingSection = ({
         </div>
       ))}
 
-      {/* Nested Rebalancer (Correction) - only for card sections with corrections */}
-      {type === 'card' && correction && (() => {
+      {/* Nested Rebalancer (Correction) - only for card sections with corrections, and only when card is not collapsed */}
+      {!isCollapsed && type === 'card' && correction && (() => {
         const fullCorr = getFullCorrection(draw.transient, draw.status);
         const corrText = getCorrectionText(fullCorr, trans, draw.status);
         const corrTargetId = getCorrectionTargetId(fullCorr, trans);
         const corrSectionKey = `correction:${index}`;
         const corrExpansions = expansions[corrSectionKey] || {};
         const isCorrExpanding = expanding?.section === corrSectionKey;
+        const isCorrCollapsible = onToggleCorrectionCollapse !== undefined;
 
         return (
           <div className="mt-4 ml-4 rounded-lg border-2 border-emerald-500/50 bg-emerald-950/30 p-4">
-            <div className="flex items-center gap-2 mb-3">
+            {/* Rebalancer Header - clickable for collapse */}
+            <div
+              className={`flex items-center gap-2 ${!isCorrectionCollapsed ? 'mb-3' : ''} ${isCorrCollapsible ? 'cursor-pointer' : ''}`}
+              onClick={isCorrCollapsible ? (e) => { e.stopPropagation(); onToggleCorrectionCollapse(); } : undefined}
+            >
+              {/* Collapse chevron */}
+              {isCorrCollapsible && (
+                <span className="text-emerald-500/70 text-xs transition-transform duration-200" style={{ transform: isCorrectionCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                  ▼
+                </span>
+              )}
               <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/30 text-emerald-300">
                 Rebalancer
               </span>
@@ -1521,46 +1549,52 @@ const ReadingSection = ({
                 ) : corrText}
               </span>
             </div>
-            <div className="leading-relaxed text-sm mb-4 whitespace-pre-wrap text-emerald-100/90">
-              {correction.content}
-            </div>
 
-            {/* Rebalancer Expansion Buttons */}
-            <div className="flex gap-2 flex-wrap">
-              {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
-                const isThisExpanding = isCorrExpanding && expanding?.type === key;
-                const hasExpansion = !!corrExpansions[key];
-                const isExpandingOther = expanding && !isThisExpanding;
+            {/* Rebalancer Content - collapsible */}
+            {!isCorrectionCollapsed && (
+              <div className="leading-relaxed text-sm mb-4 whitespace-pre-wrap text-emerald-100/90">
+                {correction.content}
+              </div>
+            )}
 
-                return (
-                  <button
-                    key={key}
-                    onClick={() => onExpand(corrSectionKey, key)}
-                    disabled={expanding}
-                    className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                      hasExpansion
-                        ? 'bg-zinc-700 text-zinc-200 border border-zinc-600'
-                        : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                    } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  >
-                    {isThisExpanding && (
-                      <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
-                    )}
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
+            {/* Rebalancer Expansion Buttons - only when not collapsed */}
+            {!isCorrectionCollapsed && (
+              <div className="flex gap-2 flex-wrap">
+                {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
+                  const isThisExpanding = isCorrExpanding && expanding?.type === key;
+                  const hasExpansion = !!corrExpansions[key];
+                  const isExpandingOther = expanding && !isThisExpanding;
 
-            {/* Rebalancer Expansion Content */}
-            {Object.entries(corrExpansions).map(([expType, expContent]) => (
+                  return (
+                    <button
+                      key={key}
+                      onClick={(e) => { e.stopPropagation(); onExpand(corrSectionKey, key); }}
+                      disabled={expanding}
+                      className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                        hasExpansion
+                          ? 'bg-zinc-700 text-zinc-200 border border-zinc-600'
+                          : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                      } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {isThisExpanding && (
+                        <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                      )}
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Rebalancer Expansion Content - only when not collapsed */}
+            {!isCorrectionCollapsed && Object.entries(corrExpansions).map(([expType, expContent]) => (
               <div key={expType} className="mt-4 pt-4 border-t border-emerald-700/50">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs uppercase tracking-wider text-zinc-500">
                     {EXPANSION_PROMPTS[expType]?.label}
                   </span>
                   <button
-                    onClick={() => onExpand(corrSectionKey, expType, true)}
+                    onClick={(e) => { e.stopPropagation(); onExpand(corrSectionKey, expType, true); }}
                     className="text-xs text-zinc-600 hover:text-zinc-400"
                   >
                     ×
@@ -1788,6 +1822,12 @@ export default function NirmanakaReader() {
   const [parsedReading, setParsedReading] = useState(null);
   const [expansions, setExpansions] = useState({}); // {sectionKey: {unpack: '...', clarify: '...'}}
   const [expanding, setExpanding] = useState(null); // {section: 'card:1', type: 'unpack'}
+  const [collapsedSections, setCollapsedSections] = useState({}); // {sectionKey: true/false} - tracks collapsed state
+
+  // Toggle collapse state for a section
+  const toggleCollapse = (sectionKey) => {
+    setCollapsedSections(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }));
+  };
   const [followUpMessages, setFollowUpMessages] = useState([]); // For general follow-ups after the reading
   const [followUpLoading, setFollowUpLoading] = useState(false); // Separate loading state for follow-ups
   const [loading, setLoading] = useState(false);
@@ -2491,7 +2531,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.25.8 alpha • Derivation</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.26.0 alpha • Accordion</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2954,7 +2994,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="text-zinc-300 text-sm">{question}</div>
             </div>
             
-            {/* Summary Section */}
+            {/* Summary Section - always expanded */}
             {parsedReading.summary && (
               <ReadingSection
                 type="summary"
@@ -2970,9 +3010,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               />
             )}
             
-            {/* Signature Sections with nested Rebalancers */}
+            {/* Signature Sections with nested Rebalancers - collapsed by default */}
             {parsedReading.cards.map((card) => {
               const correction = parsedReading.corrections.find(c => c.cardIndex === card.index);
+              const cardSectionKey = `card:${card.index}`;
+              const corrSectionKey = `correction:${card.index}`;
+              // Default: cards collapsed, corrections collapsed
+              const isCardCollapsed = collapsedSections[cardSectionKey] !== false; // true by default
+              const isCorrCollapsed = collapsedSections[corrSectionKey] !== false; // true by default
               return (
                 <div key={`card-group-${card.index}`} id={`content-${card.index}`}>
                   <ReadingSection
@@ -2990,79 +3035,97 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     setSelectedInfo={setSelectedInfo}
                     onHeaderClick={() => document.getElementById(`card-${card.index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
                     correction={correction}
+                    isCollapsed={isCardCollapsed}
+                    onToggleCollapse={() => toggleCollapse(cardSectionKey)}
+                    isCorrectionCollapsed={isCorrCollapsed}
+                    onToggleCorrectionCollapse={() => toggleCollapse(corrSectionKey)}
                   />
                 </div>
               );
             })}
 
-            {/* Rebalancer Summary - Only when 2+ imbalanced */}
+            {/* Rebalancer Summary - Only when 2+ imbalanced, collapsed by default */}
             {parsedReading.rebalancerSummary && (() => {
               const pathExpansions = expansions['path'] || {};
               const isPathExpanding = expanding?.section === 'path';
+              const isPathCollapsed = collapsedSections['path'] !== false; // true by default
 
               return (
                 <div className="mb-6 rounded-xl border-2 border-emerald-500/60 overflow-hidden" style={{background: 'linear-gradient(to bottom right, rgba(6, 78, 59, 0.3), rgba(16, 185, 129, 0.15))'}}>
                   <div className="p-5">
-                    <div className="flex items-center gap-3 mb-4">
+                    {/* Path Header - clickable for collapse */}
+                    <div
+                      className={`flex items-center gap-3 cursor-pointer ${!isPathCollapsed ? 'mb-4' : ''}`}
+                      onClick={() => toggleCollapse('path')}
+                    >
+                      <span className="text-emerald-500/70 text-xs transition-transform duration-200" style={{ transform: isPathCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                        ▼
+                      </span>
                       <span className="text-lg">◈</span>
                       <span className="text-sm font-medium text-emerald-400 uppercase tracking-wider">Path to Balance</span>
                     </div>
-                    <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm mb-4">
-                      {parsedReading.rebalancerSummary}
-                    </div>
 
-                    {/* Path Expansion Buttons */}
-                    <div className="flex gap-2 flex-wrap">
-                      {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
-                        const isThisExpanding = isPathExpanding && expanding?.type === key;
-                        const hasExpansion = !!pathExpansions[key];
-                        const isExpandingOther = expanding && !isThisExpanding;
-
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => handleExpand('path', key)}
-                            disabled={expanding}
-                            className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
-                              hasExpansion
-                                ? 'bg-emerald-800/50 text-emerald-200 border border-emerald-600/50'
-                                : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
-                            } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          >
-                            {isThisExpanding && (
-                              <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
-                            )}
-                            {label}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Path Expansion Content */}
-                    {Object.entries(pathExpansions).map(([expType, expContent]) => (
-                      <div key={expType} className="mt-4 pt-4 border-t border-emerald-700/50">
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-xs uppercase tracking-wider text-emerald-500/70">
-                            {EXPANSION_PROMPTS[expType]?.label}
-                          </span>
-                          <button
-                            onClick={() => handleExpand('path', expType, true)}
-                            className="text-xs text-zinc-600 hover:text-zinc-400"
-                          >
-                            ×
-                          </button>
+                    {/* Path Content - collapsible */}
+                    {!isPathCollapsed && (
+                      <>
+                        <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm mb-4">
+                          {parsedReading.rebalancerSummary}
                         </div>
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-400">
-                          {expContent}
+
+                        {/* Path Expansion Buttons */}
+                        <div className="flex gap-2 flex-wrap">
+                          {Object.entries(EXPANSION_PROMPTS).map(([key, { label }]) => {
+                            const isThisExpanding = isPathExpanding && expanding?.type === key;
+                            const hasExpansion = !!pathExpansions[key];
+                            const isExpandingOther = expanding && !isThisExpanding;
+
+                            return (
+                              <button
+                                key={key}
+                                onClick={(e) => { e.stopPropagation(); handleExpand('path', key); }}
+                                disabled={expanding}
+                                className={`text-xs px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+                                  hasExpansion
+                                    ? 'bg-emerald-800/50 text-emerald-200 border border-emerald-600/50'
+                                    : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                                } ${isExpandingOther ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              >
+                                {isThisExpanding && (
+                                  <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                                )}
+                                {label}
+                              </button>
+                            );
+                          })}
                         </div>
-                      </div>
-                    ))}
+
+                        {/* Path Expansion Content */}
+                        {Object.entries(pathExpansions).map(([expType, expContent]) => (
+                          <div key={expType} className="mt-4 pt-4 border-t border-emerald-700/50">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-xs uppercase tracking-wider text-emerald-500/70">
+                                {EXPANSION_PROMPTS[expType]?.label}
+                              </span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleExpand('path', expType, true); }}
+                                className="text-xs text-zinc-600 hover:text-zinc-400"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-zinc-400">
+                              {expContent}
+                            </div>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
                 </div>
               );
             })()}
 
-            {/* Letter Section */}
+            {/* Letter Section - always expanded */}
             {parsedReading.letter && (
               <ReadingSection
                 type="letter"
