@@ -2645,7 +2645,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.28.1 alpha • Bug Fixes</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.28.2 alpha • Quick Fixes</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2767,7 +2767,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     );
                   })}
                 </div>
-                <div className="flex justify-between text-xs text-zinc-500 px-2 mb-3">
+                <div className="flex justify-between text-sm text-zinc-500 px-2 mb-3">
                   <span>← Lighter</span>
                   <span>Deeper →</span>
                 </div>
@@ -2776,7 +2776,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <div className="flex justify-center">
                   <button
                     onClick={() => setShowLandingFineTune(!showLandingFineTune)}
-                    className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
+                    className="text-sm text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1"
                   >
                     <span>{showLandingFineTune ? '▾' : '▸'}</span>
                     <span>Fine-tune</span>
@@ -2820,9 +2820,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             </div>
 
             {/* Question Input Section */}
-            <div className="relative mb-4">
+            <div className="relative mb-4 mt-6">
               {/* Spark button above input */}
-              <div className="flex justify-center mb-2">
+              <div className="flex justify-center mb-4">
                 <button
                   onClick={handleSpark}
                   className="px-3 py-1.5 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-xs flex items-center gap-1.5 border border-amber-800/50"
@@ -2881,14 +2881,16 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     );
                   })}
                 </div>
-                {/* Dots indicator */}
+                {/* Dots indicator - clickable */}
                 <div className="flex justify-center gap-1.5">
                   {Array.from({ length: Math.ceil(SUGGESTIONS.length / 3) }).map((_, i) => (
-                    <span
+                    <button
                       key={i}
-                      className={`w-1.5 h-1.5 rounded-full transition-all ${
+                      onClick={() => setSuggestionIndex(i * 3)}
+                      className={`w-2 h-2 rounded-full transition-all hover:bg-zinc-400 ${
                         Math.floor(suggestionIndex / 3) === i ? 'bg-zinc-500' : 'bg-zinc-700'
                       }`}
+                      aria-label={`Show suggestions ${i * 3 + 1}-${Math.min((i + 1) * 3, SUGGESTIONS.length)}`}
                     />
                   ))}
                 </div>
@@ -3459,7 +3461,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       );
                     })}
                   </div>
-                  <div className="flex justify-between text-[10px] text-zinc-600 px-2">
+                  <div className="flex justify-between text-sm text-zinc-500 px-2">
                     <span>← Lighter</span>
                     <span>Deeper →</span>
                   </div>
@@ -3469,7 +3471,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <div className="border-t border-zinc-800/50 pt-3">
                   <button
                     onClick={() => setShowFineTune(!showFineTune)}
-                    className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
+                    className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
                   >
                     <span>{showFineTune ? '▾' : '▸'}</span>
                     <span>Fine-tune</span>
