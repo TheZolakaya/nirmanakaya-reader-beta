@@ -2695,7 +2695,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.25.1 alpha • Complexity</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.25.2 alpha • Complexity</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -3119,7 +3119,27 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </button>
               
               {showMidReadingStance && (
-                <div className="mt-3">
+                <div className="mt-3 space-y-3">
+                  {/* Complexity Selector */}
+                  <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50">
+                    <div className="text-xs text-zinc-500 mb-3 text-center">Speak to me like...</div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
+                        <button
+                          key={key}
+                          onClick={() => setStance({ ...stance, complexity: key })}
+                          className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all min-w-[70px] ${
+                            stance.complexity === key
+                              ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                              : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                          }`}
+                        >
+                          <span className="font-medium">{opt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <StanceSelector
                     stance={stance}
                     setStance={setStance}
