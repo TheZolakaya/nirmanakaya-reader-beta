@@ -2477,8 +2477,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     if (!parsedReading || !draws) return;
 
     const spreadName = spreadType === 'durable'
-      ? `Fixed Layout • ${DURABLE_SPREADS[spreadKey]?.name}`
-      : `Dynamic Lens • ${RANDOM_SPREADS[spreadKey]?.name}`;
+      ? `Reflect • ${DURABLE_SPREADS[spreadKey]?.name}`
+      : `Discover • ${RANDOM_SPREADS[spreadKey]?.name}`;
     const isDurable = spreadType === 'durable';
     const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : null;
 
@@ -2661,12 +2661,23 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   <div className="inline-flex rounded-lg bg-zinc-900 p-1">
                     <button onClick={() => { setSpreadType('random'); setSpreadKey('single'); }}
                       className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                      Dynamic Lens
+                      Discover
                     </button>
                     <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
                       className={`px-4 py-2 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-zinc-700 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}>
-                      Fixed Layout
+                      Reflect
                     </button>
+                    <div className="relative group">
+                      <button
+                        disabled
+                        className="px-4 py-2 rounded-md text-sm transition-all text-zinc-600 cursor-not-allowed"
+                      >
+                        Forge
+                      </button>
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-400 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Coming soon
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={() => setHelpPopover(helpPopover === 'spreadType' ? null : 'spreadType')}
@@ -2680,12 +2691,16 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
                       <div className="space-y-3 text-sm">
                         <div>
-                          <span className="text-zinc-200 font-medium">Dynamic Lens:</span>
-                          <p className="text-zinc-400 text-xs mt-1">Both the energy and where it's showing up emerge together — a complete snapshot of what's active right now.</p>
+                          <span className="text-zinc-200 font-medium">Discover:</span>
+                          <p className="text-zinc-400 text-xs mt-1">Open mirror — receive what shows up. Both the energy and where it's showing up emerge together.</p>
                         </div>
                         <div>
-                          <span className="text-zinc-200 font-medium">Fixed Layout:</span>
-                          <p className="text-zinc-400 text-xs mt-1">The energy is emergent, but it lands in specific life areas you choose — like your five houses or a relationship spread.</p>
+                          <span className="text-zinc-200 font-medium">Reflect:</span>
+                          <p className="text-zinc-400 text-xs mt-1">Structured mirror — examine specific areas. The energy is emergent, but it lands in life areas you choose.</p>
+                        </div>
+                        <div>
+                          <span className="text-zinc-200 font-medium">Forge:</span>
+                          <p className="text-zinc-400 text-xs mt-1">Active creation — declare an intention, iterate through action. Coming soon.</p>
                         </div>
                       </div>
                       <button
@@ -2877,13 +2892,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     );
                   })}
 
-                  {/* Reflect button */}
+                  {/* Main action button */}
                   <button
                     onClick={performReading}
                     disabled={loading}
                     className="px-4 py-1.5 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-xs text-zinc-200"
                   >
-                    Reflect
+                    {spreadType === 'durable' ? 'Reflect' : 'Discover'}
                   </button>
                 </div>
 
@@ -2903,11 +2918,11 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </div>
             </div>
 
-            {/* Reflect button visible when typing */}
+            {/* Main action button visible when typing */}
             {question.trim() && (
               <button onClick={performReading} disabled={loading}
                 className="px-6 py-2 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm mx-auto block">
-                Reflect
+                {spreadType === 'durable' ? 'Reflect' : 'Discover'}
               </button>
             )}
           </>
@@ -2941,7 +2956,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             <div className="mb-6">
               <div className="flex justify-between items-center mb-4">
                 <span className="text-xs text-zinc-500 uppercase tracking-wider">
-                  {spreadType === 'durable' ? `Fixed Layout • ${DURABLE_SPREADS[spreadKey]?.name}` : `Dynamic Lens • ${RANDOM_SPREADS[spreadKey]?.name}`} • {getCurrentStanceLabel()}
+                  {spreadType === 'durable' ? `Reflect • ${DURABLE_SPREADS[spreadKey]?.name}` : `Discover • ${RANDOM_SPREADS[spreadKey]?.name}`} • {getCurrentStanceLabel()}
                 </span>
                 <div className="flex gap-2 items-center relative">
                   <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
