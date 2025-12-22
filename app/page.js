@@ -381,14 +381,31 @@ const SCOPE_MODIFIERS = {
   here: `Frame the reading in immediate context — this moment, this question, this situation. Don't reach for larger patterns unless they're directly relevant. Stay close. The here and now is enough.`
 };
 
-// Stance presets
+// Complexity modifiers - meta-layer for language register
+const COMPLEXITY_OPTIONS = {
+  friend: { label: "A Friend", hint: "Short words, short sentences. No jargon." },
+  guide: { label: "A Guide", hint: "Warm and clear. Like someone walking with you." },
+  teacher: { label: "A Teacher", hint: "Structured and educational. Terms explained." },
+  mentor: { label: "A Mentor", hint: "Philosophical depth. Wisdom, not just info." },
+  master: { label: "A Master", hint: "Full transmission. Nothing simplified." }
+};
+
+const COMPLEXITY_MODIFIERS = {
+  friend: `Use the simplest words possible. Sentences of 5-7 words max. One-syllable words when possible. No jargon EVER. No metaphors. No qualifiers like "perhaps" or "somewhat." Direct "you" language. Almost blunt. Like texting a busy friend.`,
+  guide: `Use everyday language with occasional richer vocabulary. Sentences under 15 words. Connect to feelings and lived experience. Light on terminology — if you use a term, explain it simply. Write like a supportive friend who understands this deeply.`,
+  teacher: `Use structured, educational language. Sentences can be complex but parseable on first read. Introduce terminology with context. Organize logically. Write like a skilled teacher: precise but accessible. Balance concept with example.`,
+  mentor: `Philosophical depth welcome. Complex sentences permitted. Draw on broader meaning and purpose. Use full terminology confidently. Allow contemplative space. Write like a mentor speaking to someone ready for depth. Connect to larger patterns.`,
+  master: `Full technical density. Nothing simplified. Nothing withheld. Use precise terminology throughout. Include structural details, mathematical relationships, position numbers, duality paths. Write as one master to another. Assume framework familiarity.`
+};
+
+// Stance presets (now include complexity)
 const STANCE_PRESETS = {
-  curious: { name: "Curious", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
-  quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
-  deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
-  justTheFacts: { name: "Just the Facts", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
-  grounded: { name: "Grounded", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
-  oldSoul: { name: "Old Soul", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
+  curious: { name: "Curious", complexity: "teacher", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
+  quickAnswer: { name: "Quick Answer", complexity: "friend", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
+  deepDive: { name: "Deep Dive", complexity: "mentor", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
+  justTheFacts: { name: "Just the Facts", complexity: "teacher", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
+  grounded: { name: "Grounded", complexity: "guide", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
+  oldSoul: { name: "Old Soul", complexity: "mentor", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
 };
 
 // Loading phrases for cycling display
@@ -400,12 +417,45 @@ const LOADING_PHRASES = [
   "The structure is the authority.",
   "Encounter precedes understanding.",
   "The draw finds what's ready to be seen.",
-  "Correction enables purpose."
+  "Rebalancing enables purpose.",
+  "The veil is not a wall. It's a womb.",
+  "Mystery is not the absence of knowing. It's the presence of relationship.",
+  "You are Source looking at itself through a keyhole.",
+  "The boundary between you and everything is what makes you possible.",
+  "Uniqueness is not isolation. It's contribution.",
+  "Differentiate to distinguish. Integrate to deepen.",
+  "The heartbeat of awareness: split, gather, split, gather.",
+  "Every question is polarity. Every answer is recursion.",
+  "You are the pattern recognizing itself.",
+  "Consciousness folds. You are a fold.",
+  "The only place creation happens is where you're standing.",
+  "Past and future are maps. Now is the territory.",
+  "You are not on the Wheel. You are the turning.",
+  "Every conscious return to presence is Step 10.",
+  "Ring 5 is where you live. It's also where you create.",
+  "Purpose is not imposed. It's built in.",
+  "The architecture doesn't care what you're made of. Only that you show up.",
+  "22 signatures. 78 expressions. One you.",
+  "The numbers are not arbitrary. They are forced.",
+  "What you're looking for is also looking.",
+  "What operates unseen still steers.",
+  "Imbalance is mispronunciation, not wrongness.",
+  "The shadow isn't hiding. You're just not looking there yet.",
+  "Diagonal tension. Vertical restoration. Reduction reveals.",
+  "The cosmos is a verb pretending to be a noun.",
+  "You are both the question and the oracle.",
+  "Somewhere, a pattern just recognized you back.",
+  "The reading isn't prediction. It's pronunciation.",
+  "What collapses into form was always choosing.",
+  "Luck is coherence with the recursive pattern."
 ];
 
-// Build the stance prompt from 4 dimensions
-const buildStancePrompt = (voice, focus, density, scope) => {
+// Build the stance prompt from 5 dimensions (including complexity)
+const buildStancePrompt = (complexity, voice, focus, density, scope) => {
   return `
+COMPLEXITY (Language Register):
+${COMPLEXITY_MODIFIERS[complexity] || COMPLEXITY_MODIFIERS.teacher}
+
 STANCE MODIFIERS:
 These affect tone, emphasis, framing, and language — they do not change archetypal interpretation, correction logic, or conclusions.
 
@@ -601,11 +651,28 @@ function getFullCorrection(transientId, status) {
   return null;
 }
 
-function getCorrectionText(correction, trans) {
+function getCorrectionText(correction, trans, status) {
   if (!correction) return null;
-  if (trans.type === "Bound" && correction.targetBound) return correction.targetBound.name;
-  if (correction.target !== undefined) return ARCHETYPES[correction.target]?.name;
-  if (correction.targets) return correction.targets.map(t => ARCHETYPES[t]?.name).join(", ");
+  const correctionType = status === 2 ? "DIAGONAL" : status === 3 ? "VERTICAL" : status === 4 ? "REDUCTION" : null;
+
+  if (trans.type === "Bound" && correction.targetBound) {
+    const targetBound = correction.targetBound;
+    return `${targetBound.name} (${targetBound.traditional}) via ${correctionType} duality`;
+  }
+
+  if (correction.target !== undefined) {
+    const targetArchetype = ARCHETYPES[correction.target];
+    if (targetArchetype) {
+      return `Position ${correction.target} ${targetArchetype.name} (${targetArchetype.traditional}) via ${correctionType} duality`;
+    }
+  }
+
+  if (correction.targets) {
+    return correction.targets.map(t => {
+      const arch = ARCHETYPES[t];
+      return arch ? `Position ${t} ${arch.name} (${arch.traditional})` : null;
+    }).filter(Boolean).join(", ");
+  }
   return null;
 }
 
@@ -681,12 +748,12 @@ function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
     const trans = getComponent(draw.transient);
     const stat = STATUSES[draw.status];
     const correction = getFullCorrection(draw.transient, draw.status);
-    const correctionText = getCorrectionText(correction, trans);
+    const correctionText = getCorrectionText(correction, trans, draw.status);
     const transArchetype = trans.archetype !== undefined ? ARCHETYPES[trans.archetype] : null;
-    
+
     let context = isDurable
       ? `${spreadConfig.frames[i].name} (${spreadConfig.frames[i].meaning})`
-      : (draw.position !== null ? `${ARCHETYPES[draw.position]?.name} (Position ${draw.position})` : 'Draw');
+      : (draw.position !== null ? `Position ${draw.position} ${ARCHETYPES[draw.position]?.name} (${ARCHETYPES[draw.position]?.traditional})` : 'Draw');
     
     let transInfo = trans.name;
     if (showTraditional) transInfo += ` (${trans.traditional})`;
@@ -699,7 +766,7 @@ function formatDrawForAI(draws, spreadType, spreadKey, showTraditional) {
     return `**Signature ${i + 1} — ${context}**: ${statusPhrase}
 Transient: ${transInfo}
 Status: ${stat.name} — ${stat.desc}
-${correctionText ? `Correction: ${correctionText}` : 'No correction needed (Balanced)'}`;
+${correctionText ? `Correction: ${correctionText}. IMPORTANT: Use this exact correction, do not calculate different numbers.` : 'No correction needed (Balanced)'}`;
   }).join('\n\n');
 }
 
@@ -709,19 +776,20 @@ function parseReadingResponse(responseText, draws) {
     summary: null,
     cards: [],
     corrections: [],
+    rebalancerSummary: null,
     letter: null
   };
-  
+
   // Extract summary
   const summaryMatch = responseText.match(/\[SUMMARY\]\s*([\s\S]*?)(?=\[CARD:|$)/);
   if (summaryMatch) {
     sections.summary = summaryMatch[1].trim();
   }
-  
+
   // Extract card sections
   draws.forEach((_, i) => {
     const cardNum = i + 1;
-    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|\\[LETTER\\]|$)`);
+    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|\\[REBALANCER_SUMMARY\\]|\\[LETTER\\]|$)`);
     const cardMatch = responseText.match(cardRegex);
     if (cardMatch) {
       sections.cards.push({
@@ -730,12 +798,12 @@ function parseReadingResponse(responseText, draws) {
       });
     }
   });
-  
+
   // Extract correction sections
   draws.forEach((draw, i) => {
     if (draw.status !== 1) { // Only for imbalanced cards
       const corrNum = i + 1;
-      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|\\[LETTER\\]|$)`);
+      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|\\[REBALANCER_SUMMARY\\]|\\[LETTER\\]|$)`);
       const corrMatch = responseText.match(corrRegex);
       if (corrMatch) {
         sections.corrections.push({
@@ -745,13 +813,19 @@ function parseReadingResponse(responseText, draws) {
       }
     }
   });
-  
+
+  // Extract rebalancer summary section (only when 2+ imbalanced)
+  const rebalancerMatch = responseText.match(/\[REBALANCER_SUMMARY\]\s*([\s\S]*?)(?=\[LETTER\]|$)/);
+  if (rebalancerMatch) {
+    sections.rebalancerSummary = rebalancerMatch[1].trim();
+  }
+
   // Extract letter section
   const letterMatch = responseText.match(/\[LETTER\]\s*([\s\S]*?)$/);
   if (letterMatch) {
     sections.letter = letterMatch[1].trim();
   }
-  
+
   return sections;
 }
 
@@ -1115,6 +1189,21 @@ For Card 1's imbalance: Name the correction and explain what it means practicall
 For Card 2's imbalance. Skip ENTIRELY if Card 2 is Balanced.
 
 (Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
+
+[REBALANCER_SUMMARY]
+ONLY include this section if 2 or more cards are imbalanced. Skip entirely if 0-1 cards are imbalanced.
+When included, structure it as:
+
+THE PATTERN
+One sentence identifying what the corrections have in common (shared channel, shared status type, similar archetypal themes).
+
+THE PATH
+2-3 sentences synthesizing the unified message — what are all these corrections pointing to together?
+
+NEXT STEPS
+• One concrete action derived from Rebalancer 1
+• One concrete action derived from Rebalancer 2
+(Continue for each rebalancer — focus on ACTION over understanding. Tell them what to DO.)
 
 [LETTER]
 A brief letter addressed directly to them (use "you"). Acknowledge what they're navigating with their question. Weave together the key insights from the reading. Voice modulates tone — the letter's function stays invariant (it does not change advice or soften corrections).`;
@@ -1578,7 +1667,7 @@ const ReadingSection = ({
       {/* Nested Rebalancer (Correction) - only for card sections with corrections */}
       {type === 'card' && correction && (() => {
         const fullCorr = getFullCorrection(draw.transient, draw.status);
-        const corrText = getCorrectionText(fullCorr, trans);
+        const corrText = getCorrectionText(fullCorr, trans, draw.status);
         const corrTargetId = getCorrectionTargetId(fullCorr, trans);
         const corrSectionKey = `correction:${index}`;
         const corrExpansions = expansions[corrSectionKey] || {};
@@ -1679,6 +1768,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   const applyPreset = (presetKey) => {
     const preset = STANCE_PRESETS[presetKey];
     setStance({
+      complexity: preset.complexity,
       voice: preset.voice,
       focus: preset.focus,
       density: preset.density,
@@ -1686,8 +1776,8 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
     });
   };
   
-  const currentPreset = Object.entries(STANCE_PRESETS).find(([_, p]) => 
-    p.voice === stance.voice && p.focus === stance.focus && 
+  const currentPreset = Object.entries(STANCE_PRESETS).find(([_, p]) =>
+    p.complexity === stance.complexity && p.voice === stance.voice && p.focus === stance.focus &&
     p.density === stance.density && p.scope === stance.scope
   );
   
@@ -1736,14 +1826,6 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
               {currentPreset ? currentPreset[1].name : "Custom Stance"}
             </span>
             <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setStance({ ...stance, density: 'essential', voice: 'direct' });
-                }}
-                className="text-xs px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 transition-all"
-              >
-                Simplify
-              </button>
               {onReinterpret && (
                 <button
                   onClick={onReinterpret}
@@ -1851,11 +1933,32 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
       {/* Custom sliders */}
       {showCustomize && (
         <div className="bg-zinc-900/50 rounded-xl p-4 border border-zinc-800/50 max-w-xl mx-auto">
+          {/* Complexity selector - meta-layer */}
+          <div className="mb-4 pb-4 border-b border-zinc-800/50">
+            <div className="text-xs text-zinc-500 mb-2">Speak to me like...</div>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
+                <button
+                  key={key}
+                  onClick={() => setStance({ ...stance, complexity: key })}
+                  className={`flex flex-col items-center px-3 py-2 rounded-lg text-xs transition-all min-w-[80px] ${
+                    stance.complexity === key
+                      ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
+                      : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                  }`}
+                >
+                  <span className="font-medium">{opt.label}</span>
+                  <span className="text-[10px] text-zinc-500 mt-1 leading-tight text-center">{opt.hint}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
           <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
           <DimensionRow label="Scope" dimension="scope" options={['resonant', 'patterned', 'connected', 'here']} />
-          
+
           {!currentPreset && (
             <p className="text-xs text-zinc-600 mt-3 text-center">Custom stance</p>
           )}
@@ -1883,13 +1986,14 @@ export default function NirmanakaReader() {
   const [followUp, setFollowUp] = useState('');
   const [spreadType, setSpreadType] = useState('random');
   const [spreadKey, setSpreadKey] = useState('one');
-  const [stance, setStance] = useState({ voice: 'wonder', focus: 'see', density: 'clear', scope: 'here' }); // Default: Start Here
+  const [stance, setStance] = useState({ complexity: 'teacher', voice: 'wonder', focus: 'see', density: 'clear', scope: 'here' }); // Default: Curious
   const [showCustomize, setShowCustomize] = useState(false);
   const [draws, setDraws] = useState(null);
   const [parsedReading, setParsedReading] = useState(null);
   const [expansions, setExpansions] = useState({}); // {sectionKey: {unpack: '...', clarify: '...'}}
   const [expanding, setExpanding] = useState(null); // {section: 'card:1', type: 'unpack'}
   const [followUpMessages, setFollowUpMessages] = useState([]); // For general follow-ups after the reading
+  const [followUpLoading, setFollowUpLoading] = useState(false); // Separate loading state for follow-ups
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showTraditional, setShowTraditional] = useState(false);
@@ -1982,9 +2086,9 @@ export default function NirmanakaReader() {
   const performReadingWithDraws = async (drawsToUse, questionToUse = question) => {
     setLoading(true); setError(''); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
     const drawText = formatDrawForAI(drawsToUse, spreadType, spreadKey, showTraditional);
-    const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Random`;
-    
-    const stancePrompt = buildStancePrompt(stance.voice, stance.focus, stance.density, stance.scope);
+    const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Emergent`;
+
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
     const letterTone = VOICE_LETTER_TONE[stance.voice];
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${FORMAT_INSTRUCTIONS}\n\nLetter tone for this stance: ${letterTone}`;
     const userMessage = `QUESTION: "${questionToUse}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:N] for each imbalanced card (where N matches the card number — use [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc.), [LETTER]. Each marker on its own line.`;
@@ -2069,7 +2173,7 @@ export default function NirmanakaReader() {
     const expansionPrompt = EXPANSION_PROMPTS[expansionType].prompt;
     
     // Pass the original stance to expansion
-    const stancePrompt = buildStancePrompt(stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough. Always connect your expansion back to the querent's specific question.`;
     const userMessage = `QUERENT'S QUESTION: "${question}"
 
@@ -2108,7 +2212,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
   const sendFollowUp = async () => {
     if (!followUp.trim() || !draws) return;
-    setLoading(true); setError('');
+    setFollowUpLoading(true); setError('');
     const drawText = formatDrawForAI(draws, spreadType, spreadKey, showTraditional);
     
     // Build context from parsed reading
@@ -2124,7 +2228,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     }
     
     // Pass stance to follow-up
-    const stancePrompt = buildStancePrompt(stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\nYou are continuing a conversation about a reading. Answer their follow-up question directly, referencing the reading context as needed. No section markers — just respond naturally.`;
     
     const messages = [
@@ -2148,12 +2252,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       setFollowUpMessages([...messages, { role: 'assistant', content: data.reading }]);
       setFollowUp('');
     } catch (e) { setError(`Error: ${e.message}`); }
-    setLoading(false);
+    setFollowUpLoading(false);
   };
 
   const resetReading = () => {
     setDraws(null); setParsedReading(null); setExpansions({}); setFollowUpMessages([]);
-    setQuestion(''); setFollowUp(''); setError('');
+    setQuestion(''); setFollowUp(''); setError(''); setFollowUpLoading(false);
     setShareUrl(''); setIsSharedReading(false); setShowArchitecture(false);
     setShowMidReadingStance(false);
     hasAutoInterpreted.current = false;
@@ -2178,7 +2282,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     const transArchetype = trans.archetype !== undefined ? ARCHETYPES[trans.archetype] : null;
     const isMajor = trans.type === "Archetype";
     const correction = getFullCorrection(draw.transient, draw.status);
-    const correctionText = getCorrectionText(correction, trans);
+    const correctionText = getCorrectionText(correction, trans, draw.status);
     const correctionTargetId = getCorrectionTargetId(correction, trans);
     
     const house = getCardHouse(draw, index);
@@ -2309,11 +2413,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
   // Get current stance label for display
   const getCurrentStanceLabel = () => {
     const preset = Object.entries(STANCE_PRESETS).find(([_, p]) =>
-      p.voice === stance.voice && p.focus === stance.focus &&
+      p.complexity === stance.complexity && p.voice === stance.voice && p.focus === stance.focus &&
       p.density === stance.density && p.scope === stance.scope
     );
     if (preset) return preset[1].name;
-    return `${stance.voice}/${stance.focus}/${stance.density}/${stance.scope}`;
+    const complexityLabel = COMPLEXITY_OPTIONS[stance.complexity]?.label || stance.complexity;
+    return `${complexityLabel} • ${stance.voice}/${stance.focus}`;
   };
 
   // Export reading to markdown
@@ -2322,7 +2427,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
     const spreadName = spreadType === 'durable'
       ? DURABLE_SPREADS[spreadKey]?.name
-      : `${RANDOM_SPREADS[spreadKey]?.name} Random`;
+      : `${RANDOM_SPREADS[spreadKey]?.name} Emergent`;
     const isDurable = spreadType === 'durable';
     const spreadConfig = isDurable ? DURABLE_SPREADS[spreadKey] : null;
 
@@ -2372,11 +2477,16 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
       if (correction) {
         const fullCorr = getFullCorrection(draw.transient, draw.status);
-        const corrText = getCorrectionText(fullCorr, trans);
+        const corrText = getCorrectionText(fullCorr, trans, draw.status);
         md += `#### Correction: ${corrText || 'See below'}\n\n`;
         md += `${correction.content}\n\n`;
       }
     });
+
+    // Rebalancer Summary
+    if (parsedReading.rebalancerSummary) {
+      md += `---\n\n## ◈ Path to Balance\n\n${parsedReading.rebalancerSummary}\n\n`;
+    }
 
     // Letter
     if (parsedReading.letter) {
@@ -2437,7 +2547,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       let correctionHtml = '';
       if (correction) {
         const fullCorr = getFullCorrection(draw.transient, draw.status);
-        const corrText = getCorrectionText(fullCorr, trans);
+        const corrText = getCorrectionText(fullCorr, trans, draw.status);
         correctionHtml = `
           <div class="rebalancer">
             <span class="rebalancer-badge">Rebalancer</span>
@@ -2499,6 +2609,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .rebalancer-badge { display: inline-block; background: rgba(16, 185, 129, 0.3); color: #6ee7b7; font-size: 0.625rem; padding: 0.2rem 0.5rem; border-radius: 1rem; margin-bottom: 0.5rem; }
     .rebalancer-header { color: #34d399; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
     .rebalancer-content { color: #a7f3d0; font-size: 0.875rem; line-height: 1.6; }
+    .path-box { background: linear-gradient(to bottom right, rgba(6, 78, 59, 0.3), rgba(16, 185, 129, 0.15)); border: 2px solid rgba(16, 185, 129, 0.6); border-radius: 0.75rem; padding: 1.5rem; }
+    .path-badge { display: inline-block; color: #34d399; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.75rem; letter-spacing: 0.05em; }
+    .path-content { color: #d4d4d8; line-height: 1.6; white-space: pre-wrap; }
     .letter-box { background: rgba(46, 16, 101, 0.3); border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 0.75rem; padding: 1.5rem; }
     .letter-badge { display: inline-block; background: rgba(139, 92, 246, 0.3); color: #c4b5fd; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
     .letter { color: #ddd6fe; font-style: italic; line-height: 1.6; }
@@ -2527,6 +2640,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     <div class="section-title">Signatures</div>
     ${signaturesHtml}
   </div>
+
+  ${parsedReading.rebalancerSummary ? `
+  <div class="section">
+    <div class="path-box">
+      <span class="path-badge">◈ Path to Balance</span>
+      <div class="path-content">${escapeHtml(parsedReading.rebalancerSummary)}</div>
+    </div>
+  </div>` : ''}
 
   ${parsedReading.letter ? `
   <div class="section">
@@ -2559,7 +2680,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.24 alpha • presets & loading</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.25.0 alpha • Complexity</p>
         </div>
 
         {!draws && <IntroSection />}
@@ -2596,7 +2717,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       </div>
                       <div>
                         <span className="text-zinc-200 font-medium">Fixed Layout:</span>
-                        <p className="text-zinc-400 text-xs mt-1">The energy is random, but it lands in specific life areas you choose — like your five houses or a relationship spread.</p>
+                        <p className="text-zinc-400 text-xs mt-1">The energy is emergent, but it lands in specific life areas you choose — like your five houses or a relationship spread.</p>
                       </div>
                     </div>
                     <button
@@ -3021,7 +3142,22 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 </div>
               );
             })}
-            
+
+            {/* Rebalancer Summary - Only when 2+ imbalanced */}
+            {parsedReading.rebalancerSummary && (
+              <div className="mb-6 rounded-xl border-2 border-emerald-500/60 overflow-hidden" style={{background: 'linear-gradient(to bottom right, rgba(6, 78, 59, 0.3), rgba(16, 185, 129, 0.15))'}}>
+                <div className="p-5">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-lg">◈</span>
+                    <span className="text-sm font-medium text-emerald-400 uppercase tracking-wider">Path to Balance</span>
+                  </div>
+                  <div className="text-zinc-300 leading-relaxed whitespace-pre-wrap text-sm">
+                    {parsedReading.rebalancerSummary}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Letter Section */}
             {parsedReading.letter && (
               <ReadingSection
@@ -3076,13 +3212,18 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 </div>
               )}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input type="text" value={followUp} onChange={(e) => setFollowUp(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !loading && sendFollowUp()}
-                placeholder="Ask a follow-up question..."
-                className="flex-1 bg-zinc-900/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors text-sm" />
-              <button onClick={sendFollowUp} disabled={loading || !followUp.trim()}
-                className="bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 px-6 rounded-xl transition-all">→</button>
+                onKeyDown={(e) => e.key === 'Enter' && !followUpLoading && sendFollowUp()}
+                placeholder={followUpLoading ? "Thinking..." : "Ask a follow-up question..."}
+                disabled={followUpLoading}
+                className="flex-1 min-w-0 bg-zinc-900/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors text-sm disabled:opacity-50" />
+              <button onClick={sendFollowUp} disabled={followUpLoading || !followUp.trim()}
+                className="flex-shrink-0 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 px-6 py-3 rounded-xl transition-all flex items-center justify-center min-w-[52px]">
+                {followUpLoading ? (
+                  <div className="w-4 h-4 border-2 border-zinc-600 border-t-zinc-300 rounded-full animate-spin"></div>
+                ) : '→'}
+              </button>
             </div>
           </div>
         )}
