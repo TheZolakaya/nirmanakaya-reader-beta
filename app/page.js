@@ -804,7 +804,7 @@ function parseReadingResponse(responseText, draws) {
   // Extract card sections
   draws.forEach((_, i) => {
     const cardNum = i + 1;
-    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|\\[REBALANCER_SUMMARY\\]|\\[LETTER\\]|$)`);
+    const cardRegex = new RegExp(`\\[CARD:${cardNum}\\]\\s*([\\s\\S]*?)(?=\\[CARD:|\\[CORRECTION:|\\[PATH\\]|\\[LETTER\\]|$)`);
     const cardMatch = responseText.match(cardRegex);
     if (cardMatch) {
       sections.cards.push({
@@ -818,7 +818,7 @@ function parseReadingResponse(responseText, draws) {
   draws.forEach((draw, i) => {
     if (draw.status !== 1) { // Only for imbalanced cards
       const corrNum = i + 1;
-      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|\\[REBALANCER_SUMMARY\\]|\\[LETTER\\]|$)`);
+      const corrRegex = new RegExp(`\\[CORRECTION:${corrNum}\\]\\s*([\\s\\S]*?)(?=\\[CORRECTION:|\\[PATH\\]|\\[LETTER\\]|$)`);
       const corrMatch = responseText.match(corrRegex);
       if (corrMatch) {
         sections.corrections.push({
@@ -829,8 +829,8 @@ function parseReadingResponse(responseText, draws) {
     }
   });
 
-  // Extract rebalancer summary section (only when 2+ imbalanced)
-  const rebalancerMatch = responseText.match(/\[REBALANCER_SUMMARY\]\s*([\s\S]*?)(?=\[LETTER\]|$)/);
+  // Extract path to balance section (only when 2+ imbalanced)
+  const rebalancerMatch = responseText.match(/\[PATH\]\s*([\s\S]*?)(?=\[LETTER\]|$)/);
   if (rebalancerMatch) {
     sections.rebalancerSummary = rebalancerMatch[1].trim();
   }
@@ -1007,8 +1007,8 @@ For Card 2's imbalance. Skip ENTIRELY if Card 2 is Balanced.
 
 (Continue this pattern — CORRECTION numbers MUST match CARD numbers. If Card 3 is imbalanced, use [CORRECTION:3]. If Card 5 is imbalanced, use [CORRECTION:5]. Never renumber sequentially. ALL imbalanced cards need corrections — Too Much, Too Little, AND Unacknowledged.)
 
-[REBALANCER_SUMMARY]
-ONLY include this section if 2 or more cards are imbalanced. Skip entirely if 0-1 cards are imbalanced.
+[PATH]
+Path to Balance section. ONLY include if 2 or more cards are imbalanced. Skip entirely if 0-1 cards are imbalanced.
 When included, structure it as:
 
 THE PATTERN
@@ -2476,7 +2476,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.25.6 alpha • Derivation</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.25.7 alpha • Derivation</p>
         </div>
 
         {!draws && <IntroSection />}
