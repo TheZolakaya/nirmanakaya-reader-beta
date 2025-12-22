@@ -773,12 +773,15 @@ function generateSpread(count, isDurable = false) {
 }
 
 function encodeDraws(draws, spreadType, spreadKey, stance, question) {
-  return btoa(JSON.stringify({ d: draws, t: spreadType, k: spreadKey, s: stance, q: question }));
+  // Use encodeURIComponent to handle Unicode characters before btoa
+  const jsonStr = JSON.stringify({ d: draws, t: spreadType, k: spreadKey, s: stance, q: question });
+  return btoa(unescape(encodeURIComponent(jsonStr)));
 }
 
 function decodeDraws(encoded) {
   try {
-    const data = JSON.parse(atob(encoded));
+    // Use decodeURIComponent to handle Unicode characters after atob
+    const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
     // Handle legacy persona format
     if (data.p && !data.s) {
       // Convert old persona to closest stance preset
@@ -3277,7 +3280,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
         <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-extralight tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
           <p className="text-zinc-600 text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.29.8 alpha • Critical Fixes</p>
+          <p className="text-zinc-700 text-[10px] mt-1">v0.29.9 alpha • Unicode Fix</p>
         </div>
 
         {!draws && <IntroSection />}
