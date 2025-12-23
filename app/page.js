@@ -1883,8 +1883,8 @@ const ReadingSection = ({
         </div>
       )}
 
-      {/* Reflect/Forge Operations for Overview section - own row, centered */}
-      {type === 'summary' && onOperationSelect && !isCollapsed && (
+      {/* Reflect/Forge Operations for Overview and Letter sections - own row, centered */}
+      {(type === 'summary' || type === 'letter') && onOperationSelect && !isCollapsed && (
         <div className="border-t border-zinc-700/50 mt-5 pt-5">
           {/* Collapsed state: show [▶ Reflect] [▶ Forge] on one line */}
           {!selectedOperation && (
@@ -1963,6 +1963,41 @@ const ReadingSection = ({
                   )}
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Thread Results for Summary */}
+          {threadData && threadData.length > 0 && (
+            <div className="mt-5 space-y-4">
+              {threadData.map((threadItem, threadIndex) => {
+                const trans = getComponent(threadItem.draw.transient);
+                const stat = STATUSES[threadItem.draw.status];
+                const statusPrefix = stat.prefix || 'Balanced';
+                const isReflect = threadItem.operation === 'reflect';
+                return (
+                  <div key={threadIndex} className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`text-xs ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}>
+                        ↳ {isReflect ? 'Reflect' : 'Forge'}{threadItem.context ? `: "${threadItem.context}"` : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                        {stat.name}
+                      </span>
+                      <span className="text-sm font-medium text-zinc-200">
+                        {statusPrefix} {trans.name}
+                      </span>
+                    </div>
+                    {showTraditional && (
+                      <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
+                    )}
+                    <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
+                      {parseSimpleMarkdown(threadItem.interpretation)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -2648,14 +2683,25 @@ export default function NirmanakaReader() {
 
     const context = sanitizeForAPI(threadContexts[threadKey] || '');
 
-    // Handle summary vs card threads
+    // Handle different section types
     const isSummary = threadKey === 'summary';
+    const isLetter = threadKey === 'letter';
+    const isPath = threadKey === 'path';
+    const isSection = isSummary || isLetter || isPath;
     let parentContent, parentLabel;
 
     if (isSummary) {
       if (!parsedReading?.summary) return;
       parentContent = parsedReading.summary;
       parentLabel = 'Overview';
+    } else if (isLetter) {
+      if (!parsedReading?.letter) return;
+      parentContent = parsedReading.letter;
+      parentLabel = 'Letter';
+    } else if (isPath) {
+      if (!parsedReading?.rebalancerSummary) return;
+      parentContent = parsedReading.rebalancerSummary;
+      parentLabel = 'Path to Balance';
     } else {
       const parentDraw = draws[threadKey];
       const parentCard = parsedReading.cards.find(c => c.index === threadKey);
@@ -2682,21 +2728,22 @@ export default function NirmanakaReader() {
     const newCardName = `${newStatusPrefix} ${newTrans.name}`;
 
     // Build operation-specific prompt
+    const sectionName = isSection ? parentLabel.toLowerCase() : 'this card';
     const operationPrompt = operation === 'reflect'
       ? `OPERATION: REFLECT
-The user is integrating ${isSummary ? 'the overview' : 'this card'} — sitting with it, receiving it, folding it in.
+The user is integrating ${sectionName} — sitting with it, receiving it, folding it in.
 Context they shared: "${context || 'none provided'}"
 
 Interpret this new card as what deepens or clarifies through integration.
 Frame your response as: "As you sit with this, here's what emerges..."
-Connect it to the ${isSummary ? 'overview' : 'parent card'}'s message and any context provided.`
+Connect it to the ${sectionName}'s message and any context provided.`
       : `OPERATION: FORGE
-The user is acting on ${isSummary ? 'the overview' : 'this card'} — creating from it, moving forward, differentiating.
+The user is acting on ${sectionName} — creating from it, moving forward, differentiating.
 Context they shared: "${context || 'none provided'}"
 
 Interpret this new card as what emerges from their action or intention.
 Frame your response as: "As you move forward, here's what emerges..."
-Connect it to the ${isSummary ? 'overview' : 'parent card'}'s message and any context provided.`;
+Connect it to the ${sectionName}'s message and any context provided.`;
 
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
@@ -4337,6 +4384,124 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                             </div>
                           </div>
                         ))}
+
+                        {/* Path Reflect/Forge Operations */}
+                        <div className="border-t border-emerald-700/50 mt-5 pt-5">
+                          {/* Collapsed state: show [▶ Reflect] [▶ Forge] on one line */}
+                          {!threadOperations['path'] && (
+                            <div className="flex justify-center gap-3">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setThreadOperations(prev => ({ ...prev, path: 'reflect' })); }}
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
+                              >
+                                <span className="text-[10px] text-red-500">▶</span> Reflect
+                              </button>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setThreadOperations(prev => ({ ...prev, path: 'forge' })); }}
+                                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
+                              >
+                                <span className="text-[10px] text-red-500">▶</span> Forge
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Expanded state: show full panel with selected operation */}
+                          {threadOperations['path'] && (
+                            <div className="max-w-xs mx-auto">
+                              <div className="flex justify-center gap-4 mb-4">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setThreadOperations(prev => ({ ...prev, path: 'reflect' })); }}
+                                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                                    threadOperations['path'] === 'reflect'
+                                      ? 'bg-sky-900/60 text-sky-300 border-2 border-sky-500/60'
+                                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                                  }`}
+                                >
+                                  Reflect
+                                </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setThreadOperations(prev => ({ ...prev, path: 'forge' })); }}
+                                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                                    threadOperations['path'] === 'forge'
+                                      ? 'bg-orange-900/60 text-orange-300 border-2 border-orange-500/60'
+                                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                                  }`}
+                                >
+                                  Forge
+                                </button>
+                              </div>
+
+                              {/* Context Input */}
+                              <div className="mb-4">
+                                <textarea
+                                  value={threadContexts['path'] || ''}
+                                  onChange={(e) => setThreadContexts(prev => ({ ...prev, path: e.target.value }))}
+                                  onClick={(e) => e.stopPropagation()}
+                                  placeholder="Add context (optional)..."
+                                  rows={2}
+                                  className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors resize-none"
+                                />
+                              </div>
+
+                              {/* Continue Button */}
+                              <div className="flex justify-center">
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); continueThread('path'); }}
+                                  disabled={!threadOperations['path'] || threadLoading['path']}
+                                  className={`w-full px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                                    threadOperations['path'] && !threadLoading['path']
+                                      ? 'bg-[#052e23] text-[#f59e0b] hover:bg-[#064e3b] border border-emerald-700/50'
+                                      : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+                                  }`}
+                                >
+                                  {threadLoading['path'] ? (
+                                    <>
+                                      <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                                      Drawing...
+                                    </>
+                                  ) : (
+                                    'Continue'
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Thread Results for Path */}
+                          {threadData['path'] && threadData['path'].length > 0 && (
+                            <div className="mt-5 space-y-4">
+                              {threadData['path'].map((threadItem, threadIndex) => {
+                                const trans = getComponent(threadItem.draw.transient);
+                                const stat = STATUSES[threadItem.draw.status];
+                                const statusPrefix = stat.prefix || 'Balanced';
+                                const isReflect = threadItem.operation === 'reflect';
+                                return (
+                                  <div key={threadIndex} className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className={`text-xs ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}>
+                                        ↳ {isReflect ? 'Reflect' : 'Forge'}{threadItem.context ? `: "${threadItem.context}"` : ''}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                                        {stat.name}
+                                      </span>
+                                      <span className="text-sm font-medium text-zinc-200">
+                                        {statusPrefix} {trans.name}
+                                      </span>
+                                    </div>
+                                    {showTraditional && (
+                                      <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
+                                    )}
+                                    <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
+                                      {parseSimpleMarkdown(threadItem.interpretation)}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       </>
                     )}
                   </div>
@@ -4361,6 +4526,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   setSelectedInfo={setSelectedInfo}
                   isCollapsed={isLetterCollapsed}
                   onToggleCollapse={() => toggleCollapse('letter', false)}
+                  selectedOperation={threadOperations['letter'] || null}
+                  onOperationSelect={(op) => setThreadOperations(prev => ({ ...prev, letter: op }))}
+                  operationContext={threadContexts['letter'] || ''}
+                  onContextChange={(ctx) => setThreadContexts(prev => ({ ...prev, letter: ctx }))}
+                  onContinue={() => continueThread('letter')}
+                  threadLoading={threadLoading['letter'] || false}
+                  threadData={threadData['letter'] || []}
                 />
               );
             })()}
