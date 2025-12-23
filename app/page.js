@@ -483,7 +483,17 @@ const SUGGESTIONS = [
   "I'm grieving",
   "I feel disconnected",
   "There's joy I haven't let in",
-  "I want to celebrate something"
+  "I want to celebrate something",
+  "Why am I like this?",
+  "What's blocking me?",
+  "Should I make the change?",
+  "What am I not seeing?",
+  "Is this the right path?",
+  "What needs attention?",
+  "Where's my energy going?",
+  "What wants to emerge?",
+  "Am I overthinking this?",
+  "What's the real question?"
 ];
 
 // Loading phrases for cycling display
@@ -936,6 +946,8 @@ function parseReadingResponse(responseText, draws) {
 }
 
 const BASE_SYSTEM = `You are the Nirmanakaya Reader — a consciousness navigation system, not a fortune teller.
+
+CRITICAL RULE: NEVER use terms of endearment like 'honey', 'sweetheart', 'dear', 'sweetie', 'love', 'darling', 'my friend', 'my dear'. These feel creepy coming from AI. Show warmth through TONE and CARE, not pet names. This is a hard rule that applies to ALL readings regardless of voice settings.
 
 ## ABSOLUTE RULE: USE ONLY THE PROVIDED NAMES
 
@@ -2156,7 +2168,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   
   const DimensionRow = ({ label, dimension, options }) => (
     <div className="mb-2 sm:mb-2">
-      <div className="grid grid-cols-[3rem_1fr_1fr_1fr_1fr] sm:grid-cols-[4rem_6rem_6rem_6rem_6rem_1fr] gap-1 sm:gap-2 items-center">
+      <div className="grid grid-cols-[3rem_1fr_1fr_1fr_1fr] sm:grid-cols-[4rem_6rem_6rem_6rem_6rem] gap-1 sm:gap-2 items-center">
         <span className="text-[11px] sm:text-xs text-amber-600/80 font-medium">{label}</span>
         {options.map(opt => (
           <button
@@ -2171,13 +2183,6 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
             {opt.charAt(0).toUpperCase() + opt.slice(1)}
           </button>
         ))}
-        <span className="hidden sm:inline text-xs text-zinc-400 italic pl-2 truncate">
-          — {DIMENSION_DESCRIPTIONS[dimension][stance[dimension]]}
-        </span>
-      </div>
-      {/* Mobile descriptor - centered below the row */}
-      <div className="sm:hidden text-[10px] text-zinc-400 italic text-center mt-0.5">
-        {DIMENSION_DESCRIPTIONS[dimension][stance[dimension]]}
       </div>
     </div>
   );
@@ -2230,30 +2235,8 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
           <p className="text-xs text-zinc-500">{getCurrentDescription()}</p>
         </div>
 
-        {/* Preset quick-select */}
-        <div className="mb-4 max-w-xl mx-auto">
-          <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Presets</span>
-          <div className="flex gap-2 flex-wrap justify-center">
-            {Object.entries(STANCE_PRESETS).map(([key, preset]) => (
-              <button
-                key={key}
-                onClick={() => applyPreset(key)}
-                title={preset.description}
-                className={`px-2.5 py-1 rounded-lg text-xs transition-all ${
-                  currentPreset?.[0] === key
-                    ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                    : 'bg-zinc-800/50 text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
-                }`}
-              >
-                {preset.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Inline dimension controls */}
         <div className="space-y-2 max-w-xl mx-auto">
-          <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Config</span>
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
           <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
@@ -2508,10 +2491,10 @@ export default function NirmanakaReader() {
     return () => clearInterval(fadeInterval);
   }, [loading]);
 
-  // Suggestion pills - auto-rotate every 8 seconds
+  // Suggestion pills - random rotation every 8 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setSuggestionIndex(prev => (prev + 1) % SUGGESTIONS.length);
+      setSuggestionIndex(Math.floor(Math.random() * SUGGESTIONS.length));
     }, 8000);
     return () => clearInterval(interval);
   }, []);
@@ -3518,7 +3501,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.5 alpha • Seriousness</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.6 alpha • UI Polish</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -3620,19 +3603,19 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 )}
               </div>
 
-              {/* Spectrum/description area - fixed height to prevent layout shifts */}
-              <div className="h-[24px] mb-4 flex items-center justify-center">
+              {/* Spectrum/description area - compact, close to buttons */}
+              <div className="h-[20px] mb-3 mt-1 flex items-center justify-center">
                 {spreadType === 'random' ? (
-                  <div className="flex justify-between w-full max-w-lg text-[11px] sm:text-[10px] text-zinc-400">
+                  <div className="flex justify-between w-full max-w-xs text-[10px] sm:text-[9px] text-zinc-500">
                     <button
                       onClick={() => navigateSpread('left')}
-                      className="hover:text-zinc-200 transition-colors cursor-pointer"
+                      className="hover:text-zinc-300 transition-colors cursor-pointer"
                     >
                       ← Focused
                     </button>
                     <button
                       onClick={() => navigateSpread('right')}
-                      className="hover:text-zinc-200 transition-colors cursor-pointer"
+                      className="hover:text-zinc-300 transition-colors cursor-pointer"
                     >
                       Expansive →
                     </button>
@@ -3645,7 +3628,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               {/* Stance Selector - same width as card count for alignment */}
               <div className="w-full max-w-lg mx-auto relative">
                 <div className="relative flex items-center justify-center mb-3">
-                  <span className="text-[12px] sm:text-xs text-zinc-400">Choose your stance</span>
+                  <span className="text-[12px] sm:text-xs text-zinc-400">Style</span>
                   <button
                     onClick={() => setHelpPopover(helpPopover === 'stanceLabel' ? null : 'stanceLabel')}
                     className="absolute right-0 w-7 h-7 sm:w-4 sm:h-4 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-xs sm:text-[10px] flex items-center justify-center transition-all"
@@ -3696,26 +3679,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   <div className="text-center text-[12px] sm:text-[10px] text-zinc-500 mt-1">
                     {getCurrentDeliveryPreset()?.[1]?.descriptor || 'Custom'}
                   </div>
-                  {/* Spectrum labels row: Lighter - Fine-tune - Deeper (both mobile and desktop) */}
-                  <div className="flex justify-between items-center w-full text-[11px] sm:text-[10px] text-zinc-400 mt-0.5 px-2 sm:px-0">
-                    <button
-                      onClick={() => navigateStance('left')}
-                      className="hover:text-zinc-200 active:text-zinc-200 transition-colors cursor-pointer py-2 sm:py-0 whitespace-nowrap"
-                    >
-                      ← Lighter
-                    </button>
+                  {/* Config toggle - centered */}
+                  <div className="flex justify-center w-full text-[11px] sm:text-[10px] text-zinc-400 mt-0.5">
                     <button
                       onClick={() => setShowLandingFineTune(!showLandingFineTune)}
                       className="hover:text-zinc-200 active:text-zinc-200 transition-colors flex items-center gap-0.5 py-2 sm:py-0 whitespace-nowrap"
                     >
                       <span>{showLandingFineTune ? '▾' : '▸'}</span>
                       <span>Config</span>
-                    </button>
-                    <button
-                      onClick={() => navigateStance('right')}
-                      className="hover:text-zinc-200 active:text-zinc-200 transition-colors cursor-pointer py-2 sm:py-0 whitespace-nowrap"
-                    >
-                      Deeper →
                     </button>
                   </div>
                 </div>
@@ -4437,26 +4408,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         );
                       })}
                     </div>
-                    {/* Spectrum labels row: Lighter - Fine-tune - Deeper */}
-                    <div className="flex justify-between items-center w-full text-[10px] text-zinc-500 mt-1.5">
-                      <button
-                        onClick={() => navigateStance('left')}
-                        className="hover:text-zinc-300 transition-colors cursor-pointer"
-                      >
-                        ← Lighter
-                      </button>
+                    {/* Config toggle - centered */}
+                    <div className="flex justify-center w-full text-[10px] text-zinc-500 mt-1.5">
                       <button
                         onClick={() => setShowFineTune(!showFineTune)}
                         className="hover:text-zinc-300 transition-colors flex items-center gap-1"
                       >
                         <span>{showFineTune ? '▾' : '▸'}</span>
                         <span>Config</span>
-                      </button>
-                      <button
-                        onClick={() => navigateStance('right')}
-                        className="hover:text-zinc-300 transition-colors cursor-pointer"
-                      >
-                        Deeper →
                       </button>
                     </div>
                   </div>
