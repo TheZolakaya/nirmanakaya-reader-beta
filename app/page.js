@@ -383,11 +383,11 @@ const SCOPE_MODIFIERS = {
 
 // Complexity modifiers - meta-layer for language register
 const COMPLEXITY_OPTIONS = {
-  friend: { label: "A Friend", hint: "Short words, short sentences. No jargon.", descriptor: "Casual & conversational" },
-  guide: { label: "A Guide", hint: "Warm and clear. Like someone walking with you.", descriptor: "Gentle direction" },
-  teacher: { label: "A Teacher", hint: "Structured and educational. Terms explained.", descriptor: "Clear explanation" },
-  mentor: { label: "A Mentor", hint: "Philosophical depth. Wisdom, not just info.", descriptor: "Experienced wisdom" },
-  master: { label: "A Master", hint: "Full transmission. Nothing simplified.", descriptor: "Authoritative depth" }
+  friend: { label: "Friend", hint: "Short words, short sentences. No jargon.", descriptor: "Casual & conversational" },
+  guide: { label: "Guide", hint: "Warm and clear. Like someone walking with you.", descriptor: "Gentle direction" },
+  teacher: { label: "Teacher", hint: "Structured and educational. Terms explained.", descriptor: "Clear explanation" },
+  mentor: { label: "Mentor", hint: "Philosophical depth. Wisdom, not just info.", descriptor: "Experienced wisdom" },
+  master: { label: "Master", hint: "Full transmission. Nothing simplified.", descriptor: "Authoritative depth" }
 };
 
 const COMPLEXITY_MODIFIERS = {
@@ -429,14 +429,13 @@ const MODE_HELPER_TEXT = {
   forge: "Work with intention — shape what's emerging"
 };
 
-// Legacy STANCE_PRESETS for backwards compatibility
+// Stance presets matching DELIVERY_PRESETS (without complexity)
 const STANCE_PRESETS = {
-  curious: { name: "Curious", voice: "wonder", focus: "see", density: "clear", scope: "here", description: "Open & accessible" },
-  quickAnswer: { name: "Quick Answer", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Brief & actionable" },
-  deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Full experience" },
-  justTheFacts: { name: "Just the Facts", voice: "direct", focus: "see", density: "clear", scope: "here", description: "Analytical & clear" },
-  grounded: { name: "Grounded", voice: "grounded", focus: "do", density: "essential", scope: "here", description: "Anchoring & immediate" },
-  oldSoul: { name: "Old Soul", voice: "grounded", focus: "build", density: "luminous", scope: "resonant", description: "Deep & embodied" }
+  quickTake: { name: "Quick Take", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Fast & light" },
+  gentleGuide: { name: "Gentle Guide", voice: "warm", focus: "feel", density: "clear", scope: "connected", description: "Warm & supportive" },
+  clearView: { name: "Clear View", voice: "direct", focus: "see", density: "clear", scope: "patterned", description: "Direct & clear" },
+  deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Rich & thorough" },
+  fullTransmission: { name: "Immersion", voice: "grounded", focus: "build", density: "rich", scope: "resonant", description: "Full depth" }
 };
 
 // Suggestion prompts for Spark feature and rotating pills
@@ -793,12 +792,12 @@ function decodeDraws(encoded) {
     if (data.p && !data.s) {
       // Convert old persona to closest stance preset
       const legacyMap = {
-        seeker: 'startHere',
-        practitioner: 'justTheFacts',
+        seeker: 'gentleGuide',
+        practitioner: 'clearView',
         philosopher: 'deepDive',
-        direct: 'quickAnswer'
+        direct: 'quickTake'
       };
-      const preset = STANCE_PRESETS[legacyMap[data.p] || 'startHere'];
+      const preset = STANCE_PRESETS[legacyMap[data.p] || 'gentleGuide'];
       return { 
         draws: data.d, 
         spreadType: data.t, 
@@ -2422,6 +2421,19 @@ export default function NirmanakaReader() {
     return () => clearInterval(interval);
   }, [draws]);
 
+  // Warn before leaving if there's a reading
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (draws && parsedReading) {
+        e.preventDefault();
+        e.returnValue = "You'll lose your reading if you leave. Are you sure?";
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [draws, parsedReading]);
+
   // Spark: show random suggestion as placeholder
   const handleSpark = () => {
     const randomSuggestion = SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)];
@@ -3003,7 +3015,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
   // Get current stance label for display
   const getCurrentStanceLabel = () => {
-    const preset = Object.entries(STANCE_PRESETS).find(([_, p]) =>
+    const preset = Object.entries(DELIVERY_PRESETS).find(([_, p]) =>
+      p.complexity === stance.complexity &&
       p.voice === stance.voice && p.focus === stance.focus &&
       p.density === stance.density && p.scope === stance.scope
     );
@@ -3408,7 +3421,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.0 alpha • Visual Polish</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.1 alpha • Quick Fixes</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -3618,9 +3631,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       <div className="text-xs text-zinc-500 mb-2 text-center">Speak to me like...</div>
                       {/* All 5 voice options on one row */}
                       <div className="flex gap-1 sm:gap-2 justify-center w-full px-1 sm:px-0">
-                        {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => {
-                          const mobileLabel = opt.label.replace('A ', '');
-                          return (
+                        {Object.entries(COMPLEXITY_OPTIONS).map(([key, opt]) => (
                             <button
                               key={key}
                               onClick={() => setStance({ ...stance, complexity: key })}
@@ -3630,11 +3641,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                                   : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300 active:bg-zinc-700 border border-zinc-700/50'
                               }`}
                             >
-                              <span className="sm:hidden">{mobileLabel}</span>
-                              <span className="hidden sm:inline">{opt.label}</span>
+                              {opt.label}
                             </button>
-                          );
-                        })}
+                        ))}
                       </div>
                       {/* Current voice selection descriptor */}
                       <div className="text-center text-[9px] sm:text-[10px] text-zinc-600 mt-1.5">
@@ -3760,39 +3769,39 @@ Respond directly with the expanded content. No section markers needed. Keep it f
 
           return (
             <div className="mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-xs text-zinc-500 uppercase tracking-wider">
+              {/* Metadata line ABOVE buttons */}
+              <div className="text-center mb-3">
+                <span className="text-xs text-zinc-500 uppercase tracking-wider whitespace-nowrap">
                   {spreadType === 'durable' ? `Reflect • ${DURABLE_SPREADS[spreadKey]?.name}` : `Discover • ${RANDOM_SPREADS[spreadKey]?.name}`} • {getCurrentStanceLabel()}
                 </span>
-                <div className="flex gap-2 items-center relative">
-                  <button onClick={copyShareUrl} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Share</button>
-                  {parsedReading && !loading && (
-                    <button onClick={exportToHTML} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
-                  )}
-                  <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Traditional' : 'Traditional'}</button>
-                  <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Architecture' : 'Architecture'}</button>
-                  <button onClick={resetReading} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">New</button>
-                  <button
-                    onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
-                    className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
-                  >
-                    ?
-                  </button>
-                  {helpPopover === 'actions' && (
-                    <div className="absolute top-full right-0 mt-2 z-50 w-64">
-                      <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl text-xs">
-                        <div className="space-y-1.5 text-zinc-400">
-                          <p><span className="text-zinc-200">Share</span> — Copy link to this reading</p>
-                          <p><span className="text-zinc-200">Export</span> — Download as HTML file</p>
-                          <p><span className="text-zinc-200">Traditional</span> — Toggle traditional tarot names</p>
-                          <p><span className="text-zinc-200">Architecture</span> — Show architectural details</p>
-                          <p><span className="text-zinc-200">New</span> — Start a fresh reading</p>
-                        </div>
-                        <button onClick={() => setHelpPopover(null)} className="mt-2 text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
+              </div>
+              {/* Action buttons row */}
+              <div className="flex justify-center gap-2 items-center relative mb-4">
+                {parsedReading && !loading && (
+                  <button onClick={exportToHTML} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">Export</button>
+                )}
+                <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Traditional' : 'Traditional'}</button>
+                <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Architecture' : 'Architecture'}</button>
+                <button onClick={resetReading} className="text-xs text-amber-400 hover:text-amber-300 transition-colors px-2 py-1 rounded bg-purple-900/30 border border-purple-700/50">New</button>
+                <button
+                  onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
+                  className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
+                >
+                  ?
+                </button>
+                {helpPopover === 'actions' && (
+                  <div className="absolute top-full right-0 mt-2 z-50 w-64">
+                    <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-3 shadow-xl text-xs">
+                      <div className="space-y-1.5 text-zinc-400">
+                        <p><span className="text-zinc-200">Export</span> — Download as HTML file</p>
+                        <p><span className="text-zinc-200">Traditional</span> — Toggle traditional tarot names</p>
+                        <p><span className="text-zinc-200">Architecture</span> — Show architectural details</p>
+                        <p><span className="text-zinc-200">New</span> — Start a fresh reading</p>
                       </div>
+                      <button onClick={() => setHelpPopover(null)} className="mt-2 text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
               {/* Collapsible Signatures Section */}
@@ -4228,7 +4237,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 disabled={followUpLoading}
                 className="flex-1 min-w-0 bg-zinc-900/50 border border-zinc-700/50 rounded-xl px-4 py-3 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors text-sm disabled:opacity-50" />
               <button onClick={sendFollowUp} disabled={followUpLoading || !followUp.trim()}
-                className="flex-shrink-0 bg-zinc-700 hover:bg-zinc-600 disabled:bg-zinc-900 disabled:text-zinc-700 px-6 py-3 rounded-xl transition-all flex items-center justify-center min-w-[52px]">
+                className="flex-shrink-0 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-900 disabled:text-zinc-700 border border-zinc-600 px-6 py-3 rounded-xl transition-all flex items-center justify-center min-w-[52px] text-zinc-200">
                 {followUpLoading ? (
                   <div className="w-4 h-4 border-2 border-zinc-600 border-t-zinc-300 rounded-full animate-spin"></div>
                 ) : '→'}
