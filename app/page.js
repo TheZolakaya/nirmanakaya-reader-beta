@@ -416,13 +416,21 @@ BANNED: Words over 2 syllables unless necessary. No: nurturing, capacity, authen
   master: `You are the oracle. Full transmission. Nothing simplified. Nothing withheld. Position numbers, duality paths, structural relationships. Master to master, initiate to initiate. The framework speaks through you. Assume they can keep up. Full gravity. BUT — even masters can have a dry wit. Even oracles can appreciate the cosmic joke. Depth and lightness aren't opposites.`
 };
 
+const SERIOUSNESS_MODIFIERS = {
+  playful: `Find the humor. Be funny. Jokes, teasing, lightness, sarcasm welcome. Make them smile. Truth is often funniest. "lol" "okay but" "I mean..." energy.`,
+  light: `Keep it easy. Gentle humor okay. Don't be heavy. Breezy energy. A smile in your voice without forcing jokes.`,
+  balanced: `Match the moment. Light when fitting, serious when needed. Read the room and respond in kind.`,
+  earnest: `Be sincere. This matters. Heart-forward. No forced jokes. You mean what you say and it shows.`,
+  grave: `Full weight. Sacred ground. No levity. Honor the gravity of what's being asked. This is serious business.`
+};
+
 // Delivery presets - combines Complexity + Stance in one selection
 const DELIVERY_PRESETS = {
-  quickTake: { name: "Quick Take", descriptor: "Fast & light", complexity: "friend", voice: "direct", focus: "do", density: "essential", scope: "here" },
-  gentleGuide: { name: "Gentle Guide", descriptor: "Warm & supportive", complexity: "guide", voice: "warm", focus: "feel", density: "clear", scope: "connected" },
-  clearView: { name: "Clear View", descriptor: "Direct & clear", complexity: "teacher", voice: "direct", focus: "see", density: "clear", scope: "patterned" },
-  deepDive: { name: "Deep Dive", descriptor: "Rich & thorough", complexity: "mentor", voice: "warm", focus: "feel", density: "rich", scope: "resonant" },
-  fullTransmission: { name: "Immersion", descriptor: "Full depth", complexity: "master", voice: "grounded", focus: "build", density: "rich", scope: "resonant" }
+  direct: { name: "Direct", complexity: "friend", seriousness: "balanced", voice: "direct", focus: "do", density: "essential", scope: "here" },
+  kind: { name: "Kind", complexity: "guide", seriousness: "earnest", voice: "warm", focus: "feel", density: "clear", scope: "connected" },
+  playful: { name: "Playful", complexity: "guide", seriousness: "playful", voice: "wonder", focus: "see", density: "clear", scope: "patterned" },
+  wise: { name: "Wise", complexity: "mentor", seriousness: "earnest", voice: "warm", focus: "see", density: "rich", scope: "resonant" },
+  oracle: { name: "Oracle", complexity: "master", seriousness: "grave", voice: "direct", focus: "build", density: "luminous", scope: "resonant" }
 };
 
 // Mode helper text
@@ -434,11 +442,11 @@ const MODE_HELPER_TEXT = {
 
 // Stance presets matching DELIVERY_PRESETS (without complexity)
 const STANCE_PRESETS = {
-  quickTake: { name: "Quick Take", voice: "direct", focus: "do", density: "essential", scope: "here", description: "Fast & light" },
-  gentleGuide: { name: "Gentle Guide", voice: "warm", focus: "feel", density: "clear", scope: "connected", description: "Warm & supportive" },
-  clearView: { name: "Clear View", voice: "direct", focus: "see", density: "clear", scope: "patterned", description: "Direct & clear" },
-  deepDive: { name: "Deep Dive", voice: "warm", focus: "feel", density: "rich", scope: "resonant", description: "Rich & thorough" },
-  fullTransmission: { name: "Immersion", voice: "grounded", focus: "build", density: "rich", scope: "resonant", description: "Full depth" }
+  direct: { name: "Direct", seriousness: "balanced", voice: "direct", focus: "do", density: "essential", scope: "here" },
+  kind: { name: "Kind", seriousness: "earnest", voice: "warm", focus: "feel", density: "clear", scope: "connected" },
+  playful: { name: "Playful", seriousness: "playful", voice: "wonder", focus: "see", density: "clear", scope: "patterned" },
+  wise: { name: "Wise", seriousness: "earnest", voice: "warm", focus: "see", density: "rich", scope: "resonant" },
+  oracle: { name: "Oracle", seriousness: "grave", voice: "direct", focus: "build", density: "luminous", scope: "resonant" }
 };
 
 // Suggestion prompts for Spark feature and rotating pills
@@ -520,8 +528,8 @@ const LOADING_PHRASES = [
   "Luck is coherence with the recursive pattern."
 ];
 
-// Build the stance prompt from 5 dimensions (including complexity)
-const buildStancePrompt = (complexity, voice, focus, density, scope) => {
+// Build the stance prompt from 6 dimensions (including complexity and seriousness)
+const buildStancePrompt = (complexity, voice, focus, density, scope, seriousness) => {
   return `
 GLOBAL VOICE RULE: NEVER use terms of endearment like "sweetheart", "honey", "dear", "sweetie", "love", "darling", "my friend". Show warmth through TONE and CARE, not pet names. These feel creepy from AI.
 
@@ -538,6 +546,8 @@ FOCUS: ${FOCUS_MODIFIERS[focus]}
 DENSITY: ${DENSITY_MODIFIERS[density]}
 
 SCOPE: ${SCOPE_MODIFIERS[scope]}
+
+SERIOUSNESS: ${SERIOUSNESS_MODIFIERS[seriousness] || SERIOUSNESS_MODIFIERS.balanced}
 `;
 };
 
@@ -795,23 +805,32 @@ function decodeDraws(encoded) {
     const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
     // Handle legacy persona format
     if (data.p && !data.s) {
-      // Convert old persona to closest stance preset
+      // Convert old persona to closest new preset
       const legacyMap = {
-        seeker: 'gentleGuide',
-        practitioner: 'clearView',
-        philosopher: 'deepDive',
-        direct: 'quickTake'
+        seeker: 'kind',
+        practitioner: 'direct',
+        philosopher: 'wise',
+        direct: 'direct',
+        // Also map old preset names to new ones
+        quickTake: 'direct',
+        gentleGuide: 'kind',
+        clearView: 'direct',
+        deepDive: 'wise',
+        fullTransmission: 'oracle'
       };
-      const preset = STANCE_PRESETS[legacyMap[data.p] || 'gentleGuide'];
-      return { 
-        draws: data.d, 
-        spreadType: data.t, 
-        spreadKey: data.k, 
-        stance: { voice: preset.voice, focus: preset.focus, density: preset.density, scope: preset.scope },
-        question: data.q 
+      const preset = STANCE_PRESETS[legacyMap[data.p] || 'kind'];
+      return {
+        draws: data.d,
+        spreadType: data.t,
+        spreadKey: data.k,
+        stance: { seriousness: preset.seriousness, voice: preset.voice, focus: preset.focus, density: preset.density, scope: preset.scope },
+        question: data.q
       };
     }
-    return { draws: data.d, spreadType: data.t, spreadKey: data.k, stance: data.s, question: data.q };
+    // Ensure seriousness has a default if loading old stance without it
+    const stance = data.s || {};
+    if (!stance.seriousness) stance.seriousness = 'balanced';
+    return { draws: data.d, spreadType: data.t, spreadKey: data.k, stance, question: data.q };
   } catch { return null; }
 }
 
@@ -1534,7 +1553,7 @@ const ThreadedCard = ({
         onClick={toggleCollapse}
       >
         <span
-          className="text-zinc-500 transition-transform duration-200"
+          className={`transition-transform duration-200 ${isCollapsed ? 'text-red-500' : 'text-emerald-500'}`}
           style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', display: 'inline-block' }}
         >
           ▼
@@ -1797,7 +1816,7 @@ const ReadingSection = ({
         <div className="flex items-center gap-2">
           {/* Collapse chevron */}
           {isCollapsible && (
-            <span className="text-zinc-500 text-xs transition-transform duration-200" style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+            <span className={`text-xs transition-transform duration-200 ${isCollapsed ? 'text-red-500' : 'text-emerald-500'}`} style={{ transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
               ▼
             </span>
           )}
@@ -1849,23 +1868,24 @@ const ReadingSection = ({
               </button>
             );
           })}
-          {/* Reflect/Forge buttons for Overview section */}
-          {type === 'summary' && onOperationSelect && (
-            <>
-              <button
-                onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
-              >
-                <span className="text-[10px]">▶</span> Reflect
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
-              >
-                <span className="text-[10px]">▶</span> Forge
-              </button>
-            </>
-          )}
+        </div>
+      )}
+
+      {/* Reflect/Forge buttons for Overview section - own row, centered */}
+      {type === 'summary' && onOperationSelect && !isCollapsed && (
+        <div className="flex justify-center gap-2 mt-3">
+          <button
+            onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
+          >
+            <span className="text-[10px] text-red-500">▶</span> Reflect
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
+          >
+            <span className="text-[10px] text-red-500">▶</span> Forge
+          </button>
         </div>
       )}
 
@@ -1908,7 +1928,7 @@ const ReadingSection = ({
             >
               {/* Collapse chevron */}
               {isCorrCollapsible && (
-                <span className="text-emerald-500/70 text-xs transition-transform duration-200" style={{ transform: isCorrectionCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                <span className={`text-xs transition-transform duration-200 ${isCorrectionCollapsed ? 'text-red-500' : 'text-emerald-500'}`} style={{ transform: isCorrectionCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                   ▼
                 </span>
               )}
@@ -2233,7 +2253,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
 
         {/* Inline dimension controls */}
         <div className="space-y-2 max-w-xl mx-auto">
-          <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Fine-tune</span>
+          <span className="text-xs text-zinc-600 uppercase tracking-wider block mb-2">Config</span>
           <DimensionRow label="Voice" dimension="voice" options={['wonder', 'warm', 'direct', 'grounded']} />
           <DimensionRow label="Focus" dimension="focus" options={['do', 'feel', 'see', 'build']} />
           <DimensionRow label="Density" dimension="density" options={['luminous', 'rich', 'clear', 'essential']} />
@@ -2336,7 +2356,7 @@ export default function NirmanakaReader() {
   const [followUp, setFollowUp] = useState('');
   const [spreadType, setSpreadType] = useState('random');
   const [spreadKey, setSpreadKey] = useState('three');
-  const [stance, setStance] = useState({ complexity: 'guide', voice: 'warm', focus: 'feel', density: 'clear', scope: 'connected' }); // Default: Gentle Guide
+  const [stance, setStance] = useState({ complexity: 'guide', seriousness: 'earnest', voice: 'warm', focus: 'feel', density: 'clear', scope: 'connected' }); // Default: Kind
   const [showCustomize, setShowCustomize] = useState(false);
   const [draws, setDraws] = useState(null);
   const [parsedReading, setParsedReading] = useState(null);
@@ -2400,7 +2420,12 @@ export default function NirmanakaReader() {
         const prefs = JSON.parse(saved);
         if (prefs.spreadType) setSpreadType(prefs.spreadType);
         if (prefs.spreadKey) setSpreadKey(prefs.spreadKey);
-        if (prefs.stance) setStance(prefs.stance);
+        if (prefs.stance) {
+          // Ensure seriousness has a default if loading old prefs
+          const loadedStance = { ...prefs.stance };
+          if (!loadedStance.seriousness) loadedStance.seriousness = 'balanced';
+          setStance(loadedStance);
+        }
       }
     } catch (e) {
       console.warn('Failed to load preferences:', e);
@@ -2521,7 +2546,7 @@ export default function NirmanakaReader() {
     const spreadName = spreadType === 'durable' ? DURABLE_SPREADS[spreadKey].name : `${RANDOM_SPREADS[spreadKey].name} Emergent`;
     const safeQuestion = sanitizeForAPI(questionToUse);
 
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const letterTone = VOICE_LETTER_TONE[stance.voice];
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${FORMAT_INSTRUCTIONS}\n\nLetter tone for this stance: ${letterTone}`;
     const userMessage = `QUESTION: "${safeQuestion}"\n\nTHE DRAW (${spreadName}):\n\n${drawText}\n\nRespond using the exact section markers: [SUMMARY], [CARD:1], [CARD:2], etc., [CORRECTION:N] for each imbalanced card (where N matches the card number — use [CORRECTION:3] for Card 3, [CORRECTION:5] for Card 5, etc.), [LETTER]. Each marker on its own line.`;
@@ -2613,7 +2638,7 @@ Interpret this new card as what emerges from their action or intention.
 Frame your response as: "As you move forward, here's what emerges..."
 Connect it to the parent card's message and any context provided.`;
 
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
 
     const safeQuestion = sanitizeForAPI(question);
@@ -2704,7 +2729,7 @@ Interpret this new card as what emerges from their action or intention.
 Frame your response as: "As you move forward, here's what emerges..."
 Connect it to the parent card's message and any context provided.`;
 
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
 
     const safeQuestion = sanitizeForAPI(question);
@@ -2844,7 +2869,7 @@ Provide the interpretation for this new card in the context of the ${operation} 
     }
     
     // Pass the original stance to expansion
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\nYou are expanding on a specific section of a reading. Keep the same tone as the original reading. Be concise but thorough. Always connect your expansion back to the querent's specific question.`;
     const userMessage = `QUERENT'S QUESTION: "${question}"
 
@@ -2899,7 +2924,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     }
     
     // Pass stance to follow-up
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope);
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\nYou are continuing a conversation about a reading. Answer their follow-up question directly, referencing the reading context as needed. No section markers — just respond naturally.`;
     
     const messages = [
@@ -3099,6 +3124,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
   const getCurrentDeliveryPreset = () => {
     return Object.entries(DELIVERY_PRESETS).find(([_, p]) =>
       p.complexity === stance.complexity &&
+      p.seriousness === stance.seriousness &&
       p.voice === stance.voice && p.focus === stance.focus &&
       p.density === stance.density && p.scope === stance.scope
     );
@@ -3110,6 +3136,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     if (preset) {
       setStance({
         complexity: preset.complexity,
+        seriousness: preset.seriousness,
         voice: preset.voice,
         focus: preset.focus,
         density: preset.density,
@@ -3491,7 +3518,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.4 alpha • Auto-Save Prefs</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.5 alpha • Seriousness</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -3648,7 +3675,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     {Object.entries(DELIVERY_PRESETS).map(([key, preset]) => {
                       const isActive = getCurrentDeliveryPreset()?.[0] === key;
                       // Shorter names for mobile
-                      const mobileNames = { quickTake: "Quick", gentleGuide: "Gentle", clearView: "Clear", deepDive: "Deep", fullTransmission: "Immerse" };
+                      const mobileNames = { direct: "Direct", kind: "Kind", playful: "Playful", wise: "Wise", oracle: "Oracle" };
                       return (
                         <button
                           key={key}
@@ -3682,7 +3709,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       className="hover:text-zinc-200 active:text-zinc-200 transition-colors flex items-center gap-0.5 py-2 sm:py-0 whitespace-nowrap"
                     >
                       <span>{showLandingFineTune ? '▾' : '▸'}</span>
-                      <span>Fine-tune</span>
+                      <span>Config</span>
                     </button>
                     <button
                       onClick={() => navigateStance('right')}
@@ -3718,6 +3745,26 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       {/* Current voice selection descriptor */}
                       <div className="text-center text-[9px] sm:text-[10px] text-zinc-600 mt-1.5">
                         {COMPLEXITY_OPTIONS[stance.complexity]?.descriptor || ''}
+                      </div>
+                    </div>
+
+                    {/* Seriousness/Tone Selector */}
+                    <div className="mb-4">
+                      <div className="text-xs text-zinc-500 mb-2 text-center">Tone</div>
+                      <div className="flex gap-1 sm:gap-2 justify-center w-full px-1 sm:px-0">
+                        {Object.entries(SERIOUSNESS_MODIFIERS).map(([key]) => (
+                          <button
+                            key={key}
+                            onClick={() => setStance({ ...stance, seriousness: key })}
+                            className={`flex-1 px-0.5 sm:px-2 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[8px] sm:text-xs transition-all whitespace-nowrap text-center capitalize ${
+                              stance.seriousness === key
+                                ? 'bg-zinc-600 text-zinc-100 border border-zinc-500'
+                                : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300 active:bg-zinc-700 border border-zinc-700/50'
+                            }`}
+                          >
+                            {key}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
@@ -3882,7 +3929,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-zinc-800/30 transition-colors"
                   onClick={() => toggleCollapse('signatures', false)}
                 >
-                  <span className="text-zinc-500 text-xs transition-transform duration-200" style={{ transform: isSignaturesCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                  <span className={`text-xs transition-transform duration-200 ${isSignaturesCollapsed ? 'text-red-500' : 'text-emerald-500'}`} style={{ transform: isSignaturesCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                     ▼
                   </span>
                   <span className="text-sm font-medium text-zinc-400">
@@ -4175,7 +4222,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       className={`flex items-center gap-3 cursor-pointer ${!isPathCollapsed ? 'mb-4' : ''}`}
                       onClick={() => toggleCollapse('path', true)}
                     >
-                      <span className="text-emerald-500/70 text-xs transition-transform duration-200" style={{ transform: isPathCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
+                      <span className={`text-xs transition-transform duration-200 ${isPathCollapsed ? 'text-red-500' : 'text-emerald-500'}`} style={{ transform: isPathCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>
                         ▼
                       </span>
                       <span className="text-lg">◈</span>
@@ -4354,7 +4401,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="absolute top-full right-0 mt-2 z-50 w-72">
                 <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
                   <p className="text-zinc-400 text-xs leading-relaxed">
-                    Stances shape how the reading speaks to you — from quick and direct to deep and expansive. Fine-tune to customize voice, focus, density, and scope.
+                    Stances shape how the reading speaks to you — from quick and direct to deep and expansive. Use Config to customize voice, focus, density, scope, and tone.
                   </p>
                   <button
                     onClick={() => setHelpPopover(null)}
@@ -4403,7 +4450,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         className="hover:text-zinc-300 transition-colors flex items-center gap-1"
                       >
                         <span>{showFineTune ? '▾' : '▸'}</span>
-                        <span>Fine-tune</span>
+                        <span>Config</span>
                       </button>
                       <button
                         onClick={() => navigateStance('right')}
@@ -4432,6 +4479,26 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                               }`}
                             >
                               {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Seriousness/Tone Selector */}
+                      <div className="text-center">
+                        <div className="text-[10px] text-zinc-500 mb-2">Tone</div>
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {Object.entries(SERIOUSNESS_MODIFIERS).map(([key]) => (
+                            <button
+                              key={key}
+                              onClick={() => setStance({ ...stance, seriousness: key })}
+                              className={`px-2 py-1 rounded text-xs transition-all capitalize ${
+                                stance.seriousness === key
+                                  ? 'bg-zinc-700 text-zinc-100'
+                                  : 'bg-zinc-800/50 text-zinc-500 hover:text-zinc-300'
+                              }`}
+                            >
+                              {key}
                             </button>
                           ))}
                         </div>
