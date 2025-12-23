@@ -2094,28 +2094,28 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
   );
   
   const DimensionRow = ({ label, dimension, options }) => (
-    <div className="mb-3 sm:mb-2">
+    <div className="mb-2 sm:mb-2">
       <div className="grid grid-cols-[3rem_1fr_1fr_1fr_1fr] sm:grid-cols-[4rem_6rem_6rem_6rem_6rem_1fr] gap-1 sm:gap-2 items-center">
-        <span className="text-[10px] sm:text-xs text-zinc-500">{label}</span>
+        <span className="text-[11px] sm:text-xs text-amber-600/80 font-medium">{label}</span>
         {options.map(opt => (
           <button
             key={opt}
             onClick={() => setStance({ ...stance, [dimension]: opt })}
-            className={`py-2 sm:py-1.5 px-1 sm:px-0 rounded-sm text-[10px] sm:text-xs transition-all text-center min-h-[36px] sm:min-h-0 ${
+            className={`py-2 sm:py-1.5 px-1 sm:px-0 rounded-sm text-[11px] sm:text-xs transition-all text-center min-h-[36px] sm:min-h-0 ${
               stance[dimension] === opt
-                ? 'bg-zinc-700 text-zinc-100 border border-zinc-500'
-                : 'bg-zinc-900/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 active:bg-zinc-700'
+                ? 'bg-zinc-700 text-white border border-zinc-500'
+                : 'bg-zinc-900/50 text-zinc-300 hover:text-white hover:bg-zinc-800 active:bg-zinc-700'
             }`}
           >
             {opt.charAt(0).toUpperCase() + opt.slice(1)}
           </button>
         ))}
-        <span className="hidden sm:inline text-xs text-zinc-600 italic pl-2 truncate">
+        <span className="hidden sm:inline text-xs text-zinc-400 italic pl-2 truncate">
           — {DIMENSION_DESCRIPTIONS[dimension][stance[dimension]]}
         </span>
       </div>
       {/* Mobile descriptor - centered below the row */}
-      <div className="sm:hidden text-[9px] text-zinc-600 italic text-center mt-0.5">
+      <div className="sm:hidden text-[10px] text-zinc-400 italic text-center mt-0.5">
         {DIMENSION_DESCRIPTIONS[dimension][stance[dimension]]}
       </div>
     </div>
@@ -3395,9 +3395,9 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8 mobile-container">
         
         {/* Header */}
-        <div className="text-center mb-6 md:mb-6 mobile-header relative">
+        <div className="text-center mb-4 md:mb-6 mobile-header relative">
           <div className="flex items-center justify-center gap-2">
-            <h1 className="text-[20px] sm:text-2xl md:text-3xl font-extralight tracking-[0.2em] sm:tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
+            <h1 className="text-[20px] sm:text-2xl md:text-3xl font-extralight tracking-[0.2em] sm:tracking-[0.3em] mb-1 text-zinc-100">NIRMANAKAYA</h1>
             {!draws && (
               <button
                 onClick={() => setHelpPopover(helpPopover === 'intro' ? null : 'intro')}
@@ -3407,8 +3407,8 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </button>
             )}
           </div>
-          <p className="text-zinc-500 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-1">v0.30.9 alpha • Mobile Polish</p>
+          <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.0 alpha • Visual Polish</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -3431,15 +3431,15 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="flex justify-center mb-4 relative">
                 <div className="inline-flex rounded-lg bg-zinc-900 p-1 mode-tabs-container">
                   <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
-                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'durable' ? 'bg-purple-950 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
+                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'durable' ? 'bg-[#2e1065] text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
                     Reflect
                   </button>
                   <button onClick={() => { setSpreadType('random'); setSpreadKey('three'); }}
-                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'random' ? 'bg-purple-950 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
+                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'random' ? 'bg-[#2e1065] text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
                     Discover
                   </button>
                   <button onClick={() => { setSpreadType('forge'); setSpreadKey('one'); }}
-                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'forge' ? 'bg-purple-950 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
+                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'forge' ? 'bg-[#2e1065] text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
                     Forge
                   </button>
                 </div>
@@ -3493,14 +3493,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       {spreadType === 'random' ? (
                         Object.entries(RANDOM_SPREADS).map(([key, value]) => (
                           <button key={key} onClick={() => setSpreadKey(key)}
-                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[14px] sm:text-sm font-medium sm:font-normal transition-all ${spreadKey === key ? 'bg-purple-950 text-amber-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 active:bg-zinc-700'}`}>
+                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[14px] sm:text-sm font-medium sm:font-normal transition-all ${spreadKey === key ? 'bg-[#2e1065] text-amber-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 active:bg-zinc-700'}`}>
                             {value.name}
                           </button>
                         ))
                       ) : (
                         Object.entries(DURABLE_SPREADS).map(([key, value]) => (
                           <button key={key} onClick={() => setSpreadKey(key)}
-                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[14px] sm:text-sm font-medium sm:font-normal transition-all ${spreadKey === key ? 'bg-purple-950 text-amber-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 active:bg-zinc-700'}`}>
+                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[14px] sm:text-sm font-medium sm:font-normal transition-all ${spreadKey === key ? 'bg-[#2e1065] text-amber-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 active:bg-zinc-700'}`}>
                             {value.name}
                           </button>
                         ))
@@ -3572,7 +3572,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                           onClick={() => applyDeliveryPreset(key)}
                           className={`flex-1 px-0.5 sm:px-2 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[13px] sm:text-[11px] font-medium sm:font-normal transition-all text-center overflow-hidden ${
                             isActive
-                              ? 'bg-purple-950 text-amber-400'
+                              ? 'bg-[#2e1065] text-amber-400'
                               : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 active:bg-zinc-700'
                           }`}
                         >
@@ -3656,7 +3656,32 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             </div>
 
             {/* Question Input Section */}
-            <div className="relative mb-4 mt-6">
+            <div className="relative mb-3 mt-4">
+              {/* Prompt suggestions ABOVE the input - subtle inspiration */}
+              <div className={`mb-2 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+                <div className="flex items-center justify-center gap-2 flex-wrap">
+                  <button
+                    onClick={handleSpark}
+                    className="text-[11px] px-2 py-1 text-amber-500/70 hover:text-amber-400 transition-all"
+                    title="Show a random suggestion"
+                  >
+                    ✨
+                  </button>
+                  {[0, 1].map((offset) => {
+                    const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
+                    return (
+                      <button
+                        key={offset}
+                        onClick={() => setQuestion(suggestion)}
+                        className="text-[11px] sm:text-xs px-2 py-1 text-zinc-500 hover:text-zinc-300 transition-all truncate max-w-[150px] sm:max-w-[180px]"
+                      >
+                        {suggestion}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="relative">
                 <textarea
                   value={question}
@@ -3667,27 +3692,27 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       ? "What are you forging? Declare your intention..."
                       : spreadType === 'durable'
                         ? "What area of life are you examining?"
-                        : "Name your question or declare your intent... or leave blank for a general reading"
+                        : "Name your question or declare your intent..."
                   )}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-700 resize-none transition-colors text-[16px] sm:text-base min-h-[120px] sm:min-h-0"
-                  rows={4}
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-600 resize-none transition-colors text-[16px] sm:text-base min-h-[100px] sm:min-h-0"
+                  rows={3}
                 />
                 <button
                   onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
-                  className="absolute top-3 right-3 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-xs sm:text-xs flex items-center justify-center transition-all"
+                  className="absolute top-3 right-3 w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
                 >
                   ?
                 </button>
               </div>
               {helpPopover === 'input' && (
-                <div className="absolute top-full right-0 mt-2 z-50 w-72">
+                <div className="absolute bottom-full right-0 mb-2 z-50 w-72">
                   <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
-                    <p className="text-zinc-400 text-xs leading-relaxed">
-                      Ask about anything — relationships, work, decisions, direction. Or declare an action you're taking and see how it lands. The more specific you are, the more specific the reading will be.
+                    <p className="text-zinc-300 text-xs leading-relaxed">
+                      Ask about anything — relationships, work, decisions, direction. Use a verb or question. The more specific you are, the more specific the reading will be.
                     </p>
                     <button
                       onClick={() => setHelpPopover(null)}
-                      className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center"
+                      className="mt-3 text-xs text-zinc-400 hover:text-zinc-200 w-full text-center"
                     >
                       Got it
                     </button>
@@ -3695,107 +3720,17 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 </div>
               )}
 
-              {/* Spark + Prompts + Discover row, dots below */}
-              <div className={`mt-3 transition-all duration-300 ${question.trim() ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
-                {/* Desktop layout: horizontal row */}
-                <div className="hidden sm:flex items-center justify-between gap-2">
-                  {/* Spark button - left aligned */}
-                  <button
-                    onClick={handleSpark}
-                    className="px-4 py-2 rounded-lg bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-sm flex items-center gap-1.5 border border-amber-800/50 shrink-0"
-                    title="Show a random suggestion"
-                  >
-                    <span>✨</span>
-                    <span>Spark</span>
-                  </button>
-
-                  {/* Suggestion pills - centered with fixed width */}
-                  <div className="flex items-center justify-center gap-2 flex-1 min-w-0">
-                    {[0, 1, 2].map((offset) => {
-                      const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
-                      return (
-                        <button
-                          key={offset}
-                          onClick={() => setQuestion(suggestion)}
-                          className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700/50 hover:border-zinc-600 transition-all max-w-[140px] truncate"
-                        >
-                          {suggestion}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Main action button - right aligned with emphasis */}
-                  <button
-                    onClick={performReading}
-                    disabled={loading}
-                    className="px-5 py-2 bg-purple-950 hover:bg-purple-900 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)] shrink-0"
-                  >
-                    {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
-                  </button>
-                </div>
-
-                {/* Mobile layout: stacked vertically */}
-                <div className="flex sm:hidden flex-col gap-3 prompt-row-mobile">
-                  {/* Suggestion pills - 2 visible on mobile */}
-                  <div className="flex flex-col gap-2 suggestions-container">
-                    {[0, 1].map((offset) => {
-                      const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
-                      return (
-                        <button
-                          key={offset}
-                          onClick={() => setQuestion(suggestion)}
-                          className="suggestion-pill text-[14px] px-4 py-3 min-h-[44px] rounded-xl bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700/50 hover:border-zinc-600 transition-all text-left"
-                        >
-                          {suggestion}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Spark and Action buttons row */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSpark}
-                      className="spark-btn flex-1 px-4 py-3 min-h-[44px] rounded-xl bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-[14px] flex items-center justify-center gap-1.5 border border-amber-800/50"
-                      title="Show a random suggestion"
-                    >
-                      <span>✨</span>
-                      <span>Spark</span>
-                    </button>
-                    <button
-                      onClick={performReading}
-                      disabled={loading}
-                      className="action-btn flex-[2] px-5 py-3 min-h-[48px] bg-purple-950 hover:bg-purple-900 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl transition-all text-base text-amber-400 font-medium border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)]"
-                    >
-                      {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Dots indicator - clickable, on separate row */}
-                <div className="flex justify-center gap-1.5 mt-3 sm:mt-2">
-                  {Array.from({ length: Math.ceil(SUGGESTIONS.length / 3) }).map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setSuggestionIndex(i * 3)}
-                      className={`w-3 h-3 sm:w-2 sm:h-2 rounded-full transition-all hover:bg-zinc-400 ${
-                        Math.floor(suggestionIndex / 3) === i ? 'bg-zinc-500' : 'bg-zinc-700'
-                      }`}
-                      aria-label={`Show suggestions ${i * 3 + 1}-${Math.min((i + 1) * 3, SUGGESTIONS.length)}`}
-                    />
-                  ))}
-                </div>
+              {/* Action button below input */}
+              <div className="mt-3">
+                <button
+                  onClick={performReading}
+                  disabled={loading}
+                  className="w-full sm:w-auto sm:mx-auto sm:block px-8 py-3 min-h-[48px] bg-[#2e1065] hover:bg-[#3b1f6e] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl transition-all text-base text-amber-400 font-medium border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)]"
+                >
+                  {loading ? 'Drawing...' : (spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →')}
+                </button>
               </div>
             </div>
-
-            {/* Main action button visible when typing */}
-            {question.trim() && (
-              <button onClick={performReading} disabled={loading}
-                className="px-6 py-3 sm:py-2.5 min-h-[48px] sm:min-h-0 bg-purple-950 hover:bg-purple-900 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl sm:rounded-lg transition-all text-base sm:text-sm text-amber-400 font-medium mx-auto block border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)]">
-                {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
-              </button>
-            )}
           </>
         )}
 
@@ -4366,7 +4301,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                             onClick={() => applyDeliveryPreset(key)}
                             className={`px-2 py-1.5 rounded-lg text-[11px] transition-all whitespace-nowrap ${
                               isActive
-                                ? 'bg-purple-950 text-amber-400'
+                                ? 'bg-[#2e1065] text-amber-400'
                                 : 'bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
                             }`}
                           >
