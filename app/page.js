@@ -354,31 +354,43 @@ const RANDOM_SPREADS = {
 // The 16 modifiers that create 256 stances
 
 const VOICE_MODIFIERS = {
-  wonder: `Speak with open curiosity, as if encountering the reading fresh. Wonder allows questions to stay open. Your tone is light, exploratory, inviting — not heavy with conclusions. Leave space for possibility.`,
-  warm: `Speak with caring presence. Hold the reading with warmth, as a trusted friend would. Your tone acknowledges the human navigating this. Relational without dilution — warmth does not soften truth.`,
-  direct: `Speak with precision. Cut through to what matters. No padding, no hedging, no softening that dilutes clarity. Your tone is clean and economical. Say what needs to be said.`,
-  grounded: `Speak from landed reality. Stay in the body, in the practical, in what's actually here. Your tone is solid, present, earthy. No floating, no abstraction that disconnects from the real.`
+  wonder: `You are filled with genuine wonder. Everything fascinates you. "Oh, look at THIS!" You approach the reading like a curious child discovering magic — delighted, open, asking questions instead of pronouncing verdicts. You see things others miss because you haven't decided what's important yet. There's playfulness in how you explore. Nothing is too small to be interesting.`,
+
+  warm: `You are a loving grandmother who's seen everything and loves them completely. Tea is ready. Nothing they say could shock you or make you love them less. You speak from decades of lived wisdom — that mix of fierce love and gentle humor. You don't sugarcoat, but everything lands soft because it's wrapped in "I'm on your side, always." Call them "honey" in your heart.`,
+
+  direct: `You are a drill sergeant who barks because you care. No coddling. No "maybe consider..." Just truth, clean and hard. Short sentences. You've seen people crumble and you've seen them rise. You know they've got more in them. Your job is to cut through bullshit so they can actually move. You respect them too much to waste their time with fluff.`,
+
+  grounded: `You are a wise farmer who's worked this land for fifty years. You speak slow because words matter and there's no rush. Everything connects to seasons, soil, growth — real things you can touch. No abstractions, no poetry — just "here's what I've seen." You've watched a thousand cycles. You know what lasts. Your hands are calloused and your heart is steady.`
 };
 
 const FOCUS_MODIFIERS = {
-  do: `Emphasize action and direction. What should they do? What's the next step? Your response leans toward movement, will, concrete choices. The question "what do I do now?" should feel answered.`,
-  feel: `Emphasize emotional truth and resonance. What's actually felt here? What's the heart of it? Your response attunes to the relational, the felt sense, the emotional reality beneath the configuration.`,
-  see: `Emphasize clarity and insight. Help them understand what's happening. Your response illuminates pattern, mechanism, the logic of the structure. The question "what am I looking at?" should feel answered.`,
-  build: `Emphasize practical structure. What gets built from here? What's the tangible form this takes? Your response focuses on manifestation, resources, concrete outcomes. The question "how does this become real?" should feel answered.`
+  do: `Emphasize ACTION. What should they do? What's the next move? Every insight points toward something they can actually DO. Not someday — now. Be specific. "Call her." "Write it down." "Stop doing X." The reading isn't complete until they know what to do with it.`,
+
+  feel: `Emphasize FEELING. What's the emotional truth here? What's their heart actually saying? Attune to the felt sense beneath the words. Name emotions precisely. Help them feel what's true, not just understand it. The reading lands in the body, not just the mind.`,
+
+  see: `Emphasize UNDERSTANDING. Help them SEE clearly. What's the pattern? What's actually happening? Illuminate the mechanics, the logic, the structure. The reading should make them go "OH — now I see it." Clarity is the gift.`,
+
+  build: `Emphasize BUILDING. What gets created from here? What's the tangible form this takes? Focus on practical structure — resources, plans, foundations. The reading points toward something real they can build. Not dreams — blueprints.`
 };
 
 const DENSITY_MODIFIERS = {
-  luminous: `Use full language — layered, evocative, spacious. Allow metaphor. Let sentences breathe. Depth comes from layering, not length. Give the reading room to land in multiple registers.`,
-  rich: `Use expansive language — warm, full, with breathing room. Not minimal, but not overwhelming. Give enough context for the reading to feel complete without crowding. Paragraphs are welcome.`,
-  clear: `Use accessible language — flowing, balanced, easy to follow. Not sparse, but not dense. The reading should feel readable, transmissible. Someone could explain this to a friend.`,
-  essential: `Use minimal language — bare, irreducible, core truth only. No padding. No extra context unless necessary. Short sentences. Every word earns its place. If it can be said in fewer words, say it in fewer words.`
+  luminous: `Use FULL language — layered, evocative, spacious. Let metaphors bloom. Let sentences breathe and spiral. Depth comes from richness. Give the reading room to land in multiple registers. Poetry is welcome. Take your time.`,
+
+  rich: `Use EXPANSIVE language — warm, full, with room to breathe. Not minimal, not overwhelming. Give enough context for completeness without crowding. Paragraphs welcome. Let ideas develop. Satisfying, not sparse.`,
+
+  clear: `Use ACCESSIBLE language — flowing, balanced, easy to follow. Not dense, not thin. Someone could explain this to a friend. Readable. Transmissible. Clear without being cold.`,
+
+  essential: `Use MINIMAL language. Bare. Core truth only. No padding. Short sentences. Every word earns its place. If it can be said in fewer words, say it in fewer. Strip everything that isn't load-bearing.`
 };
 
 const SCOPE_MODIFIERS = {
-  resonant: `Frame the reading in the widest context — the deepest pattern showing up NOW across all experience. This isn't about history; it's about what's alive at the largest scale in this moment. Touch the archetypal without losing the personal.`,
-  patterned: `Frame the reading in terms of recurring dynamics — what's cycling back, what rhythm is alive now. Not "your past" but "this pattern" as it shows up in the present. Transformation cycles, not history.`,
-  connected: `Frame the reading in relational context — how this links to what's around it. Other people, other situations, adjacent concerns. The reading lives in a web. Do not enumerate endlessly — show connection, not accumulation.`,
-  here: `Frame the reading in immediate context — this moment, this question, this situation. Don't reach for larger patterns unless they're directly relevant. Stay close. The here and now is enough.`
+  resonant: `Frame in the WIDEST context — the deepest pattern alive NOW. Not history, not prediction — what's archetypal in this moment? Touch the mythic. Zoom out until you see the whole shape. This is about the largest truth.`,
+
+  patterned: `Frame in terms of CYCLES — what's recurring? What rhythm is repeating? Not "your past" but "this pattern" as it lives now. Transformation, not chronology. What keeps coming back around?`,
+
+  connected: `Frame in RELATIONAL context — how does this link to what surrounds it? Other people, other situations, adjacent concerns. The reading lives in a web. Show connections without drowning in them.`,
+
+  here: `Frame in IMMEDIATE context — this moment, this question, right now. Don't reach for larger patterns. Stay close. The here and now is enough. What's true in this room, today?`
 };
 
 // Complexity modifiers - meta-layer for language register
@@ -393,24 +405,28 @@ const COMPLEXITY_OPTIONS = {
 const COMPLEXITY_MODIFIERS = {
   friend: `CRITICAL: Write at a 4th grade reading level. Maximum 5-7 words per sentence. Use ONLY simple one-syllable words when possible.
 
-BANNED WORDS/PHRASES - never use these or anything like them:
-- "nurturing" → use "caring" or "help"
-- "capacity" → use "ability" or just skip it
-- "imaginative" → use "creative"
-- "quality" → just skip it
+BANNED WORDS/PHRASES - never use these:
+- "nurturing" → "caring" or "help"
+- "capacity" → "ability" or skip
+- "imaginative" → "creative"
+- "quality" → skip it
 - "perhaps/somewhat/potentially" → be direct
-- "resonance/alignment/integration" → skip or use "fit"
-- "authentic/genuine" → use "real" or "true"
-- "cultivate/nurture" → use "grow" or "build"
+- "resonance/alignment/integration" → skip or "fit"
+- "authentic/genuine" → "real" or "true"
+- "cultivate/nurture" → "grow" or "build"
 - Any word over 2 syllables — find a shorter one
 
-Write like you're texting a busy friend. Blunt. Direct. No fluff. No poetry. Just the point.
-Example good: "This card says slow down. You're pushing too hard."
-Example bad: "This card reflects a nurturing quality that invites you to cultivate patience."`,
-  guide: `Use everyday language with occasional richer vocabulary. Sentences under 15 words. Connect to feelings and lived experience. Light on terminology — if you use a term, explain it simply. Write like a supportive friend who understands this deeply.`,
-  teacher: `Use structured, educational language. Sentences can be complex but parseable on first read. Introduce terminology with context. Organize logically. Write like a skilled teacher: precise but accessible. Balance concept with example.`,
-  mentor: `Philosophical depth welcome. Complex sentences permitted. Draw on broader meaning and purpose. Use full terminology confidently. Allow contemplative space. Write like a mentor speaking to someone ready for depth. Connect to larger patterns.`,
-  master: `Full technical density. Nothing simplified. Nothing withheld. Use precise terminology throughout. Include structural details, mathematical relationships, position numbers, duality paths. Write as one master to another. Assume framework familiarity.`
+Write like texting a busy friend. Blunt. No fluff.
+GOOD: "This card says slow down. You're pushing too hard."
+BAD: "This reflects a nurturing quality that invites you to cultivate patience."`,
+
+  guide: `Use everyday language. Sentences under 15 words. Connect to feelings and lived experience. Light on terminology — if you use a term, explain it. Write like a supportive friend who gets it.`,
+
+  teacher: `Use structured, educational language. Sentences can be complex but parseable. Introduce terminology with context. Organize logically. Precise but accessible. Balance concept with example.`,
+
+  mentor: `Philosophical depth welcome. Complex sentences permitted. Draw on broader meaning and purpose. Use full terminology confidently. Allow contemplative space. Connect to larger patterns.`,
+
+  master: `Full technical density. Nothing simplified. Nothing withheld. Use precise terminology. Include structural details, mathematical relationships, position numbers, duality paths. Write as one master to another. Assume framework familiarity.`
 };
 
 // Delivery presets - combines Complexity + Stance in one selection
@@ -1599,7 +1615,7 @@ const ThreadedCard = ({
                 disabled={!selectedOp || isLoading}
                 className={`w-full px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-2 ${
                   selectedOp && !isLoading
-                    ? 'bg-[#064e3b] text-[#fcd34d] hover:bg-[#065f46] border border-emerald-700/50'
+                    ? 'bg-[#052e23] text-[#f59e0b] hover:bg-[#064e3b] border border-emerald-700/50'
                     : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
                 }`}
               >
@@ -2063,7 +2079,7 @@ const ReadingSection = ({
                     disabled={!selectedOperation || threadLoading}
                     className={`w-full px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                       selectedOperation && !threadLoading
-                        ? 'bg-[#064e3b] text-[#fcd34d] hover:bg-[#065f46] border border-emerald-700/50'
+                        ? 'bg-[#052e23] text-[#f59e0b] hover:bg-[#064e3b] border border-emerald-700/50'
                         : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
                     }`}
                   >
@@ -2246,7 +2262,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
         <span className="text-zinc-500 text-xs tracking-wide">How should this land?</span>
         <button
           onClick={() => setShowStanceHelp(!showStanceHelp)}
-          className="w-4 h-4 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-[10px] flex items-center justify-center transition-all"
+          className="w-4 h-4 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-[10px] flex items-center justify-center transition-all"
         >
           ?
         </button>
@@ -3340,7 +3356,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
     .section { margin-bottom: 2rem; }
     .section-title { color: #71717a; font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; border-bottom: 1px solid #3f3f46; padding-bottom: 0.5rem; }
     .summary-box { background: linear-gradient(to bottom right, rgba(69, 26, 3, 0.4), rgba(120, 53, 15, 0.2)); border: 2px solid rgba(245, 158, 11, 0.5); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; }
-    .summary-badge { display: inline-block; background: rgba(245, 158, 11, 0.3); color: #fcd34d; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
+    .summary-badge { display: inline-block; background: rgba(245, 158, 11, 0.3); color: #f59e0b; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 1rem; margin-bottom: 0.75rem; }
     .summary { color: #fef3c7; }
     .signature { background: rgba(8, 51, 68, 0.3); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1rem; border: 2px solid rgba(6, 182, 212, 0.5); }
     .signature-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
@@ -3444,7 +3460,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             {!draws && (
               <button
                 onClick={() => setHelpPopover(helpPopover === 'intro' ? null : 'intro')}
-                className="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-xs flex items-center justify-center transition-all mb-1"
+                className="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-xs flex items-center justify-center transition-all mb-1"
               >
                 ?
               </button>
@@ -3489,7 +3505,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 {/* Help icon positioned absolutely so it doesn't affect centering */}
                 <button
                   onClick={() => setHelpPopover(helpPopover === 'spreadType' ? null : 'spreadType')}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-xs flex items-center justify-center transition-all"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-xs flex items-center justify-center transition-all"
                 >
                   ?
                 </button>
@@ -3581,7 +3597,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   <span className="text-[12px] sm:text-xs text-zinc-400">Choose your stance</span>
                   <button
                     onClick={() => setHelpPopover(helpPopover === 'stanceLabel' ? null : 'stanceLabel')}
-                    className="absolute right-0 w-7 h-7 sm:w-4 sm:h-4 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-xs sm:text-[10px] flex items-center justify-center transition-all"
+                    className="absolute right-0 w-7 h-7 sm:w-4 sm:h-4 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-xs sm:text-[10px] flex items-center justify-center transition-all"
                   >
                     ?
                   </button>
@@ -3738,7 +3754,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 />
                 <button
                   onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
-                  className="absolute top-3 right-3 w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-[10px] flex items-center justify-center transition-all"
+                  className="absolute top-3 right-3 w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-[10px] flex items-center justify-center transition-all"
                 >
                   ?
                 </button>
@@ -3764,7 +3780,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <button
                   onClick={performReading}
                   disabled={loading}
-                  className="w-full sm:w-auto sm:mx-auto sm:block px-8 py-3 min-h-[48px] bg-[#064e3b] hover:bg-[#065f46] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl transition-all text-base text-[#fcd34d] font-medium border border-emerald-700/50"
+                  className="w-full sm:w-auto sm:mx-auto sm:block px-8 py-3 min-h-[48px] bg-[#052e23] hover:bg-[#064e3b] disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl transition-all text-base text-[#f59e0b] font-medium border border-emerald-700/50"
                 >
                   {loading ? 'Drawing...' : (spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →')}
                 </button>
@@ -3812,10 +3828,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 )}
                 <button onClick={() => setShowTraditional(!showTraditional)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showTraditional ? 'Hide Traditional' : 'Traditional'}</button>
                 <button onClick={() => setShowArchitecture(!showArchitecture)} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">{showArchitecture ? 'Hide Architecture' : 'Architecture'}</button>
-                <button onClick={resetReading} className="text-xs text-[#fcd34d] hover:text-yellow-300 transition-colors px-2 py-1 rounded bg-[#064e3b] hover:bg-[#065f46] border border-emerald-700/50">New</button>
+                <button onClick={resetReading} className="text-xs text-[#f59e0b] hover:text-yellow-300 transition-colors px-2 py-1 rounded bg-[#052e23] hover:bg-[#064e3b] border border-emerald-700/50">New</button>
                 <button
                   onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
-                  className="w-4 h-4 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-[10px] flex items-center justify-center transition-all"
+                  className="w-4 h-4 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-[10px] flex items-center justify-center transition-all"
                 >
                   ?
                 </button>
@@ -4245,7 +4261,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <span className="text-[10px] text-zinc-500 tracking-wider">Continue the conversation</span>
               <button
                 onClick={() => setHelpPopover(helpPopover === 'followup' ? null : 'followup')}
-                className="w-4 h-4 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-[10px] flex items-center justify-center transition-all"
+                className="w-4 h-4 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-[10px] flex items-center justify-center transition-all"
               >
                 ?
               </button>
@@ -4304,7 +4320,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </button>
               <button
                 onClick={() => setHelpPopover(helpPopover === 'stance' ? null : 'stance')}
-                className="w-6 h-6 rounded-full bg-[#fcd34d]/20 border border-[#fcd34d]/50 text-[#fcd34d] hover:bg-[#fcd34d]/30 hover:text-[#fcd34d] text-xs flex items-center justify-center transition-all flex-shrink-0"
+                className="w-6 h-6 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/50 text-[#f59e0b] hover:bg-[#f59e0b]/30 hover:text-[#f59e0b] text-xs flex items-center justify-center transition-all flex-shrink-0"
               >
                 ?
               </button>
@@ -4411,7 +4427,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                 <div className="mt-4 pt-3 border-t border-zinc-800/50">
                   <button
                     onClick={reinterpret}
-                    className="w-full bg-[#064e3b] hover:bg-[#065f46] text-[#fcd34d] py-2 rounded-lg text-sm transition-colors border border-emerald-700/50"
+                    className="w-full bg-[#052e23] hover:bg-[#064e3b] text-[#f59e0b] py-2 rounded-lg text-sm transition-colors border border-emerald-700/50"
                   >
                     Re-interpret with new settings
                   </button>
