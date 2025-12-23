@@ -1883,21 +1883,88 @@ const ReadingSection = ({
         </div>
       )}
 
-      {/* Reflect/Forge buttons for Overview section - own row, centered */}
+      {/* Reflect/Forge Operations for Overview section - own row, centered */}
       {type === 'summary' && onOperationSelect && !isCollapsed && (
-        <div className="flex justify-center gap-2 mt-3">
-          <button
-            onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
-          >
-            <span className="text-[10px] text-red-500">▶</span> Reflect
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
-          >
-            <span className="text-[10px] text-red-500">▶</span> Forge
-          </button>
+        <div className="border-t border-zinc-700/50 mt-5 pt-5">
+          {/* Collapsed state: show [▶ Reflect] [▶ Forge] on one line */}
+          {!selectedOperation && (
+            <div className="flex justify-center gap-3">
+              <button
+                onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
+              >
+                <span className="text-[10px] text-red-500">▶</span> Reflect
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600 flex items-center gap-1.5"
+              >
+                <span className="text-[10px] text-red-500">▶</span> Forge
+              </button>
+            </div>
+          )}
+
+          {/* Expanded state: show full panel with selected operation */}
+          {selectedOperation && (
+            <div className="max-w-xs mx-auto">
+              <div className="flex justify-center gap-4 mb-4">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOperationSelect('reflect'); }}
+                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    selectedOperation === 'reflect'
+                      ? 'bg-sky-900/60 text-sky-300 border-2 border-sky-500/60'
+                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                  }`}
+                >
+                  Reflect
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onOperationSelect('forge'); }}
+                  className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    selectedOperation === 'forge'
+                      ? 'bg-orange-900/60 text-orange-300 border-2 border-orange-500/60'
+                      : 'bg-zinc-800/50 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200 hover:border-zinc-600'
+                  }`}
+                >
+                  Forge
+                </button>
+              </div>
+
+              {/* Context Input */}
+              <div className="mb-4">
+                <textarea
+                  value={operationContext || ''}
+                  onChange={(e) => onContextChange(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder="Add context (optional)..."
+                  rows={2}
+                  className="w-full bg-zinc-900/50 border border-zinc-700/50 rounded-lg px-3 py-2.5 text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors resize-none"
+                />
+              </div>
+
+              {/* Continue Button */}
+              <div className="flex justify-center">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onContinue(); }}
+                  disabled={!selectedOperation || threadLoading}
+                  className={`w-full px-6 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    selectedOperation && !threadLoading
+                      ? 'bg-[#052e23] text-[#f59e0b] hover:bg-[#064e3b] border border-emerald-700/50'
+                      : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+                  }`}
+                >
+                  {threadLoading ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></span>
+                      Drawing...
+                    </>
+                  ) : (
+                    'Continue'
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -2575,29 +2642,39 @@ export default function NirmanakaReader() {
   };
 
   // Continue a thread with Reflect or Forge operation
-  const continueThread = async (cardIndex) => {
-    const operation = threadOperations[cardIndex];
+  const continueThread = async (threadKey) => {
+    const operation = threadOperations[threadKey];
     if (!operation) return;
 
-    const context = sanitizeForAPI(threadContexts[cardIndex] || '');
-    const parentDraw = draws[cardIndex];
-    const parentCard = parsedReading.cards.find(c => c.index === cardIndex);
-    if (!parentDraw || !parentCard) return;
+    const context = sanitizeForAPI(threadContexts[threadKey] || '');
 
-    // Get existing thread for this card or start new
-    const existingThread = threadData[cardIndex] || [];
+    // Handle summary vs card threads
+    const isSummary = threadKey === 'summary';
+    let parentContent, parentLabel;
+
+    if (isSummary) {
+      if (!parsedReading?.summary) return;
+      parentContent = parsedReading.summary;
+      parentLabel = 'Overview';
+    } else {
+      const parentDraw = draws[threadKey];
+      const parentCard = parsedReading.cards.find(c => c.index === threadKey);
+      if (!parentDraw || !parentCard) return;
+      const parentTrans = getComponent(parentDraw.transient);
+      const parentStat = STATUSES[parentDraw.status];
+      const parentStatusPrefix = parentStat.prefix || 'Balanced';
+      parentLabel = `${parentStatusPrefix} ${parentTrans.name}`;
+      parentContent = parentCard.content;
+    }
+
+    // Get existing thread or start new
+    const existingThread = threadData[threadKey] || [];
     const threadDepth = existingThread.length + 1;
 
     // Generate new draw
     const newDraw = generateSingleDraw();
 
-    setThreadLoading(prev => ({ ...prev, [cardIndex]: true }));
-
-    // Build the thread context for the prompt
-    const parentTrans = getComponent(parentDraw.transient);
-    const parentStat = STATUSES[parentDraw.status];
-    const parentStatusPrefix = parentStat.prefix || 'Balanced';
-    const parentCardName = `${parentStatusPrefix} ${parentTrans.name}`;
+    setThreadLoading(prev => ({ ...prev, [threadKey]: true }));
 
     const newTrans = getComponent(newDraw.transient);
     const newStat = STATUSES[newDraw.status];
@@ -2607,26 +2684,26 @@ export default function NirmanakaReader() {
     // Build operation-specific prompt
     const operationPrompt = operation === 'reflect'
       ? `OPERATION: REFLECT
-The user is integrating this card — sitting with it, receiving it, folding it in.
+The user is integrating ${isSummary ? 'the overview' : 'this card'} — sitting with it, receiving it, folding it in.
 Context they shared: "${context || 'none provided'}"
 
 Interpret this new card as what deepens or clarifies through integration.
 Frame your response as: "As you sit with this, here's what emerges..."
-Connect it to the parent card's message and any context provided.`
+Connect it to the ${isSummary ? 'overview' : 'parent card'}'s message and any context provided.`
       : `OPERATION: FORGE
-The user is acting on this card — creating from it, moving forward, differentiating.
+The user is acting on ${isSummary ? 'the overview' : 'this card'} — creating from it, moving forward, differentiating.
 Context they shared: "${context || 'none provided'}"
 
 Interpret this new card as what emerges from their action or intention.
 Frame your response as: "As you move forward, here's what emerges..."
-Connect it to the parent card's message and any context provided.`;
+Connect it to the ${isSummary ? 'overview' : 'parent card'}'s message and any context provided.`;
 
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
     const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
 
     const safeQuestion = sanitizeForAPI(question);
-    const userMessage = `PARENT CARD: ${parentCardName}
-Parent interpretation: ${parentCard.content}
+    const userMessage = `PARENT: ${parentLabel}
+Parent interpretation: ${parentContent}
 
 NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
 ${newTrans.description}
@@ -2658,18 +2735,18 @@ Provide the interpretation for this new card in the context of the ${operation} 
 
       setThreadData(prev => ({
         ...prev,
-        [cardIndex]: [...(prev[cardIndex] || []), newThreadItem]
+        [threadKey]: [...(prev[threadKey] || []), newThreadItem]
       }));
 
       // Clear the operation selection for next continuation
-      setThreadOperations(prev => ({ ...prev, [cardIndex]: null }));
-      setThreadContexts(prev => ({ ...prev, [cardIndex]: '' }));
+      setThreadOperations(prev => ({ ...prev, [threadKey]: null }));
+      setThreadContexts(prev => ({ ...prev, [threadKey]: '' }));
 
     } catch (e) {
       setError(`Thread error: ${e.message}`);
     }
 
-    setThreadLoading(prev => ({ ...prev, [cardIndex]: false }));
+    setThreadLoading(prev => ({ ...prev, [threadKey]: false }));
   };
 
   // Continue a nested thread (from within a threaded card)
@@ -4115,6 +4192,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   setSelectedInfo={setSelectedInfo}
                   isCollapsed={isSummaryCollapsed}
                   onToggleCollapse={() => toggleCollapse('summary', false)}
+                  selectedOperation={threadOperations['summary'] || null}
+                  onOperationSelect={(op) => setThreadOperations(prev => ({ ...prev, summary: op }))}
+                  operationContext={threadContexts['summary'] || ''}
+                  onContextChange={(ctx) => setThreadContexts(prev => ({ ...prev, summary: ctx }))}
+                  onContinue={() => continueThread('summary')}
+                  threadLoading={threadLoading['summary'] || false}
+                  threadData={threadData['summary'] || []}
                 />
               );
             })()}
