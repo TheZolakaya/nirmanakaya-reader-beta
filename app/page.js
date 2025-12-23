@@ -1537,11 +1537,13 @@ const ThreadedCard = ({
   collapsedThreads,
   setCollapsedThreads,
 }) => {
-  const threadTrans = getComponent(threadItem.draw.transient);
-  const threadStat = STATUSES[threadItem.draw.status];
-  const threadStatusPrefix = threadStat.prefix || 'Balanced';
-  const operationLabel = threadItem.operation === 'reflect' ? 'Reflecting' : 'Forging';
   const isReflect = threadItem.operation === 'reflect';
+  const hasCard = threadItem.draw !== null;
+  // Only get card info if there's a draw (Forge has card, Reflect does not)
+  const threadTrans = hasCard ? getComponent(threadItem.draw.transient) : null;
+  const threadStat = hasCard ? STATUSES[threadItem.draw.status] : null;
+  const threadStatusPrefix = threadStat ? (threadStat.prefix || 'Balanced') : '';
+  const operationLabel = isReflect ? 'Reflecting' : 'Forging';
 
   // Unique key for this thread node
   const threadKey = parentThreadPath ? `${parentThreadPath}.${threadIndex}` : `${cardIndex}:${threadIndex}`;
@@ -1587,17 +1589,26 @@ const ThreadedCard = ({
       {/* Nested card - collapsible */}
       {!isCollapsed && (
         <div className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
-          {/* Card header */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-              {threadStat.name}
-            </span>
-            <span className="text-sm font-medium text-zinc-200">
-              {threadStatusPrefix} {threadTrans.name}
-            </span>
-          </div>
-          {showTraditional && (
-            <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
+          {/* Card header - only show for Forge (has card), different header for Reflect */}
+          {hasCard ? (
+            <>
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                  {threadStat.name}
+                </span>
+                <span className="text-sm font-medium text-zinc-200">
+                  {threadStatusPrefix} {threadTrans.name}
+                </span>
+              </div>
+              {showTraditional && (
+                <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-sky-900/50 text-sky-300">Dialogue</span>
+              <span className="text-sm font-medium text-zinc-200">Response to your inquiry</span>
+            </div>
           )}
 
           {/* Interpretation with markdown parsing */}
@@ -1976,32 +1987,46 @@ const ReadingSection = ({
             </div>
           )}
 
-          {/* Thread Results for Summary */}
+          {/* Thread Results for Summary/Letter */}
           {threadData && threadData.length > 0 && (
             <div className="mt-5 space-y-4">
               {threadData.map((threadItem, threadIndex) => {
-                const trans = getComponent(threadItem.draw.transient);
-                const stat = STATUSES[threadItem.draw.status];
-                const statusPrefix = stat.prefix || 'Balanced';
                 const isReflect = threadItem.operation === 'reflect';
+                const hasCard = threadItem.draw !== null;
+                const trans = hasCard ? getComponent(threadItem.draw.transient) : null;
+                const stat = hasCard ? STATUSES[threadItem.draw.status] : null;
+                const statusPrefix = hasCard ? (stat.prefix || 'Balanced') : '';
                 return (
                   <div key={threadIndex} className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`text-xs ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}>
-                        ↳ {isReflect ? 'Reflect' : 'Forge'}{threadItem.context ? `: "${threadItem.context}"` : ''}
+                    {/* Header with operation type and user's input */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${isReflect ? 'bg-sky-500/20 text-sky-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                        {isReflect ? '↩ Reflect' : '⚡ Forge'}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-                        {stat.name}
-                      </span>
-                      <span className="text-sm font-medium text-zinc-200">
-                        {statusPrefix} {trans.name}
-                      </span>
-                    </div>
-                    {showTraditional && (
-                      <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
+                    {/* User's input quote */}
+                    {threadItem.context && (
+                      <div className={`text-xs italic mb-3 pl-3 border-l-2 ${isReflect ? 'border-sky-500/50 text-sky-300/70' : 'border-orange-500/50 text-orange-300/70'}`}>
+                        "{threadItem.context}"
+                      </div>
                     )}
+                    {/* Card info - only for Forge */}
+                    {hasCard && (
+                      <>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                            {stat.name}
+                          </span>
+                          <span className="text-sm font-medium text-zinc-200">
+                            {statusPrefix} {trans.name}
+                          </span>
+                        </div>
+                        {showTraditional && trans && (
+                          <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
+                        )}
+                      </>
+                    )}
+                    {/* Response */}
                     <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
                       {parseSimpleMarkdown(threadItem.interpretation)}
                     </div>
@@ -2687,11 +2712,17 @@ export default function NirmanakaReader() {
   };
 
   // Continue a thread with Reflect or Forge operation
+  // REFLECT = dialogue (no new card) - engage with user's inquiry/question
+  // FORGE = sub-reading (new card) - interpret new card against user's assertion
   const continueThread = async (threadKey) => {
     const operation = threadOperations[threadKey];
     if (!operation) return;
 
-    const context = sanitizeForAPI(threadContexts[threadKey] || '');
+    const userInput = sanitizeForAPI(threadContexts[threadKey] || '');
+    if (!userInput.trim()) {
+      setError('Please enter your thoughts before continuing.');
+      return;
+    }
 
     // Handle different section types
     const isSummary = threadKey === 'summary';
@@ -2723,52 +2754,99 @@ export default function NirmanakaReader() {
       parentContent = parentCard.content;
     }
 
-    // Get existing thread or start new
-    const existingThread = threadData[threadKey] || [];
-    const threadDepth = existingThread.length + 1;
-
-    // Generate new draw
-    const newDraw = generateSingleDraw();
-
     setThreadLoading(prev => ({ ...prev, [threadKey]: true }));
 
-    const newTrans = getComponent(newDraw.transient);
-    const newStat = STATUSES[newDraw.status];
-    const newStatusPrefix = newStat.prefix || 'Balanced';
-    const newCardName = `${newStatusPrefix} ${newTrans.name}`;
-
-    // Build operation-specific prompt
-    const sectionName = isSection ? parentLabel.toLowerCase() : 'this card';
-    const operationPrompt = operation === 'reflect'
-      ? `OPERATION: REFLECT
-The user is integrating ${sectionName} — sitting with it, receiving it, folding it in.
-Context they shared: "${context || 'none provided'}"
-
-Interpret this new card as what deepens or clarifies through integration.
-Frame your response as: "As you sit with this, here's what emerges..."
-Connect it to the ${sectionName}'s message and any context provided.`
-      : `OPERATION: FORGE
-The user is acting on ${sectionName} — creating from it, moving forward, differentiating.
-Context they shared: "${context || 'none provided'}"
-
-Interpret this new card as what emerges from their action or intention.
-Frame your response as: "As you move forward, here's what emerges..."
-Connect it to the ${sectionName}'s message and any context provided.`;
-
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
-    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
-
+    // Get Overview context (always include for grounding)
+    const overviewContext = parsedReading?.summary || '';
     const safeQuestion = sanitizeForAPI(question);
-    const userMessage = `PARENT: ${parentLabel}
-Parent interpretation: ${parentContent}
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
 
-NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
+    let systemPrompt, userMessage, newDraw = null;
+
+    if (operation === 'reflect') {
+      // REFLECT: Dialogue mode - no new card, engage with their inquiry
+      systemPrompt = `${BASE_SYSTEM}
+
+${stancePrompt}
+
+OPERATION: REFLECT (Mirror/Inquiry)
+The user is questioning, exploring, or pushing back on this reading. They want dialogue, not a lecture.
+
+Your job:
+- ENGAGE directly with what they said
+- If they're questioning, answer their question
+- If they're pushing back, acknowledge their perspective and respond thoughtfully
+- If they're exploring, go deeper with them
+- This is a CONVERSATION — respond to THEIR words specifically
+- Stay grounded in the reading context but speak to their specific inquiry
+
+Do NOT:
+- Ignore what they said
+- Give generic spiritual advice
+- Draw or interpret new cards
+- Lecture them
+
+Respond in 2-4 paragraphs. Be direct, engaging, and responsive to their specific input.`;
+
+      userMessage = `ORIGINAL QUESTION: "${safeQuestion}"
+
+READING OVERVIEW:
+${overviewContext}
+
+SECTION BEING DISCUSSED: ${parentLabel}
+${parentContent}
+
+USER'S INQUIRY/QUESTION:
+"${userInput}"
+
+Respond directly to what they said. This is dialogue.`;
+
+    } else {
+      // FORGE: Sub-reading mode - draw new card, interpret against their assertion
+      newDraw = generateSingleDraw();
+      const newTrans = getComponent(newDraw.transient);
+      const newStat = STATUSES[newDraw.status];
+      const newStatusPrefix = newStat.prefix || 'Balanced';
+      const newCardName = `${newStatusPrefix} ${newTrans.name}`;
+
+      systemPrompt = `${BASE_SYSTEM}
+
+${stancePrompt}
+
+OPERATION: FORGE (Create/Assert)
+The user has declared an intention or direction. They're not asking — they're stating what they're going to do or create from this reading.
+
+A new card has been drawn as the architecture's RESPONSE to their declaration.
+
+Your job:
+- Acknowledge their declared direction briefly
+- Interpret the NEW CARD as the architecture's response to their assertion
+- This is a SUB-READING: what does this new card reveal about the path they've declared?
+- The new card might affirm, complicate, deepen, or redirect their stated intention
+- Be specific about how the new card speaks to what they said they're doing
+
+Output structure:
+1. Brief acknowledgment of their direction (1-2 sentences)
+2. The new card's message in context of their declaration (2-3 paragraphs)`;
+
+      userMessage = `ORIGINAL QUESTION: "${safeQuestion}"
+
+READING OVERVIEW:
+${overviewContext}
+
+SECTION THEY'RE FORGING FROM: ${parentLabel}
+${parentContent}
+
+USER'S DECLARATION/ASSERTION:
+"${userInput}"
+
+NEW CARD DRAWN IN RESPONSE: ${newCardName}
+Traditional: ${newTrans.traditional}
 ${newTrans.description}
+${newTrans.extended || ''}
 
-Thread depth: ${threadDepth}
-Original question: "${safeQuestion}"
-
-Provide the interpretation for this new card in the context of the ${operation} operation.`;
+Interpret this new card as the architecture's response to their declared direction.`;
+    }
 
     try {
       const res = await fetch('/api/reading', {
@@ -2784,10 +2862,10 @@ Provide the interpretation for this new card in the context of the ${operation} 
 
       // Add to thread
       const newThreadItem = {
-        draw: newDraw,
+        draw: newDraw, // null for reflect, card for forge
         interpretation: data.reading,
         operation: operation,
-        context: context
+        context: userInput
       };
 
       setThreadData(prev => ({
@@ -2807,58 +2885,100 @@ Provide the interpretation for this new card in the context of the ${operation} 
   };
 
   // Continue a nested thread (from within a threaded card)
+  // REFLECT = dialogue (no new card), FORGE = sub-reading (new card)
   const continueNestedThread = async (cardIndex, threadKey, parentThreadItem) => {
     const operation = threadOperations[threadKey];
     if (!operation) return;
 
-    const context = sanitizeForAPI(threadContexts[threadKey] || '');
-
-    // Generate new draw
-    const newDraw = generateSingleDraw();
+    const userInput = sanitizeForAPI(threadContexts[threadKey] || '');
+    if (!userInput.trim()) {
+      setError('Please enter your thoughts before continuing.');
+      return;
+    }
 
     setThreadLoading(prev => ({ ...prev, [threadKey]: true }));
 
-    // Build the thread context for the prompt
-    const parentTrans = getComponent(parentThreadItem.draw.transient);
-    const parentStat = STATUSES[parentThreadItem.draw.status];
-    const parentStatusPrefix = parentStat.prefix || 'Balanced';
-    const parentCardName = `${parentStatusPrefix} ${parentTrans.name}`;
+    // Get parent card context
+    const parentTrans = parentThreadItem.draw ? getComponent(parentThreadItem.draw.transient) : null;
+    const parentStat = parentThreadItem.draw ? STATUSES[parentThreadItem.draw.status] : null;
+    const parentStatusPrefix = parentTrans ? (parentStat.prefix || 'Balanced') : '';
+    const parentCardName = parentTrans ? `${parentStatusPrefix} ${parentTrans.name}` : 'Previous Response';
 
-    const newTrans = getComponent(newDraw.transient);
-    const newStat = STATUSES[newDraw.status];
-    const newStatusPrefix = newStat.prefix || 'Balanced';
-    const newCardName = `${newStatusPrefix} ${newTrans.name}`;
-
-    // Build operation-specific prompt
-    const operationPrompt = operation === 'reflect'
-      ? `OPERATION: REFLECT
-The user is integrating this card — sitting with it, receiving it, folding it in.
-Context they shared: "${context || 'none provided'}"
-
-Interpret this new card as what deepens or clarifies through integration.
-Frame your response as: "As you sit with this, here's what emerges..."
-Connect it to the parent card's message and any context provided.`
-      : `OPERATION: FORGE
-The user is acting on this card — creating from it, moving forward, differentiating.
-Context they shared: "${context || 'none provided'}"
-
-Interpret this new card as what emerges from their action or intention.
-Frame your response as: "As you move forward, here's what emerges..."
-Connect it to the parent card's message and any context provided.`;
-
-    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
-    const systemPrompt = `${BASE_SYSTEM}\n\n${stancePrompt}\n\n${operationPrompt}\n\nProvide only the interpretation — no section markers, just the reading for this threaded card.`;
-
+    // Get Overview context
+    const overviewContext = parsedReading?.summary || '';
     const safeQuestion = sanitizeForAPI(question);
-    const userMessage = `PARENT CARD: ${parentCardName}
-Parent interpretation: ${parentThreadItem.interpretation}
+    const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
 
-NEW CARD DRAWN: ${newCardName} (${newTrans.traditional})
+    let systemPrompt, userMessage, newDraw = null;
+
+    if (operation === 'reflect') {
+      // REFLECT: Dialogue mode - no new card
+      systemPrompt = `${BASE_SYSTEM}
+
+${stancePrompt}
+
+OPERATION: REFLECT (Mirror/Inquiry)
+The user is questioning, exploring, or pushing back. They want dialogue, not a lecture.
+
+Your job:
+- ENGAGE directly with what they said
+- If they're questioning, answer their question
+- If they're pushing back, acknowledge and respond thoughtfully
+- This is a CONVERSATION — respond to THEIR words specifically
+
+Do NOT draw or interpret new cards. Respond in 2-4 paragraphs.`;
+
+      userMessage = `ORIGINAL QUESTION: "${safeQuestion}"
+
+READING OVERVIEW:
+${overviewContext}
+
+CARD BEING DISCUSSED: ${parentCardName}
+${parentThreadItem.interpretation}
+
+USER'S INQUIRY/QUESTION:
+"${userInput}"
+
+Respond directly to what they said. This is dialogue.`;
+
+    } else {
+      // FORGE: Sub-reading mode - draw new card
+      newDraw = generateSingleDraw();
+      const newTrans = getComponent(newDraw.transient);
+      const newStat = STATUSES[newDraw.status];
+      const newStatusPrefix = newStat.prefix || 'Balanced';
+      const newCardName = `${newStatusPrefix} ${newTrans.name}`;
+
+      systemPrompt = `${BASE_SYSTEM}
+
+${stancePrompt}
+
+OPERATION: FORGE (Create/Assert)
+The user has declared an intention. A new card has been drawn as the architecture's response.
+
+Your job:
+- Acknowledge their declared direction briefly
+- Interpret the NEW CARD as the architecture's response to their assertion
+- This is a SUB-READING of the new card against their declared direction`;
+
+      userMessage = `ORIGINAL QUESTION: "${safeQuestion}"
+
+READING OVERVIEW:
+${overviewContext}
+
+CARD THEY'RE FORGING FROM: ${parentCardName}
+${parentThreadItem.interpretation}
+
+USER'S DECLARATION/ASSERTION:
+"${userInput}"
+
+NEW CARD DRAWN IN RESPONSE: ${newCardName}
+Traditional: ${newTrans.traditional}
 ${newTrans.description}
+${newTrans.extended || ''}
 
-Original question: "${safeQuestion}"
-
-Provide the interpretation for this new card in the context of the ${operation} operation.`;
+Interpret this new card as the architecture's response to their declared direction.`;
+    }
 
     try {
       const res = await fetch('/api/reading', {
@@ -2874,10 +2994,10 @@ Provide the interpretation for this new card in the context of the ${operation} 
 
       // Create new thread item
       const newThreadItem = {
-        draw: newDraw,
+        draw: newDraw, // null for reflect, card for forge
         interpretation: data.reading,
         operation: operation,
-        context: context,
+        context: userInput,
         children: []
       };
 
@@ -3635,7 +3755,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.7 alpha • Reflect/Forge + Royal Rule</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.8 alpha • Reflect/Forge Fixed</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -4481,28 +4601,42 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                           {threadData['path'] && threadData['path'].length > 0 && (
                             <div className="mt-5 space-y-4">
                               {threadData['path'].map((threadItem, threadIndex) => {
-                                const trans = getComponent(threadItem.draw.transient);
-                                const stat = STATUSES[threadItem.draw.status];
-                                const statusPrefix = stat.prefix || 'Balanced';
                                 const isReflect = threadItem.operation === 'reflect';
+                                const hasCard = threadItem.draw !== null;
+                                const trans = hasCard ? getComponent(threadItem.draw.transient) : null;
+                                const stat = hasCard ? STATUSES[threadItem.draw.status] : null;
+                                const statusPrefix = hasCard ? (stat.prefix || 'Balanced') : '';
                                 return (
                                   <div key={threadIndex} className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <span className={`text-xs ${isReflect ? 'text-sky-400' : 'text-orange-400'}`}>
-                                        ↳ {isReflect ? 'Reflect' : 'Forge'}{threadItem.context ? `: "${threadItem.context}"` : ''}
+                                    {/* Header with operation type */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                      <span className={`text-xs font-medium px-2 py-0.5 rounded ${isReflect ? 'bg-sky-500/20 text-sky-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                        {isReflect ? '↩ Reflect' : '⚡ Forge'}
                                       </span>
                                     </div>
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-                                        {stat.name}
-                                      </span>
-                                      <span className="text-sm font-medium text-zinc-200">
-                                        {statusPrefix} {trans.name}
-                                      </span>
-                                    </div>
-                                    {showTraditional && (
-                                      <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
+                                    {/* User's input quote */}
+                                    {threadItem.context && (
+                                      <div className={`text-xs italic mb-3 pl-3 border-l-2 ${isReflect ? 'border-sky-500/50 text-sky-300/70' : 'border-orange-500/50 text-orange-300/70'}`}>
+                                        "{threadItem.context}"
+                                      </div>
                                     )}
+                                    {/* Card info - only for Forge */}
+                                    {hasCard && (
+                                      <>
+                                        <div className="flex items-center gap-2 mb-2">
+                                          <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                                            {stat.name}
+                                          </span>
+                                          <span className="text-sm font-medium text-zinc-200">
+                                            {statusPrefix} {trans.name}
+                                          </span>
+                                        </div>
+                                        {showTraditional && trans && (
+                                          <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
+                                        )}
+                                      </>
+                                    )}
+                                    {/* Response */}
                                     <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
                                       {parseSimpleMarkdown(threadItem.interpretation)}
                                     </div>
