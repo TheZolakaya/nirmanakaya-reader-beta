@@ -523,6 +523,8 @@ const LOADING_PHRASES = [
 // Build the stance prompt from 5 dimensions (including complexity)
 const buildStancePrompt = (complexity, voice, focus, density, scope) => {
   return `
+GLOBAL VOICE RULE: NEVER use terms of endearment like "sweetheart", "honey", "dear", "sweetie", "love", "darling", "my friend". Show warmth through TONE and CARE, not pet names. These feel creepy from AI.
+
 COMPLEXITY (Language Register):
 ${COMPLEXITY_MODIFIERS[complexity] || COMPLEXITY_MODIFIERS.teacher}
 
@@ -3460,7 +3462,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.3 alpha • Voice Warmth</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.4 alpha • No Pet Names</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -3716,12 +3718,13 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     ✨
                   </button>
                   {[0, 1].map((offset) => {
-                    const suggestion = SUGGESTIONS[(suggestionIndex + offset) % SUGGESTIONS.length];
+                    const idx = (suggestionIndex + offset) % SUGGESTIONS.length;
+                    const suggestion = SUGGESTIONS[idx];
                     return (
                       <button
-                        key={offset}
+                        key={`${idx}-${suggestion.slice(0, 10)}`}
                         onClick={() => setQuestion(suggestion)}
-                        className="text-[11px] sm:text-xs px-2 py-1 text-zinc-500 hover:text-zinc-300 truncate max-w-[150px] sm:max-w-[180px]"
+                        className="text-[11px] sm:text-xs px-2 py-1 text-zinc-500 hover:text-zinc-300 truncate max-w-[150px] sm:max-w-[180px] transition-opacity duration-300"
                       >
                         {suggestion}
                       </button>
