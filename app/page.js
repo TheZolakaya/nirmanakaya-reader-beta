@@ -2210,7 +2210,7 @@ const StanceSelector = ({ stance, setStance, showCustomize, setShowCustomize, co
         <span className="text-zinc-500 text-xs tracking-wide">How should this land?</span>
         <button
           onClick={() => setShowStanceHelp(!showStanceHelp)}
-          className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
+          className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
         >
           ?
         </button>
@@ -3395,13 +3395,32 @@ Respond directly with the expanded content. No section markers needed. Keep it f
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8 mobile-container">
         
         {/* Header */}
-        <div className="text-center mb-6 md:mb-6 mobile-header">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-extralight tracking-[0.2em] sm:tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
-          <p className="text-zinc-600 text-[10px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-700 text-[10px] mt-1">v0.30.8 alpha • UI Polish</p>
+        <div className="text-center mb-6 md:mb-6 mobile-header relative">
+          <div className="flex items-center justify-center gap-2">
+            <h1 className="text-[20px] sm:text-2xl md:text-3xl font-extralight tracking-[0.2em] sm:tracking-[0.3em] mb-1">NIRMANAKAYA</h1>
+            {!draws && (
+              <button
+                onClick={() => setHelpPopover(helpPopover === 'intro' ? null : 'intro')}
+                className="w-6 h-6 sm:w-5 sm:h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all mb-1"
+              >
+                ?
+              </button>
+            )}
+          </div>
+          <p className="text-zinc-500 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
+          <p className="text-zinc-500 text-[10px] mt-1">v0.30.9 alpha • Mobile Polish</p>
+          {helpPopover === 'intro' && (
+            <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
+              <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
+                <p className="text-zinc-300 text-sm leading-relaxed">
+                  The Nirmanakaya is both mirror and forge. Bring a question or declare an intention —
+                  the draw finds what's ready to be seen. Where you are, what's moving, what might need attention.
+                </p>
+                <button onClick={() => setHelpPopover(null)} className="mt-3 text-xs text-zinc-500 hover:text-zinc-300 w-full text-center">Got it</button>
+              </div>
+            </div>
+          )}
         </div>
-
-        {!draws && <IntroSection />}
 
         {/* Controls */}
         {!draws && (
@@ -3412,22 +3431,22 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <div className="flex justify-center mb-4 relative">
                 <div className="inline-flex rounded-lg bg-zinc-900 p-1 mode-tabs-container">
                   <button onClick={() => { setSpreadType('durable'); setSpreadKey('arc'); }}
-                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-sm transition-all ${spreadType === 'durable' ? 'bg-purple-950/90 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'durable' ? 'bg-purple-950 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
                     Reflect
                   </button>
                   <button onClick={() => { setSpreadType('random'); setSpreadKey('three'); }}
-                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-sm transition-all ${spreadType === 'random' ? 'bg-purple-950/90 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'random' ? 'bg-purple-950 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
                     Discover
                   </button>
                   <button onClick={() => { setSpreadType('forge'); setSpreadKey('one'); }}
-                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-sm transition-all ${spreadType === 'forge' ? 'bg-purple-950/90 text-amber-400' : 'text-zinc-500 hover:text-zinc-300'}`}>
+                    className={`mode-tab px-4 py-2 min-h-[44px] sm:min-h-0 rounded-md text-[15px] sm:text-sm font-medium sm:font-normal transition-all ${spreadType === 'forge' ? 'bg-purple-950 text-amber-400' : 'text-zinc-400 hover:text-zinc-200'}`}>
                     Forge
                   </button>
                 </div>
                 {/* Help icon positioned absolutely so it doesn't affect centering */}
                 <button
                   onClick={() => setHelpPopover(helpPopover === 'spreadType' ? null : 'spreadType')}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all"
                 >
                   ?
                 </button>
@@ -3460,12 +3479,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </div>
 
               {/* Mode helper text */}
-              <p className="text-center text-zinc-600 text-xs mb-4">{MODE_HELPER_TEXT[spreadType]}</p>
+              <p className="text-center text-zinc-500 text-[12px] sm:text-xs mb-4">{MODE_HELPER_TEXT[spreadType]}</p>
 
               {/* Card Count Selector - fixed height to prevent layout shifts */}
               <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto card-count-selector h-[65px] sm:h-[45px]">
                 {spreadType === 'forge' ? (
-                  <div className="text-center text-zinc-500 text-sm">
+                  <div className="text-center text-zinc-400 text-[14px] sm:text-sm">
                     One card • Intention-first
                   </div>
                 ) : (
@@ -3474,14 +3493,14 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                       {spreadType === 'random' ? (
                         Object.entries(RANDOM_SPREADS).map(([key, value]) => (
                           <button key={key} onClick={() => setSpreadKey(key)}
-                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-sm transition-all ${spreadKey === key ? 'bg-purple-950/90 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800 active:bg-zinc-700'}`}>
+                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[14px] sm:text-sm font-medium sm:font-normal transition-all ${spreadKey === key ? 'bg-purple-950 text-amber-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 active:bg-zinc-700'}`}>
                             {value.name}
                           </button>
                         ))
                       ) : (
                         Object.entries(DURABLE_SPREADS).map(([key, value]) => (
                           <button key={key} onClick={() => setSpreadKey(key)}
-                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-sm transition-all ${spreadKey === key ? 'bg-purple-950/90 text-amber-400' : 'bg-zinc-900 text-zinc-500 hover:bg-zinc-800 active:bg-zinc-700'}`}>
+                            className={`px-3 sm:px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[14px] sm:text-sm font-medium sm:font-normal transition-all ${spreadKey === key ? 'bg-purple-950 text-amber-400' : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 active:bg-zinc-700'}`}>
                             {value.name}
                           </button>
                         ))
@@ -3494,32 +3513,32 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               {/* Spectrum/description area - fixed height to prevent layout shifts */}
               <div className="h-[24px] mb-4 flex items-center justify-center">
                 {spreadType === 'random' ? (
-                  <div className="flex justify-between w-full max-w-lg text-[10px] text-zinc-500">
+                  <div className="flex justify-between w-full max-w-lg text-[11px] sm:text-[10px] text-zinc-400">
                     <button
                       onClick={() => navigateSpread('left')}
-                      className="hover:text-zinc-300 transition-colors cursor-pointer"
+                      className="hover:text-zinc-200 transition-colors cursor-pointer"
                     >
                       ← Focused
                     </button>
                     <button
                       onClick={() => navigateSpread('right')}
-                      className="hover:text-zinc-300 transition-colors cursor-pointer"
+                      className="hover:text-zinc-200 transition-colors cursor-pointer"
                     >
                       Expansive →
                     </button>
                   </div>
                 ) : spreadType === 'durable' && DURABLE_SPREADS[spreadKey] ? (
-                  <p className="text-center text-zinc-600 text-xs">{DURABLE_SPREADS[spreadKey].description}</p>
+                  <p className="text-center text-zinc-500 text-[12px] sm:text-xs">{DURABLE_SPREADS[spreadKey].description}</p>
                 ) : null}
               </div>
 
               {/* Stance Selector - same width as card count for alignment */}
               <div className="w-full max-w-lg mx-auto relative">
                 <div className="relative flex items-center justify-center mb-3">
-                  <span className="text-xs text-zinc-500">Choose your stance</span>
+                  <span className="text-[12px] sm:text-xs text-zinc-400">Choose your stance</span>
                   <button
                     onClick={() => setHelpPopover(helpPopover === 'stanceLabel' ? null : 'stanceLabel')}
-                    className="absolute right-0 w-7 h-7 sm:w-4 sm:h-4 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs sm:text-[10px] flex items-center justify-center transition-all"
+                    className="absolute right-0 w-7 h-7 sm:w-4 sm:h-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-xs sm:text-[10px] flex items-center justify-center transition-all"
                   >
                     ?
                   </button>
@@ -3551,10 +3570,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         <button
                           key={key}
                           onClick={() => applyDeliveryPreset(key)}
-                          className={`flex-1 px-0.5 sm:px-2 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[9px] sm:text-[11px] transition-all text-center overflow-hidden ${
+                          className={`flex-1 px-0.5 sm:px-2 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-sm text-[13px] sm:text-[11px] font-medium sm:font-normal transition-all text-center overflow-hidden ${
                             isActive
-                              ? 'bg-purple-950/90 text-amber-400'
-                              : 'bg-zinc-900 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 active:bg-zinc-700'
+                              ? 'bg-purple-950 text-amber-400'
+                              : 'bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 active:bg-zinc-700'
                           }`}
                         >
                           <span className="sm:hidden">{mobileNames[key]}</span>
@@ -3564,27 +3583,27 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     })}
                   </div>
                   {/* Current stance selection descriptor */}
-                  <div className="text-center text-[9px] sm:text-[10px] text-zinc-600 mt-1">
+                  <div className="text-center text-[12px] sm:text-[10px] text-zinc-500 mt-1">
                     {getCurrentDeliveryPreset()?.[1]?.descriptor || 'Custom'}
                   </div>
                   {/* Spectrum labels row: Lighter - Fine-tune - Deeper (both mobile and desktop) */}
-                  <div className="flex justify-between items-center w-full text-[10px] text-zinc-500 mt-1 px-2 sm:px-0">
+                  <div className="flex justify-between items-center w-full text-[11px] sm:text-[10px] text-zinc-400 mt-0.5 px-2 sm:px-0">
                     <button
                       onClick={() => navigateStance('left')}
-                      className="hover:text-zinc-300 active:text-zinc-300 transition-colors cursor-pointer py-2 sm:py-0 whitespace-nowrap"
+                      className="hover:text-zinc-200 active:text-zinc-200 transition-colors cursor-pointer py-2 sm:py-0 whitespace-nowrap"
                     >
                       ← Lighter
                     </button>
                     <button
                       onClick={() => setShowLandingFineTune(!showLandingFineTune)}
-                      className="hover:text-zinc-300 active:text-zinc-300 transition-colors flex items-center gap-0.5 py-2 sm:py-0 whitespace-nowrap text-[9px] sm:text-[10px]"
+                      className="hover:text-zinc-200 active:text-zinc-200 transition-colors flex items-center gap-0.5 py-2 sm:py-0 whitespace-nowrap"
                     >
                       <span>{showLandingFineTune ? '▾' : '▸'}</span>
                       <span>Fine-tune</span>
                     </button>
                     <button
                       onClick={() => navigateStance('right')}
-                      className="hover:text-zinc-300 active:text-zinc-300 transition-colors cursor-pointer py-2 sm:py-0 whitespace-nowrap"
+                      className="hover:text-zinc-200 active:text-zinc-200 transition-colors cursor-pointer py-2 sm:py-0 whitespace-nowrap"
                     >
                       Deeper →
                     </button>
@@ -3650,12 +3669,12 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         ? "What area of life are you examining?"
                         : "Name your question or declare your intent... or leave blank for a general reading"
                   )}
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none transition-colors text-sm sm:text-base min-h-[120px] sm:min-h-0"
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 pr-10 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-zinc-700 resize-none transition-colors text-[16px] sm:text-base min-h-[120px] sm:min-h-0"
                   rows={4}
                 />
                 <button
                   onClick={() => setHelpPopover(helpPopover === 'input' ? null : 'input')}
-                  className="absolute top-3 right-3 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs sm:text-xs flex items-center justify-center transition-all"
+                  className="absolute top-3 right-3 w-7 h-7 sm:w-5 sm:h-5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-xs sm:text-xs flex items-center justify-center transition-all"
                 >
                   ?
                 </button>
@@ -3698,7 +3717,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         <button
                           key={offset}
                           onClick={() => setQuestion(suggestion)}
-                          className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-500 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all max-w-[140px] truncate"
+                          className="text-xs px-3 py-1.5 rounded-full bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700/50 hover:border-zinc-600 transition-all max-w-[140px] truncate"
                         >
                           {suggestion}
                         </button>
@@ -3710,7 +3729,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   <button
                     onClick={performReading}
                     disabled={loading}
-                    className="px-5 py-2 bg-purple-950/90 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)] shrink-0"
+                    className="px-5 py-2 bg-purple-950 hover:bg-purple-900 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-lg transition-all text-sm text-amber-400 font-medium border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)] shrink-0"
                   >
                     {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
                   </button>
@@ -3726,7 +3745,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                         <button
                           key={offset}
                           onClick={() => setQuestion(suggestion)}
-                          className="suggestion-pill text-sm px-4 py-3 min-h-[44px] rounded-xl bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-300 border border-zinc-700/50 hover:border-zinc-600 transition-all text-left"
+                          className="suggestion-pill text-[14px] px-4 py-3 min-h-[44px] rounded-xl bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700/50 hover:border-zinc-600 transition-all text-left"
                         >
                           {suggestion}
                         </button>
@@ -3738,7 +3757,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   <div className="flex gap-2">
                     <button
                       onClick={handleSpark}
-                      className="spark-btn flex-1 px-4 py-3 min-h-[44px] rounded-xl bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-sm flex items-center justify-center gap-1.5 border border-amber-800/50"
+                      className="spark-btn flex-1 px-4 py-3 min-h-[44px] rounded-xl bg-amber-900/30 text-amber-400 hover:bg-amber-900/50 transition-all text-[14px] flex items-center justify-center gap-1.5 border border-amber-800/50"
                       title="Show a random suggestion"
                     >
                       <span>✨</span>
@@ -3747,7 +3766,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                     <button
                       onClick={performReading}
                       disabled={loading}
-                      className="action-btn flex-[2] px-5 py-3 min-h-[48px] bg-purple-950/90 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl transition-all text-base text-amber-400 font-medium border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)]"
+                      className="action-btn flex-[2] px-5 py-3 min-h-[48px] bg-purple-950 hover:bg-purple-900 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl transition-all text-base text-amber-400 font-medium border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)]"
                     >
                       {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
                     </button>
@@ -3773,7 +3792,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             {/* Main action button visible when typing */}
             {question.trim() && (
               <button onClick={performReading} disabled={loading}
-                className="px-6 py-3 sm:py-2.5 min-h-[48px] sm:min-h-0 bg-purple-950/90 hover:bg-purple-800/80 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl sm:rounded-lg transition-all text-base sm:text-sm text-amber-400 font-medium mx-auto block border border-purple-700/50 shadow-[0_0_12px_rgba(147,51,234,0.3)] hover:shadow-[0_0_16px_rgba(147,51,234,0.4)]">
+                className="px-6 py-3 sm:py-2.5 min-h-[48px] sm:min-h-0 bg-purple-950 hover:bg-purple-900 disabled:bg-zinc-900 disabled:text-zinc-700 rounded-xl sm:rounded-lg transition-all text-base sm:text-sm text-amber-400 font-medium mx-auto block border border-purple-800/50 shadow-[0_0_12px_rgba(88,28,135,0.4)] hover:shadow-[0_0_16px_rgba(88,28,135,0.5)]">
                 {spreadType === 'forge' ? 'Forge →' : spreadType === 'durable' ? 'Reflect →' : 'Discover →'}
               </button>
             )}
@@ -3820,7 +3839,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                   <button onClick={resetReading} className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded bg-zinc-800/50">New</button>
                   <button
                     onClick={() => setHelpPopover(helpPopover === 'actions' ? null : 'actions')}
-                    className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
+                    className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
                   >
                     ?
                   </button>
@@ -4252,7 +4271,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               <span className="text-[10px] text-zinc-500 tracking-wider">Continue the conversation</span>
               <button
                 onClick={() => setHelpPopover(helpPopover === 'followup' ? null : 'followup')}
-                className="w-4 h-4 rounded-full bg-zinc-800 text-zinc-600 hover:text-zinc-400 text-[10px] flex items-center justify-center transition-all"
+                className="w-4 h-4 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-[10px] flex items-center justify-center transition-all"
               >
                 ?
               </button>
@@ -4311,7 +4330,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
               </button>
               <button
                 onClick={() => setHelpPopover(helpPopover === 'stance' ? null : 'stance')}
-                className="w-6 h-6 rounded-full bg-zinc-800 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all flex-shrink-0"
+                className="w-6 h-6 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700 text-xs flex items-center justify-center transition-all flex-shrink-0"
               >
                 ?
               </button>
@@ -4347,7 +4366,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                             onClick={() => applyDeliveryPreset(key)}
                             className={`px-2 py-1.5 rounded-lg text-[11px] transition-all whitespace-nowrap ${
                               isActive
-                                ? 'bg-purple-950/90 text-amber-400'
+                                ? 'bg-purple-950 text-amber-400'
                                 : 'bg-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
                             }`}
                           >
