@@ -1538,11 +1538,10 @@ const ThreadedCard = ({
   setCollapsedThreads,
 }) => {
   const isReflect = threadItem.operation === 'reflect';
-  const hasCard = threadItem.draw !== null;
-  // Only get card info if there's a draw (Forge has card, Reflect does not)
-  const threadTrans = hasCard ? getComponent(threadItem.draw.transient) : null;
-  const threadStat = hasCard ? STATUSES[threadItem.draw.status] : null;
-  const threadStatusPrefix = threadStat ? (threadStat.prefix || 'Balanced') : '';
+  // Both Reflect and Forge draw new cards
+  const threadTrans = getComponent(threadItem.draw.transient);
+  const threadStat = STATUSES[threadItem.draw.status];
+  const threadStatusPrefix = threadStat.prefix || 'Balanced';
   const operationLabel = isReflect ? 'Reflecting' : 'Forging';
 
   // Unique key for this thread node
@@ -1589,26 +1588,17 @@ const ThreadedCard = ({
       {/* Nested card - collapsible */}
       {!isCollapsed && (
         <div className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
-          {/* Card header - only show for Forge (has card), different header for Reflect */}
-          {hasCard ? (
-            <>
-              <div className="flex items-center gap-2 mb-2">
-                <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-                  {threadStat.name}
-                </span>
-                <span className="text-sm font-medium text-zinc-200">
-                  {threadStatusPrefix} {threadTrans.name}
-                </span>
-              </div>
-              {showTraditional && (
-                <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
-              )}
-            </>
-          ) : (
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs px-2 py-0.5 rounded-full bg-sky-900/50 text-sky-300">Dialogue</span>
-              <span className="text-sm font-medium text-zinc-200">Response to your inquiry</span>
-            </div>
+          {/* Card header - both Reflect and Forge draw new cards */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+              {threadStat.name}
+            </span>
+            <span className="text-sm font-medium text-zinc-200">
+              {threadStatusPrefix} {threadTrans.name}
+            </span>
+          </div>
+          {showTraditional && (
+            <div className="text-xs text-zinc-500 mb-2">{threadTrans.traditional}</div>
           )}
 
           {/* Interpretation with markdown parsing */}
@@ -1992,10 +1982,10 @@ const ReadingSection = ({
             <div className="mt-5 space-y-4">
               {threadData.map((threadItem, threadIndex) => {
                 const isReflect = threadItem.operation === 'reflect';
-                const hasCard = threadItem.draw !== null;
-                const trans = hasCard ? getComponent(threadItem.draw.transient) : null;
-                const stat = hasCard ? STATUSES[threadItem.draw.status] : null;
-                const statusPrefix = hasCard ? (stat.prefix || 'Balanced') : '';
+                // Both Reflect and Forge draw new cards
+                const trans = getComponent(threadItem.draw.transient);
+                const stat = STATUSES[threadItem.draw.status];
+                const statusPrefix = stat.prefix || 'Balanced';
                 return (
                   <div key={threadIndex} className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
                     {/* Header with operation type and user's input */}
@@ -2010,21 +2000,17 @@ const ReadingSection = ({
                         "{threadItem.context}"
                       </div>
                     )}
-                    {/* Card info - only for Forge */}
-                    {hasCard && (
-                      <>
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-                            {stat.name}
-                          </span>
-                          <span className="text-sm font-medium text-zinc-200">
-                            {statusPrefix} {trans.name}
-                          </span>
-                        </div>
-                        {showTraditional && trans && (
-                          <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
-                        )}
-                      </>
+                    {/* Card info - both Reflect and Forge draw cards */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                        {stat.name}
+                      </span>
+                      <span className="text-sm font-medium text-zinc-200">
+                        {statusPrefix} {trans.name}
+                      </span>
+                    </div>
+                    {showTraditional && trans && (
+                      <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
                     )}
                     {/* Response */}
                     <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
@@ -2761,32 +2747,36 @@ export default function NirmanakaReader() {
     const safeQuestion = sanitizeForAPI(question);
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
 
-    let systemPrompt, userMessage, newDraw = null;
+    let systemPrompt, userMessage;
+
+    // BOTH operations draw a new card - the difference is the framing
+    const newDraw = generateSingleDraw();
+    const newTrans = getComponent(newDraw.transient);
+    const newStat = STATUSES[newDraw.status];
+    const newStatusPrefix = newStat.prefix || 'Balanced';
+    const newCardName = `${newStatusPrefix} ${newTrans.name}`;
 
     if (operation === 'reflect') {
-      // REFLECT: Dialogue mode - no new card, engage with their inquiry
+      // REFLECT: User is INQUIRING - architecture responds to their QUESTION with a new card
       systemPrompt = `${BASE_SYSTEM}
 
 ${stancePrompt}
 
-OPERATION: REFLECT (Mirror/Inquiry)
-The user is questioning, exploring, or pushing back on this reading. They want dialogue, not a lecture.
+OPERATION: REFLECT (Inquiry/Question)
+The user is asking a question, exploring, or seeking clarity about this reading.
+A new card has been drawn as the architecture's RESPONSE to their inquiry.
 
 Your job:
-- ENGAGE directly with what they said
-- If they're questioning, answer their question
-- If they're pushing back, acknowledge their perspective and respond thoughtfully
-- If they're exploring, go deeper with them
-- This is a CONVERSATION — respond to THEIR words specifically
-- Stay grounded in the reading context but speak to their specific inquiry
+- Acknowledge their question briefly
+- Interpret the NEW CARD as the architecture's answer to what they asked
+- This is a SUB-READING: the drawn card speaks directly to their inquiry
+- Be specific about how the new card addresses their question
+- The card IS the architecture speaking back to them
 
-Do NOT:
-- Ignore what they said
-- Give generic spiritual advice
-- Draw or interpret new cards
-- Lecture them
-
-Respond in 2-4 paragraphs. Be direct, engaging, and responsive to their specific input.`;
+Output structure:
+1. Brief acknowledgment of their question (1-2 sentences)
+2. "The architecture responds with [Card Name]..."
+3. How this card answers or illuminates their inquiry (2-3 paragraphs)`;
 
       userMessage = `ORIGINAL QUESTION: "${safeQuestion}"
 
@@ -2799,16 +2789,15 @@ ${parentContent}
 USER'S INQUIRY/QUESTION:
 "${userInput}"
 
-Respond directly to what they said. This is dialogue.`;
+NEW CARD DRAWN IN RESPONSE: ${newCardName}
+Traditional: ${newTrans.traditional}
+${newTrans.description}
+${newTrans.extended || ''}
+
+Interpret this new card as the architecture's response to their question.`;
 
     } else {
-      // FORGE: Sub-reading mode - draw new card, interpret against their assertion
-      newDraw = generateSingleDraw();
-      const newTrans = getComponent(newDraw.transient);
-      const newStat = STATUSES[newDraw.status];
-      const newStatusPrefix = newStat.prefix || 'Balanced';
-      const newCardName = `${newStatusPrefix} ${newTrans.name}`;
-
+      // FORGE: User is ASSERTING - architecture responds to their DECLARATION with a new card
       systemPrompt = `${BASE_SYSTEM}
 
 ${stancePrompt}
@@ -2862,7 +2851,7 @@ Interpret this new card as the architecture's response to their declared directi
 
       // Add to thread
       const newThreadItem = {
-        draw: newDraw, // null for reflect, card for forge
+        draw: newDraw, // both reflect and forge draw a new card
         interpretation: data.reading,
         operation: operation,
         context: userInput
@@ -2885,7 +2874,7 @@ Interpret this new card as the architecture's response to their declared directi
   };
 
   // Continue a nested thread (from within a threaded card)
-  // REFLECT = dialogue (no new card), FORGE = sub-reading (new card)
+  // BOTH operations draw a new card - difference is inquiry vs assertion framing
   const continueNestedThread = async (cardIndex, threadKey, parentThreadItem) => {
     const operation = threadOperations[threadKey];
     if (!operation) return;
@@ -2909,24 +2898,29 @@ Interpret this new card as the architecture's response to their declared directi
     const safeQuestion = sanitizeForAPI(question);
     const stancePrompt = buildStancePrompt(stance.complexity, stance.voice, stance.focus, stance.density, stance.scope, stance.seriousness);
 
-    let systemPrompt, userMessage, newDraw = null;
+    let systemPrompt, userMessage;
+
+    // BOTH operations draw a new card - the difference is the framing
+    const newDraw = generateSingleDraw();
+    const newTrans = getComponent(newDraw.transient);
+    const newStat = STATUSES[newDraw.status];
+    const newStatusPrefix = newStat.prefix || 'Balanced';
+    const newCardName = `${newStatusPrefix} ${newTrans.name}`;
 
     if (operation === 'reflect') {
-      // REFLECT: Dialogue mode - no new card
+      // REFLECT: User is INQUIRING - architecture responds to their QUESTION with a new card
       systemPrompt = `${BASE_SYSTEM}
 
 ${stancePrompt}
 
-OPERATION: REFLECT (Mirror/Inquiry)
-The user is questioning, exploring, or pushing back. They want dialogue, not a lecture.
+OPERATION: REFLECT (Inquiry/Question)
+The user is asking a question about the reading. A new card has been drawn as the architecture's response to their inquiry.
 
 Your job:
-- ENGAGE directly with what they said
-- If they're questioning, answer their question
-- If they're pushing back, acknowledge and respond thoughtfully
-- This is a CONVERSATION — respond to THEIR words specifically
-
-Do NOT draw or interpret new cards. Respond in 2-4 paragraphs.`;
+- Acknowledge their question briefly
+- Interpret the NEW CARD as the architecture's answer to what they asked
+- This is a SUB-READING: the drawn card speaks directly to their inquiry
+- The card IS the architecture speaking back to them`;
 
       userMessage = `ORIGINAL QUESTION: "${safeQuestion}"
 
@@ -2939,16 +2933,15 @@ ${parentThreadItem.interpretation}
 USER'S INQUIRY/QUESTION:
 "${userInput}"
 
-Respond directly to what they said. This is dialogue.`;
+NEW CARD DRAWN IN RESPONSE: ${newCardName}
+Traditional: ${newTrans.traditional}
+${newTrans.description}
+${newTrans.extended || ''}
+
+Interpret this new card as the architecture's response to their question.`;
 
     } else {
-      // FORGE: Sub-reading mode - draw new card
-      newDraw = generateSingleDraw();
-      const newTrans = getComponent(newDraw.transient);
-      const newStat = STATUSES[newDraw.status];
-      const newStatusPrefix = newStat.prefix || 'Balanced';
-      const newCardName = `${newStatusPrefix} ${newTrans.name}`;
-
+      // FORGE: User is ASSERTING - architecture responds to their DECLARATION with a new card
       systemPrompt = `${BASE_SYSTEM}
 
 ${stancePrompt}
@@ -2994,7 +2987,7 @@ Interpret this new card as the architecture's response to their declared directi
 
       // Create new thread item
       const newThreadItem = {
-        draw: newDraw, // null for reflect, card for forge
+        draw: newDraw, // both reflect and forge draw a new card
         interpretation: data.reading,
         operation: operation,
         context: userInput,
@@ -3755,7 +3748,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.8 alpha • Reflect/Forge Fixed</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.31.9 alpha • Both Reflect/Forge Draw Cards</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -4602,10 +4595,10 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                             <div className="mt-5 space-y-4">
                               {threadData['path'].map((threadItem, threadIndex) => {
                                 const isReflect = threadItem.operation === 'reflect';
-                                const hasCard = threadItem.draw !== null;
-                                const trans = hasCard ? getComponent(threadItem.draw.transient) : null;
-                                const stat = hasCard ? STATUSES[threadItem.draw.status] : null;
-                                const statusPrefix = hasCard ? (stat.prefix || 'Balanced') : '';
+                                // Both Reflect and Forge draw new cards
+                                const trans = getComponent(threadItem.draw.transient);
+                                const stat = STATUSES[threadItem.draw.status];
+                                const statusPrefix = stat.prefix || 'Balanced';
                                 return (
                                   <div key={threadIndex} className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
                                     {/* Header with operation type */}
@@ -4620,21 +4613,17 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                                         "{threadItem.context}"
                                       </div>
                                     )}
-                                    {/* Card info - only for Forge */}
-                                    {hasCard && (
-                                      <>
-                                        <div className="flex items-center gap-2 mb-2">
-                                          <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
-                                            {stat.name}
-                                          </span>
-                                          <span className="text-sm font-medium text-zinc-200">
-                                            {statusPrefix} {trans.name}
-                                          </span>
-                                        </div>
-                                        {showTraditional && trans && (
-                                          <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
-                                        )}
-                                      </>
+                                    {/* Card info - both Reflect and Forge draw cards */}
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                                        {stat.name}
+                                      </span>
+                                      <span className="text-sm font-medium text-zinc-200">
+                                        {statusPrefix} {trans.name}
+                                      </span>
+                                    </div>
+                                    {showTraditional && trans && (
+                                      <div className="text-xs text-zinc-500 mb-2">{trans.traditional}</div>
                                     )}
                                     {/* Response */}
                                     <div className="text-sm leading-relaxed text-zinc-300 whitespace-pre-wrap">
