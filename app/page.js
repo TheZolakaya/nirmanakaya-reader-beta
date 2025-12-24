@@ -1753,13 +1753,37 @@ const ThreadedCard = ({
       {/* Nested card - collapsible */}
       {!isCollapsed && (
         <div className={`rounded-lg p-4 ${isReflect ? 'border border-sky-500/30 bg-sky-950/20' : 'border border-orange-500/30 bg-orange-950/20'}`}>
-          {/* Card header - both Reflect and Forge draw new cards */}
+          {/* Card header - both Reflect and Forge draw new cards, with clickable terms */}
           <div className="flex items-center gap-2 mb-2">
-            <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full cursor-pointer hover:ring-1 hover:ring-white/30 ${STATUS_COLORS[threadItem.draw.status]}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedInfo?.({ type: 'status', id: threadItem.draw.status, data: STATUS_INFO[threadItem.draw.status] });
+              }}
+            >
               {threadStat.name}
             </span>
             <span className="text-sm font-medium text-zinc-200">
-              {threadStatusPrefix} {threadTrans.name}
+              <span
+                className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedInfo?.({ type: 'status', id: threadItem.draw.status, data: STATUS_INFO[threadItem.draw.status] });
+                }}
+              >
+                {threadStatusPrefix}
+              </span>
+              {threadStatusPrefix && ' '}
+              <span
+                className="cursor-pointer hover:underline decoration-dotted underline-offset-2 text-amber-300/90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedInfo?.({ type: 'card', id: threadItem.draw.transient, data: getComponent(threadItem.draw.transient) });
+                }}
+              >
+                {threadTrans.name}
+              </span>
             </span>
           </div>
           {showTraditional && (
@@ -2166,13 +2190,37 @@ const ReadingSection = ({
                         "{threadItem.context}"
                       </div>
                     )}
-                    {/* Card info - both Reflect and Forge draw cards */}
+                    {/* Card info - both Reflect and Forge draw cards, with clickable terms */}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded-full cursor-pointer hover:ring-1 hover:ring-white/30 ${STATUS_COLORS[threadItem.draw.status]}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedInfo?.({ type: 'status', id: threadItem.draw.status, data: STATUS_INFO[threadItem.draw.status] });
+                        }}
+                      >
                         {stat.name}
                       </span>
                       <span className="text-sm font-medium text-zinc-200">
-                        {statusPrefix} {trans.name}
+                        <span
+                          className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedInfo?.({ type: 'status', id: threadItem.draw.status, data: STATUS_INFO[threadItem.draw.status] });
+                          }}
+                        >
+                          {statusPrefix}
+                        </span>
+                        {statusPrefix && ' '}
+                        <span
+                          className="cursor-pointer hover:underline decoration-dotted underline-offset-2 text-amber-300/90"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedInfo?.({ type: 'card', id: threadItem.draw.transient, data: getComponent(threadItem.draw.transient) });
+                          }}
+                        >
+                          {trans.name}
+                        </span>
                       </span>
                     </div>
                     {showTraditional && trans && (
@@ -3915,7 +3963,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.32.0 alpha • Hotlink Popups in Reflect/Forge</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.32.1 alpha • Header Hotlinks in Reflect/Forge</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
@@ -4780,13 +4828,37 @@ Respond directly with the expanded content. No section markers needed. Keep it f
                                         "{threadItem.context}"
                                       </div>
                                     )}
-                                    {/* Card info - both Reflect and Forge draw cards */}
+                                    {/* Card info - both Reflect and Forge draw cards, with clickable terms */}
                                     <div className="flex items-center gap-2 mb-2">
-                                      <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_COLORS[threadItem.draw.status]}`}>
+                                      <span
+                                        className={`text-xs px-2 py-0.5 rounded-full cursor-pointer hover:ring-1 hover:ring-white/30 ${STATUS_COLORS[threadItem.draw.status]}`}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedInfo({ type: 'status', id: threadItem.draw.status, data: STATUS_INFO[threadItem.draw.status] });
+                                        }}
+                                      >
                                         {stat.name}
                                       </span>
                                       <span className="text-sm font-medium text-zinc-200">
-                                        {statusPrefix} {trans.name}
+                                        <span
+                                          className="cursor-pointer hover:underline decoration-dotted underline-offset-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedInfo({ type: 'status', id: threadItem.draw.status, data: STATUS_INFO[threadItem.draw.status] });
+                                          }}
+                                        >
+                                          {statusPrefix}
+                                        </span>
+                                        {statusPrefix && ' '}
+                                        <span
+                                          className="cursor-pointer hover:underline decoration-dotted underline-offset-2 text-amber-300/90"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedInfo({ type: 'card', id: threadItem.draw.transient, data: getComponent(threadItem.draw.transient) });
+                                          }}
+                                        >
+                                          {trans.name}
+                                        </span>
                                       </span>
                                     </div>
                                     {showTraditional && trans && (
