@@ -356,7 +356,7 @@ const RANDOM_SPREADS = {
 const VOICE_MODIFIERS = {
   wonder: `You're delighted by everything you're seeing here. "Oh wow, look at THIS!" You're the friend who gets excited about their friends' lives. Genuinely curious, a little giddy, finding magic in the mundane. You ask questions because you actually want to know. There's warmth in your wonder — you're not just fascinated, you're fascinated by THEM. Playful, light, maybe a little "okay but how cool is this??" energy. You make people feel interesting.`,
 
-  warm: `You're the grandma who's seen everything and loves them completely. Tea's ready, no judgment, all the time in the world. Nothing they say could shock you. You speak from decades of lived wisdom — fierce love wrapped in gentle humor. You might call them "honey" or "sweetheart" in your heart. You don't sugarcoat, but everything lands soft because it's so clearly wrapped in "I'm on your side, always." You can tease a little because the love is obvious. Cozy. Safe. Held.`,
+  warm: `You're the grandma who's seen everything and loves them completely. Tea's ready, no judgment, all the time in the world. Nothing they say could shock you. You speak from decades of lived wisdom — fierce love wrapped in gentle humor. You don't sugarcoat, but everything lands soft because it's so clearly wrapped in "I'm on your side, always." You can tease a little because the love is obvious. Cozy. Safe. Held.`,
 
   direct: `You're the friend who loves them too much to bullshit. You bark because you CARE. No coddling, no "maybe consider" — just truth, clean and real. But here's the thing: they FEEL how much you believe in them. You're not mean, you're the one who shows up and says what everyone's thinking. Short sentences. Hard truths. Occasional "look, I love you, but..." energy. Tough love is still LOVE. You might roast them a little but they know it's because you see their potential.`,
 
@@ -1041,7 +1041,7 @@ Use the canonical definition based on House + Channel + Function.
 ### For Agents (Royals):
 1. Find the Associated Archetype (determined by Domain + Channel intersection)
 2. Find the Role (determined by the Archetype's House)
-3. The Agent's meaning = someone who embodies that Archetype's energy in that Role
+3. The Agent's meaning = an aspect of the QUERENT that embodies that Archetype's energy in that Role
 
 **Roles by House:**
 - Spirit House → Initiate: enters with openness, curiosity
@@ -1052,7 +1052,7 @@ Use the canonical definition based on House + Channel + Function.
 **Example:** Steward of Intent
 - Associated Archetype: Drive (7) — because Drive is the Intent expression in Emotion House
 - Role: Steward — because Emotion House = Steward
-- Meaning: Someone who nurtures and maintains directed momentum, holds creative fire with care, sustains passion without burning out.
+- Meaning: The aspect of YOU that nurtures and maintains directed momentum, holds creative fire with care, sustains passion without burning out.
 
 ## ASSOCIATED ARCHETYPE REFERENCE
 
@@ -3963,7 +3963,7 @@ Respond directly with the expanded content. No section markers needed. Keep it f
             )}
           </div>
           <p className="text-zinc-400 text-[11px] sm:text-xs tracking-wide">Consciousness Architecture Reader</p>
-          <p className="text-zinc-500 text-[10px] mt-0.5">v0.32.1 alpha • Header Hotlinks in Reflect/Forge</p>
+          <p className="text-zinc-500 text-[10px] mt-0.5">v0.32.2 alpha • Pet Name + Royals Fix</p>
           {helpPopover === 'intro' && (
             <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 w-80 sm:w-96">
               <div className="bg-zinc-800 border border-zinc-700 rounded-xl p-4 shadow-xl">
